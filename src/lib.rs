@@ -1,7 +1,4 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+mod ffi;
+mod xmp_toolkit;
+
+pub use xmp_toolkit::XmpToolkit;

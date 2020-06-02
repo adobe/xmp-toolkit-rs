@@ -174,6 +174,7 @@ fn main() {
         .file("external/xmp_toolkit/third-party/zlib/uncompr.c")
         .file("external/xmp_toolkit/third-party/zlib/zutil.c")
         .file("external/xmp_toolkit/third-party/zuid/interfaces/MD5.cpp")
+        .file("src/ffi.cpp")
         .compile("libxmp.a");
 }
 
