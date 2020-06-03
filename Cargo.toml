@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Eric Scouten <scouten@adobe.com>"]
 edition = "2018"
 
+[dependencies]
+bitflags = "1.2.1"
+
 [build-dependencies]
 cc = "1.0"
 fs_extra = "1.1"

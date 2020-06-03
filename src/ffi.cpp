@@ -46,4 +46,13 @@ extern "C" {
     void CXmpFileDrop(CXmpFile* f) {
         delete f;
     }
+
+    int CXmpFileOpen(CXmpFile* f,
+                     const char* filePath,
+                     AdobeXMPCommon::uint32 openFlags) {
+        // TO DO: Bridge file format parameter.
+        // For my purposes at the moment,
+        // kXMP_UnknownFile always suffices.
+        return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
+    }
 }
