@@ -55,4 +55,16 @@ extern "C" {
         // kXMP_UnknownFile always suffices.
         return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
     }
+
+    typedef struct CXmpMeta {
+        SXMPMeta f;
+    } CXmpMeta;
+
+    CXmpMeta* CXmpMetaNew() {
+        return new CXmpMeta;
+    }
+
+    void CXmpMetaDrop(CXmpMeta* m) {
+        delete m;
+    }
 }
