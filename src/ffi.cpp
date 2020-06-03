@@ -34,4 +34,16 @@ extern "C" {
             return 0;
         }
     }
+
+    typedef struct CXmpFile {
+        SXMPFiles f;
+    } CXmpFile;
+
+    CXmpFile* CXmpFileNew() {
+        return new CXmpFile;
+    }
+
+    void CXmpFileDrop(CXmpFile* f) {
+        delete f;
+    }
 }
