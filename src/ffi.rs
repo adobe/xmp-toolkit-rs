@@ -10,6 +10,7 @@ extern "C" {
     pub fn CXmpFileNew() -> *mut CXmpFile;
     pub fn CXmpFileDrop(file: *mut CXmpFile);
     pub fn CXmpFileOpen(file: *mut CXmpFile, path: *const c_char, flags: u32) -> c_int;
+    pub fn CXmpFileGetXMP(file: *mut CXmpFile) -> *mut CXmpMeta;
 
     pub fn CXmpMetaNew() -> *mut CXmpMeta;
     pub fn CXmpMetaDrop(file: *mut CXmpMeta);

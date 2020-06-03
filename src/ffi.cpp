@@ -57,11 +57,22 @@ extern "C" {
     }
 
     typedef struct CXmpMeta {
-        SXMPMeta f;
+        SXMPMeta m;
     } CXmpMeta;
 
     CXmpMeta* CXmpMetaNew() {
         return new CXmpMeta;
+    }
+
+    CXmpMeta* CXmpFileGetXMP(CXmpFile* f) {
+        CXmpMeta* r = new CXmpMeta;
+        if (f->f.GetXMP(&(r->m))) {
+            return r;
+        } else {
+            // No metadata. Signal this by returning NULL.
+            delete r;
+            return NULL;
+        }
     }
 
     void CXmpMetaDrop(CXmpMeta* m) {

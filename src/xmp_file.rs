@@ -4,6 +4,7 @@ use bitflags::bitflags;
 use std::ffi::CString;
 
 use crate::ffi;
+use crate::xmp_meta::XmpMeta;
 use crate::xmp_toolkit::XmpToolkit;
 
 bitflags! {
@@ -120,6 +121,20 @@ impl<'xmp> XmpFile<'xmp> {
             Err(XmpFileError::CantOpenFile)
         }
     }
+
+    /// Retrieves the XMP metadata from an open file.
+    ///
+    /// If no XMP is present, will return `None`.
+    pub fn get_xmp(&mut self) -> Option<XmpMeta<'xmp>> {
+        unsafe {
+            let m = ffi::CXmpFileGetXMP(self.f);
+            if m.is_null() {
+                None
+            } else {
+                Some(XmpMeta { m, xmp: self.xmp })
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -149,5 +164,8 @@ mod tests {
         assert!(f
             .open_file(&purple_square, OpenFileOptions::OPEN_FOR_READ)
             .is_ok());
+
+        let opt_m = f.get_xmp();
+        assert!(opt_m.is_some());
     }
 }

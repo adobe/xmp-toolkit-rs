@@ -5,8 +5,10 @@ use crate::xmp_toolkit::XmpToolkit;
 
 #[allow(dead_code)] // because xmp is never used
 pub struct XmpMeta<'xmp> {
-    m: *mut ffi::CXmpMeta,
-    xmp: &'xmp XmpToolkit,
+    pub(crate) m: *mut ffi::CXmpMeta,
+    pub(crate) xmp: &'xmp XmpToolkit,
+    // pub(crate) is used because XmpFile::get_xmp
+    // can create this struct.
 }
 
 impl<'xmp> Drop for XmpMeta<'xmp> {
