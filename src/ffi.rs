@@ -1,5 +1,6 @@
 use std::os::raw::{c_char, c_int};
 
+pub enum CXmpDateTime {}
 pub enum CXmpFile {}
 pub enum CXmpMeta {}
 
@@ -23,4 +24,7 @@ extern "C" {
         prop_name: *const c_char,
         prop_value: *const c_char,
     );
+
+    pub fn CXmpDateTimeNew() -> *mut CXmpDateTime;
+    pub fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);
 }

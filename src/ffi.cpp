@@ -96,4 +96,16 @@ extern "C" {
         // default value (0) always suffices.
         m->m.SetProperty(schemaNS, propName, propValue);
     }
+
+    typedef struct CXmpDateTime {
+        XMP_DateTime dt;
+    } CXmpDateTime;
+
+    CXmpDateTime* CXmpDateTimeNew() {
+        return new CXmpDateTime;
+    }
+
+    void CXmpDateTimeDrop(CXmpDateTime* dt) {
+        delete dt;
+    }
 }
