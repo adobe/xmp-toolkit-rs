@@ -5,10 +5,15 @@ pub enum CXmpFile {}
 pub enum CXmpMeta {}
 
 extern "C" {
+    // --- CXmpFile
+
     pub fn CXmpFileNew() -> *mut CXmpFile;
     pub fn CXmpFileDrop(file: *mut CXmpFile);
     pub fn CXmpFileOpen(file: *mut CXmpFile, path: *const c_char, flags: u32) -> c_int;
-    pub fn CXmpFileGetXMP(file: *mut CXmpFile) -> *mut CXmpMeta;
+    pub fn CXmpFileGetXmp(file: *mut CXmpFile) -> *mut CXmpMeta;
+    pub fn CXmpFileCanPutXmp(file: *const CXmpFile, meta: *const CXmpMeta) -> c_int;
+
+    // --- CXmpMeta
 
     pub fn CXmpMetaNew() -> *mut CXmpMeta;
     pub fn CXmpMetaDrop(meta: *mut CXmpMeta);
@@ -37,6 +42,8 @@ extern "C" {
         schema_ns: *const c_char,
         prop_name: *const c_char,
     ) -> c_int;
+
+    // --- CXmpDateTime
 
     pub fn CXmpDateTimeNew() -> *mut CXmpDateTime;
     pub fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);

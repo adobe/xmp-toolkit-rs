@@ -72,7 +72,7 @@ extern "C" {
         return new CXmpMeta;
     }
 
-    CXmpMeta* CXmpFileGetXMP(CXmpFile* f) {
+    CXmpMeta* CXmpFileGetXmp(CXmpFile* f) {
         CXmpMeta* r = new CXmpMeta;
         if (f->f.GetXMP(&(r->m))) {
             return r;
@@ -129,5 +129,10 @@ extern "C" {
                                   const char* schemaNS,
                                   const char* propName) {
         return (m->m.DoesPropertyExist(schemaNS, propName)) ? 1 : 0;
+    }
+
+    int CXmpFileCanPutXmp(const CXmpFile* f,
+                          const CXmpMeta* m) {
+        return const_cast<SXMPFiles&>(f->f).CanPutXMP(m->m) ? 1 : 0;
     }
 }

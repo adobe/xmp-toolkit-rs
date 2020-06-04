@@ -125,12 +125,28 @@ impl XmpFile {
     /// If no XMP is present, will return `None`.
     pub fn get_xmp(&mut self) -> Option<XmpMeta> {
         unsafe {
-            let m = ffi::CXmpFileGetXMP(self.f);
+            let m = ffi::CXmpFileGetXmp(self.f);
             if m.is_null() {
                 None
             } else {
                 Some(XmpMeta { m })
             }
+        }
+    }
+
+    /// Reports whether this file can be updated with a specific XMP packet.
+    ///
+    /// Use to determine if the file can probably be updated with a given set of XMP metadata. This
+    /// depends on the size of the packet, the options with which the file was opened, and the
+    /// capabilities of the handler for the file format. The function obtains the length of the
+    /// serialized packet for the provided XMP, but does not keep it or modify it, and does not
+    /// cause the file to be written when closed. This is implemented roughly as follows:
+    pub fn can_put_xmp(&self, meta: &XmpMeta) -> bool {
+        let r = unsafe { ffi::CXmpFileCanPutXmp(self.f, meta.m) };
+        if r == 0 {
+            false
+        } else {
+            true
         }
     }
 }
@@ -184,5 +200,7 @@ mod tests {
             let updated_time = XmpDateTime::current();
             m.set_property_date(XMP_NS_XMP, "MetadataDate", &updated_time);
         }
+
+        assert_eq!(f.can_put_xmp(&m), false);
     }
 }
