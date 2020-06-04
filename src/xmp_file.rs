@@ -176,7 +176,10 @@ mod tests {
         let mut f = XmpFile::new();
 
         assert!(f
-            .open_file(&purple_square, OpenFileOptions::OPEN_FOR_READ)
+            .open_file(
+                &purple_square,
+                OpenFileOptions::OPEN_FOR_UPDATE | OpenFileOptions::OPEN_USE_SMART_HANDLER
+            )
             .is_ok());
 
         let opt_m = f.get_xmp();
@@ -201,6 +204,6 @@ mod tests {
             m.set_property_date(XMP_NS_XMP, "MetadataDate", &updated_time);
         }
 
-        assert_eq!(f.can_put_xmp(&m), false);
+        assert_eq!(f.can_put_xmp(&m), true);
     }
 }
