@@ -78,4 +78,20 @@ extern "C" {
     void CXmpMetaDrop(CXmpMeta* m) {
         delete m;
     }
+
+    static const char* copyForResult(const std::string& result) {
+        size_t size = result.size();
+        void* cstr = malloc(size + 1);
+        memcpy(cstr, result.c_str(), size + 1);
+        return (const char*) cstr;
+    }
+
+    const char* CXmpMetaRegisterNamespace(const char* namespaceURI,
+                                          const char* suggestedPrefix) {
+        std::string registeredPrefix;
+
+        SXMPMeta::RegisterNamespace(namespaceURI, suggestedPrefix, &registeredPrefix);
+
+        return copyForResult(registeredPrefix);
+    }
 }

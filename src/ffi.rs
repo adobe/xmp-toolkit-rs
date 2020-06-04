@@ -14,4 +14,9 @@ extern "C" {
 
     pub fn CXmpMetaNew() -> *mut CXmpMeta;
     pub fn CXmpMetaDrop(file: *mut CXmpMeta);
+
+    pub fn CXmpMetaRegisterNamespace(
+        namespace_uri: *const c_char,
+        suggested_prefix: *const c_char,
+    ) -> *mut c_char;
 }
