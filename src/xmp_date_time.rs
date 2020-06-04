@@ -21,6 +21,12 @@ impl XmpDateTime {
             dt: unsafe { ffi::CXmpDateTimeNew() },
         }
     }
+
+    pub fn current() -> XmpDateTime {
+        XmpDateTime {
+            dt: unsafe { ffi::CXmpDateTimeCurrent() },
+        }
+    }
 }
 
 #[cfg(test)]
@@ -30,5 +36,10 @@ mod tests {
     #[test]
     fn new_empty() {
         let mut _dt = XmpDateTime::new();
+    }
+
+    #[test]
+    fn current() {
+        let mut _dt = XmpDateTime::current();
     }
 }

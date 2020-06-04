@@ -27,4 +27,5 @@ extern "C" {
 
     pub fn CXmpDateTimeNew() -> *mut CXmpDateTime;
     pub fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);
+    pub fn CXmpDateTimeCurrent() -> *mut CXmpDateTime;
 }

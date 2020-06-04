@@ -108,4 +108,10 @@ extern "C" {
     void CXmpDateTimeDrop(CXmpDateTime* dt) {
         delete dt;
     }
+
+    CXmpDateTime* CXmpDateTimeCurrent() {
+        CXmpDateTime* dt = new CXmpDateTime;
+        SXMPUtils::CurrentDateTime(&dt->dt);
+        return dt;
+    }
 }
