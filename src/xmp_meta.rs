@@ -75,6 +75,24 @@ impl XmpMeta {
             ffi::CXmpMetaSetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr(), c_value.as_ptr());
         }
     }
+
+    /// Rreports whether a property currently exists.
+    ///
+    /// @param schemaNS The namespace URI for the property; see \c GetProperty().
+    ///
+    /// @param propName The name of the property; see \c GetProperty().
+    pub fn does_property_exist(&self, schema_ns: &str, prop_name: &str) -> bool {
+        let c_ns = CString::new(schema_ns).unwrap();
+        let c_name = CString::new(prop_name).unwrap();
+
+        let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
+
+        if r == 0 {
+            false
+        } else {
+            true
+        }
+    }
 }
 
 #[cfg(test)]

@@ -97,6 +97,12 @@ extern "C" {
         m->m.SetProperty(schemaNS, propName, propValue);
     }
 
+    int CXmpMetaDoesPropertyExist(CXmpMeta* m,
+                                  const char* schemaNS,
+                                  const char* propName) {
+        return (m->m.DoesPropertyExist(schemaNS, propName)) ? 1 : 0;
+    }
+
     typedef struct CXmpDateTime {
         XMP_DateTime dt;
     } CXmpDateTime;

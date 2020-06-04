@@ -25,6 +25,12 @@ extern "C" {
         prop_value: *const c_char,
     );
 
+    pub fn CXmpMetaDoesPropertyExist(
+        meta: *const CXmpMeta,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+    ) -> c_int;
+
     pub fn CXmpDateTimeNew() -> *mut CXmpDateTime;
     pub fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);
     pub fn CXmpDateTimeCurrent() -> *mut CXmpDateTime;
