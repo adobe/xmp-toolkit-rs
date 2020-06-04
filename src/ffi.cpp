@@ -46,6 +46,24 @@ extern "C" {
         return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
     }
 
+    typedef struct CXmpDateTime {
+        XMP_DateTime dt;
+    } CXmpDateTime;
+
+    CXmpDateTime* CXmpDateTimeNew() {
+        return new CXmpDateTime;
+    }
+
+    void CXmpDateTimeDrop(CXmpDateTime* dt) {
+        delete dt;
+    }
+
+    CXmpDateTime* CXmpDateTimeCurrent() {
+        CXmpDateTime* dt = new CXmpDateTime;
+        SXMPUtils::CurrentDateTime(&dt->dt);
+        return dt;
+    }
+
     typedef struct CXmpMeta {
         SXMPMeta m;
     } CXmpMeta;
@@ -101,23 +119,5 @@ extern "C" {
                                   const char* schemaNS,
                                   const char* propName) {
         return (m->m.DoesPropertyExist(schemaNS, propName)) ? 1 : 0;
-    }
-
-    typedef struct CXmpDateTime {
-        XMP_DateTime dt;
-    } CXmpDateTime;
-
-    CXmpDateTime* CXmpDateTimeNew() {
-        return new CXmpDateTime;
-    }
-
-    void CXmpDateTimeDrop(CXmpDateTime* dt) {
-        delete dt;
-    }
-
-    CXmpDateTime* CXmpDateTimeCurrent() {
-        CXmpDateTime* dt = new CXmpDateTime;
-        SXMPUtils::CurrentDateTime(&dt->dt);
-        return dt;
     }
 }
