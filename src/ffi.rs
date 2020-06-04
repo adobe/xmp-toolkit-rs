@@ -13,10 +13,17 @@ extern "C" {
     pub fn CXmpFileGetXMP(file: *mut CXmpFile) -> *mut CXmpMeta;
 
     pub fn CXmpMetaNew() -> *mut CXmpMeta;
-    pub fn CXmpMetaDrop(file: *mut CXmpMeta);
+    pub fn CXmpMetaDrop(meta: *mut CXmpMeta);
 
     pub fn CXmpMetaRegisterNamespace(
         namespace_uri: *const c_char,
         suggested_prefix: *const c_char,
     ) -> *mut c_char;
+
+    pub fn CXmpMetaSetProperty(
+        meta: *mut CXmpMeta,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        prop_value: *const c_char,
+    );
 }

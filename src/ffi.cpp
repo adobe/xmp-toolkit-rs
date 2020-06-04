@@ -94,4 +94,14 @@ extern "C" {
 
         return copyForResult(registeredPrefix);
     }
+
+    void CXmpMetaSetProperty(CXmpMeta* m,
+                             const char* schemaNS,
+                             const char* propName,
+                             const char* propValue) {
+        // TO DO: Bridge options parameter.
+        // For my purposes at the moment,
+        // default value (0) always suffices.
+        m->m.SetProperty(schemaNS, propName, propValue);
+    }
 }

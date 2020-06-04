@@ -58,6 +58,30 @@ impl<'xmp> XmpMeta<'xmp> {
             CStr::from_ptr(c_result).to_string_lossy().into_owned()
         }
     }
+
+    /// Creates or sets a property value.
+    ///
+    /// This is the simplest property setter. Use it for top-level
+    /// simple properties.
+    ///
+    /// @param schemaNS The namespace URI; see \c GetProperty().
+    ///
+    /// @param propName The name of the property. Can be a general
+    /// path expression, must not be null or the empty string;
+    /// see \c GetProperty() for namespace prefix usage.
+    ///
+    /// @param propValue The new value, a pointer to a null
+    /// terminated UTF-8 string. Must be null for arrays and non-leaf
+    /// levels of structs that do not have values.
+    pub fn set_property(&mut self, schema_ns: &str, prop_name: &str, prop_value: &str) {
+        let c_ns = CString::new(schema_ns).unwrap();
+        let c_name = CString::new(prop_name).unwrap();
+        let c_value = CString::new(prop_value).unwrap();
+
+        unsafe {
+            ffi::CXmpMetaSetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr(), c_value.as_ptr());
+        }
+    }
 }
 
 #[cfg(test)]

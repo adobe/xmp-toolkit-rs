@@ -155,7 +155,7 @@ mod tests {
     }
 
     #[test]
-    fn open_file() {
+    fn open_and_edit_file() {
         let purple_square = fixture_path("Purple Square.psd");
 
         let xmp = XmpToolkit::new();
@@ -167,5 +167,10 @@ mod tests {
 
         let opt_m = f.get_xmp();
         assert!(opt_m.is_some());
+
+        XmpMeta::register_namespace(&xmp, "http://purl.org/dc/terms/", "dcterms");
+
+        let mut m = opt_m.unwrap();
+        m.set_property("http://purl.org/dc/terms/", "provenance", "blah");
     }
 }
