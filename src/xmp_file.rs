@@ -149,6 +149,17 @@ impl XmpFile {
             true
         }
     }
+
+    /// Updates the XMP metadata in this object without writing out the file.
+    ///
+    /// This function supplies new XMP for the file. However, the disk file is not written until the
+    /// object is closed with \c CloseFile(). The options provided when the file was opened
+    /// determine if reconciliation is done with other forms of metadata.
+    ///
+    /// @param xmpObj The new metadata as an XMP object.
+    pub fn put_xmp(&mut self, meta: &XmpMeta) {
+        unsafe { ffi::CXmpFilePutXmp(self.f, meta.m) };
+    }
 }
 
 #[cfg(test)]
@@ -219,5 +230,6 @@ mod tests {
         }
 
         assert_eq!(f.can_put_xmp(&m), true);
+        f.put_xmp(&m);
     }
 }

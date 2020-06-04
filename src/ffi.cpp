@@ -135,4 +135,9 @@ extern "C" {
                           const CXmpMeta* m) {
         return const_cast<SXMPFiles&>(f->f).CanPutXMP(m->m) ? 1 : 0;
     }
+
+    void CXmpFilePutXmp(CXmpFile* f,
+                        const CXmpMeta* m) {
+        f->f.PutXMP(m->m);
+    }
 }
