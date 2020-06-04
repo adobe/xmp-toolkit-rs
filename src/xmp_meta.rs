@@ -3,17 +3,14 @@
 use std::ffi::{CStr, CString};
 
 use crate::ffi;
-use crate::xmp_toolkit::XmpToolkit;
 
-#[allow(dead_code)] // because xmp is never used
-pub struct XmpMeta<'xmp> {
+pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
-    pub(crate) xmp: &'xmp XmpToolkit,
     // pub(crate) is used because XmpFile::get_xmp
     // can create this struct.
 }
 
-impl<'xmp> Drop for XmpMeta<'xmp> {
+impl Drop for XmpMeta {
     fn drop(&mut self) {
         unsafe {
             ffi::CXmpMetaDrop(self.m);
@@ -21,11 +18,11 @@ impl<'xmp> Drop for XmpMeta<'xmp> {
     }
 }
 
-impl<'xmp> XmpMeta<'xmp> {
+impl XmpMeta {
     /// Creates a new, empty metadata struct.
-    pub fn new(xmp: &'xmp XmpToolkit) -> XmpMeta<'xmp> {
+    pub fn new() -> XmpMeta {
         let m = unsafe { ffi::CXmpMetaNew() };
-        XmpMeta { m, xmp }
+        XmpMeta { m }
     }
 
     /// Registers a namespace URI with a suggested prefix.
@@ -44,11 +41,7 @@ impl<'xmp> XmpMeta<'xmp> {
     /// Returns the prefix actually registered for this URI.
     ///
     /// @note No checking is done on either the URI or the prefix.
-    pub fn register_namespace(
-        _xmp: &XmpToolkit,
-        namespace_uri: &str,
-        suggested_prefix: &str,
-    ) -> String {
+    pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> String {
         let c_ns = CString::new(namespace_uri).unwrap();
         let c_sp = CString::new(suggested_prefix).unwrap();
 
@@ -86,21 +79,17 @@ impl<'xmp> XmpMeta<'xmp> {
 
 #[cfg(test)]
 mod tests {
-    use crate::XmpToolkit;
-
     use super::*;
 
     #[test]
     fn new_empty() {
-        let xmp = XmpToolkit::new();
-        let mut _m = XmpMeta::new(&xmp);
+        let mut _m = XmpMeta::new();
     }
 
     #[test]
     fn register_namespace() {
-        let xmp = XmpToolkit::new();
         assert_eq!(
-            XmpMeta::register_namespace(&xmp, "http://purl.org/dc/terms/", "dcterms"),
+            XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms"),
             "dcterms:"
         );
     }

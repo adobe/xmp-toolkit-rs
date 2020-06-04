@@ -5,7 +5,6 @@ use std::ffi::CString;
 
 use crate::ffi;
 use crate::xmp_meta::XmpMeta;
-use crate::xmp_toolkit::XmpToolkit;
 
 bitflags! {
     /// Option flags for \c XMPFile::open_file().
@@ -44,10 +43,8 @@ bitflags! {
     }
 }
 
-#[allow(dead_code)] // because xmp is never used
-pub struct XmpFile<'xmp> {
+pub struct XmpFile {
     f: *mut ffi::CXmpFile,
-    xmp: &'xmp XmpToolkit,
 }
 
 /// XMP File result codes
@@ -56,7 +53,7 @@ pub enum XmpFileError {
     CantOpenFile,
 }
 
-impl<'xmp> Drop for XmpFile<'xmp> {
+impl Drop for XmpFile {
     fn drop(&mut self) {
         unsafe {
             ffi::CXmpFileDrop(self.f);
@@ -64,11 +61,12 @@ impl<'xmp> Drop for XmpFile<'xmp> {
     }
 }
 
-impl<'xmp> XmpFile<'xmp> {
+impl XmpFile {
     /// Creates a new file struct that is associated with no file.
-    pub fn new(xmp: &'xmp XmpToolkit) -> XmpFile<'xmp> {
-        let f = unsafe { ffi::CXmpFileNew() };
-        XmpFile { f, xmp }
+    pub fn new() -> XmpFile {
+        XmpFile {
+            f: unsafe { ffi::CXmpFileNew() },
+        }
     }
 
     /// Opens a file for the requested forms of metadata access. Opening the file at a minimum
@@ -125,13 +123,13 @@ impl<'xmp> XmpFile<'xmp> {
     /// Retrieves the XMP metadata from an open file.
     ///
     /// If no XMP is present, will return `None`.
-    pub fn get_xmp(&mut self) -> Option<XmpMeta<'xmp>> {
+    pub fn get_xmp(&mut self) -> Option<XmpMeta> {
         unsafe {
             let m = ffi::CXmpFileGetXMP(self.f);
             if m.is_null() {
                 None
             } else {
-                Some(XmpMeta { m, xmp: self.xmp })
+                Some(XmpMeta { m })
             }
         }
     }
@@ -141,8 +139,6 @@ impl<'xmp> XmpFile<'xmp> {
 mod tests {
     use std::env;
     use std::path::PathBuf;
-
-    use crate::XmpToolkit;
 
     use super::*;
 
@@ -158,8 +154,7 @@ mod tests {
     fn open_and_edit_file() {
         let purple_square = fixture_path("Purple Square.psd");
 
-        let xmp = XmpToolkit::new();
-        let mut f = XmpFile::new(&xmp);
+        let mut f = XmpFile::new();
 
         assert!(f
             .open_file(&purple_square, OpenFileOptions::OPEN_FOR_READ)
@@ -168,7 +163,7 @@ mod tests {
         let opt_m = f.get_xmp();
         assert!(opt_m.is_some());
 
-        XmpMeta::register_namespace(&xmp, "http://purl.org/dc/terms/", "dcterms");
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
 
         let mut m = opt_m.unwrap();
         m.set_property("http://purl.org/dc/terms/", "provenance", "blah");

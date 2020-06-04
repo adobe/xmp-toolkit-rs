@@ -3,43 +3,33 @@
 #define TXMP_STRING_TYPE std::string 
 #define XMP_INCLUDE_XMPFILES 1 
 
+#include <mutex>
+
 #include "XMP.incl_cpp"
 #include "XMP.hpp"
 
+std::once_flag xmp_init_flag;
+
+inline void init_xmp_fn() {
+    // TO DO: Check return status from Initialize functions.
+    SXMPMeta::Initialize();
+    SXMPFiles::Initialize();
+
+    // TO DO: Terminate? How to hook into process exit?
+    // Or do we care that it's a messy exit?
+}
+
+static void init_xmp() {
+    std::call_once(xmp_init_flag, init_xmp_fn);
+}
+
 extern "C" {
-    int CXmpInitialize() {
-        try {
-            if (!SXMPMeta::Initialize()) return 0;
-            #ifdef UNIX_ENV
-                // ERROR (InitXMP): Generic UNIX clients must pass kXMPFiles_IgnoreLocalText
-                if (!SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText))   
-                    return false;
-            #else
-                if (!SXMPFiles::Initialize()) return 0;
-            #endif
-        }
-        catch(XMP_Error& e) {
-            return 0;
-        }
-        return 1;
-    }
-
-    int CXmpTerminate() {
-        try {
-            SXMPFiles::Terminate();
-            SXMPMeta::Terminate();
-            return 1;
-        }
-        catch(XMP_Error& e) {
-            return 0;
-        }
-    }
-
     typedef struct CXmpFile {
         SXMPFiles f;
     } CXmpFile;
 
     CXmpFile* CXmpFileNew() {
+        init_xmp();
         return new CXmpFile;
     }
 
@@ -88,6 +78,8 @@ extern "C" {
 
     const char* CXmpMetaRegisterNamespace(const char* namespaceURI,
                                           const char* suggestedPrefix) {
+        init_xmp();
+
         std::string registeredPrefix;
 
         SXMPMeta::RegisterNamespace(namespaceURI, suggestedPrefix, &registeredPrefix);
