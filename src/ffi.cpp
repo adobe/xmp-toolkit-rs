@@ -115,6 +115,16 @@ extern "C" {
         m->m.SetProperty(schemaNS, propName, propValue);
     }
 
+    void CXmpMetaSetPropertyDate(CXmpMeta* m,
+                             const char* schemaNS,
+                             const char* propName,
+                             const CXmpDateTime* propValue) {
+        // TO DO: Bridge options parameter.
+        // For my purposes at the moment,
+        // default value (0) always suffices.
+        m->m.SetProperty_Date(schemaNS, propName, propValue->dt);
+    }
+
     int CXmpMetaDoesPropertyExist(CXmpMeta* m,
                                   const char* schemaNS,
                                   const char* propName) {

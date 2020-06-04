@@ -3,7 +3,7 @@
 use crate::ffi;
 
 pub struct XmpDateTime {
-    dt: *mut ffi::CXmpDateTime,
+    pub(crate) dt: *mut ffi::CXmpDateTime,
 }
 
 impl Drop for XmpDateTime {

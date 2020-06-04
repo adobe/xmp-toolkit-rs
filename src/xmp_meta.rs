@@ -3,6 +3,7 @@
 use std::ffi::{CStr, CString};
 
 use crate::ffi;
+use crate::xmp_date_time::XmpDateTime;
 
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
@@ -73,6 +74,34 @@ impl XmpMeta {
 
         unsafe {
             ffi::CXmpMetaSetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr(), c_value.as_ptr());
+        }
+    }
+
+    /// Creates or sets a property value using an \c #XmpDateTime structure..
+    ///
+    /// This is the simplest property setter. Use it for top-level
+    /// simple properties.
+    ///
+    /// @param schemaNS The namespace URI; see \c GetProperty().
+    ///
+    /// @param propName The name of the property. Can be a general
+    /// path expression, must not be null or the empty string;
+    /// see \c GetProperty() for namespace prefix usage.
+    ///
+    /// @param propValue The new value, a pointer to a null
+    /// terminated UTF-8 string. Must be null for arrays and non-leaf
+    /// levels of structs that do not have values.
+    pub fn set_property_date(
+        &mut self,
+        schema_ns: &str,
+        prop_name: &str,
+        prop_value: &XmpDateTime,
+    ) {
+        let c_ns = CString::new(schema_ns).unwrap();
+        let c_name = CString::new(prop_name).unwrap();
+
+        unsafe {
+            ffi::CXmpMetaSetPropertyDate(self.m, c_ns.as_ptr(), c_name.as_ptr(), prop_value.dt);
         }
     }
 

@@ -140,6 +140,9 @@ mod tests {
     use std::env;
     use std::path::PathBuf;
 
+    use crate::xmp_const::*;
+    use crate::xmp_date_time::XmpDateTime;
+
     use super::*;
 
     fn fixture_path(name: &str) -> String {
@@ -176,5 +179,10 @@ mod tests {
             m.does_property_exist("http://purl.org/dc/terms/", "provenancx"),
             false
         );
+
+        if m.does_property_exist(XMP_NS_XMP, "MetadataDate") {
+            let updated_time = XmpDateTime::current();
+            m.set_property_date(XMP_NS_XMP, "MetadataDate", &updated_time);
+        }
     }
 }
