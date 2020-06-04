@@ -13,6 +13,7 @@ extern "C" {
     pub fn CXmpFileGetXmp(file: *mut CXmpFile) -> *mut CXmpMeta;
     pub fn CXmpFileCanPutXmp(file: *const CXmpFile, meta: *const CXmpMeta) -> c_int;
     pub fn CXmpFilePutXmp(file: *mut CXmpFile, meta: *const CXmpMeta);
+    pub fn CXmpFileClose(file: *mut CXmpFile);
 
     // --- CXmpMeta
 

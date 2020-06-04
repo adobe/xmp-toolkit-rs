@@ -160,6 +160,25 @@ impl XmpFile {
     pub fn put_xmp(&mut self, meta: &XmpMeta) {
         unsafe { ffi::CXmpFilePutXmp(self.f, meta.m) };
     }
+
+    /// Explicitly closes an opened file.
+    ///
+    /// Performs any necessary output to the file and closes it. Files that are opened for update
+    /// are written to only when closing.
+    ///
+    /// If the file is opened for read-only access (passing \c #kXMPFiles_OpenForRead), the disk
+    /// file is closed immediately after reading the data from it; the \c XMPFiles object, however,
+    /// remains in the open state. You must call \c CloseFile() when finished using it. Other
+    /// methods, such as \c GetXMP(), can only be used between the \c OpenFile() and \c CloseFile()
+    /// calls. The \c XMPFiles destructor does not call \c CloseFile(); if you call it without closing,
+    /// any pending updates are lost.
+    ///
+    /// If the file is opened for update (passing \c #kXMPFiles_OpenForUpdate), the disk file remains
+    /// open until \c CloseFile() is called. The disk file is only updated once, when \c CloseFile()
+    /// is called, regardless of how many calls are made to \c PutXMP().
+    pub fn close(&mut self) {
+        unsafe { ffi::CXmpFileClose(self.f) };
+    }
 }
 
 #[cfg(test)]
@@ -231,5 +250,7 @@ mod tests {
 
         assert_eq!(f.can_put_xmp(&m), true);
         f.put_xmp(&m);
+
+        f.close();
     }
 }

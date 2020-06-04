@@ -140,4 +140,11 @@ extern "C" {
                         const CXmpMeta* m) {
         f->f.PutXMP(m->m);
     }
+
+    void CXmpFileClose(CXmpFile* f) {
+        // TO DO: Bridge closeFlags parameter.
+        // For my purposes at the moment,
+        // default value (0) always suffices.
+        f->f.CloseFile();
+    }
 }
