@@ -154,7 +154,11 @@ impl XmpFile {
 #[cfg(test)]
 mod tests {
     use std::env;
+    use std::fs;
+    use std::path::Path;
     use std::path::PathBuf;
+
+    use tempfile::tempdir;
 
     use crate::xmp_const::*;
     use crate::xmp_date_time::XmpDateTime;
@@ -169,9 +173,19 @@ mod tests {
         path.to_str().unwrap().to_string()
     }
 
+    fn temp_copy_of_fixture(tempdir: &Path, name: &str) -> String {
+        let fixture_src = fixture_path(name);
+        let fixture_path = Path::join(tempdir, name);
+        let fixture_copy = fixture_path.as_path();
+
+        fs::copy(fixture_src, fixture_copy).unwrap();
+        fixture_copy.display().to_string()
+    }
+
     #[test]
     fn open_and_edit_file() {
-        let purple_square = fixture_path("Purple Square.psd");
+        let tempdir = tempdir().unwrap();
+        let purple_square = temp_copy_of_fixture(tempdir.path(), "Purple Square.psd");
 
         let mut f = XmpFile::new();
 
