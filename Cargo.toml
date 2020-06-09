@@ -1,5 +1,5 @@
 [package]
-name = "xmp-rs"
+name = "xmp_toolkit"
 version = "0.1.0"
 authors = ["Eric Scouten <scouten@adobe.com>"]
 edition = "2018"

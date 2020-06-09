@@ -1,5 +1,9 @@
-# xmp-rs
+# xmp_toolkit
 XMP Toolkit bindings for Rust
+
+This crate provides a minimal binding of XMP Toolkit to Rust.
+
+More bindings for specific XMP Toolkit methods can be added on an as-needed basis.
 
 ## Getting Started
 
