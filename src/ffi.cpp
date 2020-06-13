@@ -1,9 +1,9 @@
+#include <cstring>
+#include <mutex>
 #include <string>
 
-#define TXMP_STRING_TYPE std::string 
-#define XMP_INCLUDE_XMPFILES 1 
-
-#include <mutex>
+#define TXMP_STRING_TYPE std::string
+#define XMP_INCLUDE_XMPFILES 1
 
 #include "XMP.incl_cpp"
 #include "XMP.hpp"
@@ -12,8 +12,14 @@ std::once_flag xmp_init_flag;
 
 inline void init_xmp_fn() {
     // TO DO: Check return status from Initialize functions.
-    SXMPMeta::Initialize();
-    SXMPFiles::Initialize();
+    try {
+        SXMPMeta::Initialize();
+        SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText);
+    }
+    catch (XMP_Error& e) {
+        fprintf(stderr, "Failed to initialize XMP Toolkit: %s\n", e.GetErrMsg());
+        exit(1);
+    }
 
     // TO DO: Terminate? How to hook into process exit?
     // Or do we care that it's a messy exit?
@@ -55,12 +61,22 @@ extern "C" {
     }
 
     void CXmpDateTimeDrop(CXmpDateTime* dt) {
-        delete dt;
+        try {
+            delete dt;
+        }
+        catch (XMP_Error& e) {
+            fprintf(stderr, "CXMPDateTimeDrop: ERROR %s\n", e.GetErrMsg());
+        }
     }
 
     CXmpDateTime* CXmpDateTimeCurrent() {
         CXmpDateTime* dt = new CXmpDateTime;
-        SXMPUtils::CurrentDateTime(&dt->dt);
+        try {
+            SXMPUtils::CurrentDateTime(&dt->dt);
+        }
+        catch (XMP_Error& e) {
+            fprintf(stderr, "CXMPDateTimeCurrent: ERROR %s\n", e.GetErrMsg());
+        }
         return dt;
     }
 
@@ -116,9 +132,9 @@ extern "C" {
     }
 
     void CXmpMetaSetPropertyDate(CXmpMeta* m,
-                             const char* schemaNS,
-                             const char* propName,
-                             const CXmpDateTime* propValue) {
+                                 const char* schemaNS,
+                                 const char* propName,
+                                 const CXmpDateTime* propValue) {
         // TO DO: Bridge options parameter.
         // For my purposes at the moment,
         // default value (0) always suffices.

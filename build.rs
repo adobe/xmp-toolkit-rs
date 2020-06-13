@@ -20,6 +20,8 @@ fn main() {
             .define("MAC_ENV", "1")
             .define("XMP_MacBuild", "1")
             .flag("-Wno-deprecated-declarations")
+            .flag("-Wno-deprecated-register")
+            .flag("-Wno-null-conversion")
             .include("external/xmp_toolkit/XMPCore/resource/mac")
             .include("external/xmp_toolkit/XMPFiles/resource/mac")
             .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
@@ -27,6 +29,23 @@ fn main() {
 
         println!("cargo:rustc-link-lib=framework=Carbon");
         println!("cargo:rustc-link-lib=framework=Security");
+    } else if target_os == Ok("linux".to_string()) {
+        config
+            .define("UNIX_ENV", "1")
+            .define("XMP_UNIXBuild", "1")
+            .flag("-Wno-class-memaccess")
+            .flag("-Wno-extra")
+            .flag("-Wno-ignored-qualifiers")
+            .flag("-Wno-int-in-bool-context")
+            .flag("-Wno-int-to-pointer-cast")
+            .flag("-Wno-multichar")
+            .flag("-Wno-parentheses")
+            .flag("-Wno-unused-but-set-variable")
+            .flag("-Wno-type-limits")
+            .include("external/xmp_toolkit/XMPCore/resource/linux")
+            .include("external/xmp_toolkit/XMPFiles/resource/linux")
+            .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+            .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
     } else {
         // See https://github.com/amethyst/rlua/blob/master/build.rs
         // for suggestions on how to handle other operating systems.
@@ -43,9 +62,8 @@ fn main() {
         .define("_LARGEFILE64_SOURCE", None)
         .flag_if_supported("-std=c++11")
         .flag_if_supported("-Wno-deprecated")
-        .flag_if_supported("-Wno-deprecated-register")
+        .flag_if_supported("-Wno-deprecated-declarations")
         .flag_if_supported("-Wno-missing-field-initializers")
-        .flag_if_supported("-Wno-null-conversion")
         .flag_if_supported("-Wno-reorder")
         .flag_if_supported("-Wno-unused-function")
         .flag_if_supported("-Wno-unused-parameter")
