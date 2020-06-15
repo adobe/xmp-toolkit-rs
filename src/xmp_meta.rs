@@ -19,6 +19,12 @@ impl Drop for XmpMeta {
     }
 }
 
+impl Default for XmpMeta {
+    fn default() -> Self {
+        XmpMeta::new()
+    }
+}
+
 impl XmpMeta {
     /// Creates a new, empty metadata struct.
     pub fn new() -> XmpMeta {
@@ -115,12 +121,7 @@ impl XmpMeta {
         let c_name = CString::new(prop_name).unwrap();
 
         let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
-
-        if r == 0 {
-            false
-        } else {
-            true
-        }
+        r != 0
     }
 }
 

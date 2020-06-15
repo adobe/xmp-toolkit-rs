@@ -61,6 +61,12 @@ impl Drop for XmpFile {
     }
 }
 
+impl Default for XmpFile {
+    fn default() -> Self {
+        XmpFile::new()
+    }
+}
+
 impl XmpFile {
     /// Creates a new file struct that is associated with no file.
     pub fn new() -> XmpFile {
@@ -143,11 +149,7 @@ impl XmpFile {
     /// cause the file to be written when closed. This is implemented roughly as follows:
     pub fn can_put_xmp(&self, meta: &XmpMeta) -> bool {
         let r = unsafe { ffi::CXmpFileCanPutXmp(self.f, meta.m) };
-        if r == 0 {
-            false
-        } else {
-            true
-        }
+        r != 0
     }
 
     /// Updates the XMP metadata in this object without writing out the file.

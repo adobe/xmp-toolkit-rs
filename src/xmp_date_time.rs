@@ -14,6 +14,12 @@ impl Drop for XmpDateTime {
     }
 }
 
+impl Default for XmpDateTime {
+    fn default() -> Self {
+        XmpDateTime::new()
+    }
+}
+
 impl XmpDateTime {
     /// Creates a new file struct that is associated with no file.
     pub fn new() -> XmpDateTime {
