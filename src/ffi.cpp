@@ -121,6 +121,18 @@ extern "C" {
         return copyForResult(registeredPrefix);
     }
 
+    const char* CXmpMetaGetProperty(CXmpMeta* m,
+                                    const char* schemaNS,
+                                    const char* propName) {
+        std::string propValue;
+
+        if (m->m.GetProperty(schemaNS, propName, &propValue, NULL /* options */)) {
+            return copyForResult(propValue);
+        } else {
+            return NULL;
+        }
+    }
+
     void CXmpMetaSetProperty(CXmpMeta* m,
                              const char* schemaNS,
                              const char* propName,

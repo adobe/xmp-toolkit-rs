@@ -225,40 +225,66 @@ mod tests {
         let tempdir = tempdir().unwrap();
         let purple_square = temp_copy_of_fixture(tempdir.path(), "Purple Square.psd");
 
-        let mut f = XmpFile::new();
+        {
+            let mut f = XmpFile::new();
 
-        assert!(f
-            .open_file(
-                &purple_square,
-                OpenFileOptions::OPEN_FOR_UPDATE | OpenFileOptions::OPEN_USE_SMART_HANDLER
-            )
-            .is_ok());
+            assert!(f
+                .open_file(
+                    &purple_square,
+                    OpenFileOptions::OPEN_FOR_UPDATE | OpenFileOptions::OPEN_USE_SMART_HANDLER
+                )
+                .is_ok());
 
-        let opt_m = f.get_xmp();
-        assert!(opt_m.is_some());
+            let opt_m = f.get_xmp();
+            assert!(opt_m.is_some());
 
-        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
+            XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
 
-        let mut m = opt_m.unwrap();
-        m.set_property("http://purl.org/dc/terms/", "provenance", "blah");
+            let mut m = opt_m.unwrap();
+            m.set_property("http://purl.org/dc/terms/", "provenance", "blah");
 
-        assert_eq!(
-            m.does_property_exist("http://purl.org/dc/terms/", "provenance"),
-            true
-        );
-        assert_eq!(
-            m.does_property_exist("http://purl.org/dc/terms/", "provenancx"),
-            false
-        );
+            assert_eq!(
+                m.does_property_exist("http://purl.org/dc/terms/", "provenance"),
+                true
+            );
+            assert_eq!(
+                m.does_property_exist("http://purl.org/dc/terms/", "provenancx"),
+                false
+            );
 
-        if m.does_property_exist(XMP_NS_XMP, "MetadataDate") {
-            let updated_time = XmpDateTime::current();
-            m.set_property_date(XMP_NS_XMP, "MetadataDate", &updated_time);
+            if m.does_property_exist(XMP_NS_XMP, "MetadataDate") {
+                let updated_time = XmpDateTime::current();
+                m.set_property_date(XMP_NS_XMP, "MetadataDate", &updated_time);
+            }
+
+            assert_eq!(f.can_put_xmp(&m), true);
+            f.put_xmp(&m);
+
+            f.close();
         }
 
-        assert_eq!(f.can_put_xmp(&m), true);
-        f.put_xmp(&m);
+        // Let's make sure we actually wrote to the file.
+        {
+            let mut f = XmpFile::new();
 
-        f.close();
+            assert!(f
+                .open_file(
+                    &purple_square,
+                    OpenFileOptions::OPEN_FOR_UPDATE | OpenFileOptions::OPEN_USE_SMART_HANDLER
+                )
+                .is_ok());
+
+            let m = f.get_xmp().unwrap();
+
+            assert_eq!(
+                m.get_property("http://purl.org/dc/terms/", "provenance")
+                    .unwrap(),
+                "blah"
+            );
+            assert_eq!(
+                m.get_property("http://purl.org/dc/terms/", "provenancx"),
+                None
+            );
+        }
     }
 }

@@ -59,6 +59,41 @@ impl XmpMeta {
         }
     }
 
+    /// Gets a property value.
+    ///
+    /// This is the simplest property accessor. Use this to retrieve the values of top-level simple
+    /// properties, or after using the path composition functions in \c TXMPUtils.
+    ///
+    /// When specifying a namespace and path (in this and all other accessors):
+    ///   \li If a namespace URI is specified, it must be for a registered namespace.
+    ///   \li If the namespace is specified only by a prefix in the property name path,
+    /// it must be a registered prefix.
+    ///   \li If both a URI and path prefix are present, they must be corresponding
+    /// parts of a registered namespace.
+    ///
+    /// @param schemaNS The namespace URI for the property. The URI must be for a registered
+    /// namespace. Must not be null or the empty string.
+    ///
+    /// @param propName The name of the property. Can be a general path expression, must not be null
+    /// or the empty string. The first component can be a namespace prefix; if present without a
+    /// \c schemaNS value, the prefix specifies the namespace. The prefix must be for a registered
+    /// namespace, and if a namespace URI is specified, must match the registered prefix for that
+    /// namespace.
+    pub fn get_property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
+        let c_ns = CString::new(schema_ns).unwrap();
+        let c_name = CString::new(prop_name).unwrap();
+
+        unsafe {
+            let c_result = ffi::CXmpMetaGetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr());
+
+            if c_result.is_null() {
+                None
+            } else {
+                Some(CStr::from_ptr(c_result).to_string_lossy().into_owned())
+            }
+        }
+    }
+
     /// Creates or sets a property value.
     ///
     /// This is the simplest property setter. Use it for top-level
