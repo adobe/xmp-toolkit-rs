@@ -2,6 +2,7 @@
 
 use bitflags::bitflags;
 use std::ffi::CString;
+use std::path::Path;
 
 use crate::ffi;
 use crate::xmp_meta::XmpMeta;
@@ -115,8 +116,13 @@ impl XmpFile {
     ///   \li \c #kXMPFiles_OpenUsePacketScanning - Force packet scanning, do not use a smart handler.
     ///   \li \c #kXMPFiles_OptimizeFileLayout - When updating a file, spend the effort necessary
     ///    to optimize file layout.
-    pub fn open_file(&mut self, path: &str, flags: OpenFileOptions) -> Result<(), XmpFileError> {
-        let c_path = CString::new(path).unwrap();
+    pub fn open_file<P: AsRef<Path>>(
+        &mut self,
+        path: P,
+        flags: OpenFileOptions,
+    ) -> Result<(), XmpFileError> {
+        let path_str = path.as_ref().to_str().unwrap();
+        let c_path = CString::new(path_str).unwrap();
         let ok = unsafe { ffi::CXmpFileOpen(self.f, c_path.as_ptr(), flags.bits()) };
 
         if ok != 0 {

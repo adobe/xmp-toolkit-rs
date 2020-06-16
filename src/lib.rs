@@ -6,5 +6,7 @@ mod xmp_meta;
 
 pub use xmp_const::*;
 pub use xmp_date_time::XmpDateTime;
+pub use xmp_file::OpenFileOptions;
 pub use xmp_file::XmpFile;
+pub use xmp_file::XmpFileError;
 pub use xmp_meta::XmpMeta;
