@@ -121,14 +121,16 @@ impl XmpFile {
         path: P,
         flags: OpenFileOptions,
     ) -> Result<(), XmpFileError> {
-        let path_str = path.as_ref().to_str().unwrap();
-        let c_path = CString::new(path_str).unwrap();
-        let ok = unsafe { ffi::CXmpFileOpen(self.f, c_path.as_ptr(), flags.bits()) };
-
-        if ok != 0 {
-            Ok(())
-        } else {
-            Err(XmpFileError::CantOpenFile)
+        match path_to_cstr(path.as_ref()) {
+            Some(c_path) => {
+                let ok = unsafe { ffi::CXmpFileOpen(self.f, c_path.as_ptr(), flags.bits()) };
+                if ok != 0 {
+                    Ok(())
+                } else {
+                    Err(XmpFileError::CantOpenFile)
+                }
+            }
+            None => Err(XmpFileError::CantOpenFile),
         }
     }
 
@@ -186,6 +188,16 @@ impl XmpFile {
     /// is called, regardless of how many calls are made to \c PutXMP().
     pub fn close(&mut self) {
         unsafe { ffi::CXmpFileClose(self.f) };
+    }
+}
+
+fn path_to_cstr(path: &Path) -> Option<CString> {
+    match path.to_str() {
+        Some(path_str) => match CString::new(path_str) {
+            Ok(c_path) => Some(c_path),
+            Err(_) => None,
+        },
+        None => None,
     }
 }
 

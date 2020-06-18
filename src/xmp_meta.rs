@@ -49,6 +49,9 @@ impl XmpMeta {
     ///
     /// @note No checking is done on either the URI or the prefix.
     pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> String {
+        // These .unwrap() calls are deemed unlikely to panic as this
+        // function is typically called with known, standardized strings
+        // in the ASCII space.
         let c_ns = CString::new(namespace_uri).unwrap();
         let c_sp = CString::new(suggested_prefix).unwrap();
 
