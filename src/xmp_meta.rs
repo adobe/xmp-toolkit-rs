@@ -7,7 +7,7 @@ use crate::xmp_date_time::XmpDateTime;
 
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
-    // pub(crate) is used because XmpFile::get_xmp
+    // pub(crate) is used because XmpFile::xmp
     // can create this struct.
 }
 
@@ -82,7 +82,7 @@ impl XmpMeta {
     /// \c schemaNS value, the prefix specifies the namespace. The prefix must be for a registered
     /// namespace, and if a namespace URI is specified, must match the registered prefix for that
     /// namespace.
-    pub fn get_property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
+    pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
         let c_ns = CString::new(schema_ns).unwrap();
         let c_name = CString::new(prop_name).unwrap();
 

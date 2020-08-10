@@ -137,7 +137,7 @@ impl XmpFile {
     /// Retrieves the XMP metadata from an open file.
     ///
     /// If no XMP is present, will return `None`.
-    pub fn get_xmp(&mut self) -> Option<XmpMeta> {
+    pub fn xmp(&mut self) -> Option<XmpMeta> {
         unsafe {
             let m = ffi::CXmpFileGetXmp(self.f);
             if m.is_null() {
@@ -247,7 +247,7 @@ mod tests {
                 )
                 .is_ok());
 
-            let opt_m = f.get_xmp();
+            let opt_m = f.xmp();
             assert!(opt_m.is_some());
 
             XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
@@ -286,17 +286,14 @@ mod tests {
                 )
                 .is_ok());
 
-            let m = f.get_xmp().unwrap();
+            let m = f.xmp().unwrap();
 
             assert_eq!(
-                m.get_property("http://purl.org/dc/terms/", "provenance")
+                m.property("http://purl.org/dc/terms/", "provenance")
                     .unwrap(),
                 "blah"
             );
-            assert_eq!(
-                m.get_property("http://purl.org/dc/terms/", "provenancx"),
-                None
-            );
+            assert_eq!(m.property("http://purl.org/dc/terms/", "provenancx"), None);
         }
     }
 }
