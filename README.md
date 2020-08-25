@@ -19,6 +19,10 @@ More bindings for specific XMP Toolkit methods can be added on an as-needed basi
 
 The self-tests for this library can be run with `cargo test` in the root of this repo.
 
+## Contributing
+
+Contributions are welcomed! Read the [Contributing Guide](./CONTRIBUTING.md) for more information.
+
 ## License
 
-This project is licensed under the Apache V2 License or the MIT License, at your option. See the LICENSE-MIT and LICENSE-APACHE files for more information.
+This project is licensed under the Apache V2 License or the MIT License, at your option. See the [LICENSE-MIT](./LICENSE-MIT) and [LICENSE-APACHE](./LICENSE-APACHE) files for more information.

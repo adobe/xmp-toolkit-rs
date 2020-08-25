@@ -10,7 +10,7 @@ This project adheres to the Adobe [code of conduct](../CODE_OF_CONDUCT.md). By p
 you are expected to uphold this code. Please report unacceptable behavior to
 [Grp-opensourceoffice@adobe.com](mailto:Grp-opensourceoffice@adobe.com).
 
-## Have A Question?
+## Have a Question?
 
 Start by filing an issue. The existing committers on this project work to reach
 consensus around project direction and issue solutions within issue threads
@@ -33,7 +33,16 @@ for more information on sending pull requests.
 Lastly, please follow the [pull request template](PULL_REQUEST_TEMPLATE.md) when
 submitting a pull request!
 
-## From Contributor To Committer
+## Code Quality
+
+Please ensure that your contributions:
+
+* Follow [Rust's code format](https://github.com/rust-lang/rustfmt) where relevant. (Hint: Run `cargo fmt` before committing.)
+* Provide [API documentation](https://doc.rust-lang.org/stable/rust-by-example/meta/doc.html) where relevant. (If you are adding new APIs, please run `cargo doc` to review the documentation.)
+* Provide test coverage for any new features being added.
+* Pass all existing tests. (Hint: Run `cargo test` before submitting.)
+
+## From Contributor to Committer
 
 We love contributions from our community! If you'd like to go a step beyond contributor
 and become a committer with full write access and a say in the project, you must
