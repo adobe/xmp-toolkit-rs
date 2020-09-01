@@ -12,7 +12,6 @@
 // each license.
 
 use std::env;
-use std::process::Command;
 
 fn main() {
     copy_external_to_third_party("expat/lib");
