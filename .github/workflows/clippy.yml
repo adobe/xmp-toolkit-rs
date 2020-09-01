@@ -12,6 +12,6 @@ jobs:
       - uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features -- -D warnings
+          args: --all-features --verbose -- -D warnings
         env:
           RUST_BACKTRACE: "1"
