@@ -221,6 +221,8 @@ fn copy_external_to_third_party(name: &str) {
         src_path.push("external");
         src_path.push(name);
 
+        assert!(src_path.is_dir());
+
         dest_path.pop();
 
         let copy_options = CopyOptions::new();
