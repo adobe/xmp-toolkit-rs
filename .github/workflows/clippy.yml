@@ -1,0 +1,27 @@
+on: [push]
+
+name: Clippy
+
+jobs:
+  clippy_check:
+    name: Run Clippy lint checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+      
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.44.0
+          override: true
+
+      - name: Install clippy
+        run: rustup component add clippy
+
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features --verbose -- -D warnings
+        env:
+          RUST_BACKTRACE: "1"

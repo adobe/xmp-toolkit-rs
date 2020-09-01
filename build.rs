@@ -12,8 +12,15 @@
 // each license.
 
 use std::env;
+use std::ffi::OsStr;
 
 fn main() {
+    println!("> git submodule init\n");
+    git_command(&["submodule", "init"]);
+
+    println!("> git submodule update\n");
+    git_command(&["submodule", "update"]);
+
     copy_external_to_third_party("expat/lib");
 
     let mut zlib_adler_c_path = env::current_dir().unwrap();
@@ -221,10 +228,31 @@ fn copy_external_to_third_party(name: &str) {
         src_path.push("external");
         src_path.push(name);
 
+        assert!(src_path.is_dir());
+
         dest_path.pop();
 
         let copy_options = CopyOptions::new();
         println!("COPYING {} to {}", src_path.display(), dest_path.display());
         copy(src_path, dest_path, &copy_options).unwrap();
     }
+}
+
+fn git_command<I, S>(args: I)
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    let output = std::process::Command::new("git")
+        .args(args)
+        .output()
+        .unwrap();
+
+    println!(
+        "--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
+        String::from_utf8(output.stdout).unwrap(),
+        String::from_utf8(output.stderr).unwrap()
+    );
+
+    assert_eq!(output.status.code().unwrap(), 0);
 }

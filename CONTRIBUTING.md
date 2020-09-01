@@ -37,10 +37,18 @@ submitting a pull request!
 
 Please ensure that your contributions:
 
-* Follow [Rust's code format](https://github.com/rust-lang/rustfmt) where relevant. (Hint: Run `cargo fmt` before committing.)
-* Provide [API documentation](https://doc.rust-lang.org/stable/rust-by-example/meta/doc.html) where relevant. (If you are adding new APIs, please run `cargo doc` to review the documentation.)
+* Follow [Rust's code format](https://github.com/rust-lang/rustfmt) where relevant.
+  (Hint: Run `cargo fmt` before committing.)
+* Provide [API documentation](https://doc.rust-lang.org/stable/rust-by-example/meta/doc.html)
+  where relevant. (If you are adding new APIs, please run `cargo doc` to review
+  the documentation.)
 * Provide test coverage for any new features being added.
-* Pass all existing tests. (Hint: Run `cargo test` before submitting.)
+* Pass all existing tests. (Please run `cargo test` before submitting.)
+* Pass Rust's standard lint checks. (Please run `cargo clippy` before submitting.)
+
+With the exception of documentation and code coverage, all of these requirements
+are enforced by PR validation. Please fix any validation failures as they are
+flagged; that will save time for the reviewers who will read your PR.
 
 ## From Contributor to Committer
 
