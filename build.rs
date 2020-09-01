@@ -224,13 +224,6 @@ fn copy_external_to_third_party(name: &str) {
 
         dest_path.pop();
 
-        let output = Command::new("ls")
-            .arg("-al")
-            .arg(dest_path.display().to_string())
-            .output()
-            .unwrap();
-        println!("ls -al {:?}", output);
-
         let copy_options = CopyOptions::new();
         println!("COPYING {} to {}", src_path.display(), dest_path.display());
         copy(src_path, dest_path, &copy_options).unwrap();
