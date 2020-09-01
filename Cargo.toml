@@ -6,7 +6,15 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/adobe/xmp-toolkit-rs"
 authors = ["Eric Scouten <scouten@adobe.com>"]
 keywords = ["xmp", "metadata"]
+categories = ["api-bindings", "multimedia::encoding"]
 edition = "2018"
+exclude = [
+    "external/xmp_toolkit/third-party/zlib/ReadMe.txt",
+    "external/xmp_toolkit/third-party/zlib/README.md",
+    "external/xmp_toolkit/third-party/zlib/*.c",
+    "external/xmp_toolkit/third-party/zlib/*.h",
+    "external/xmp_toolkit/third-party/expat/lib",    
+]
 
 [dependencies]
 bitflags = "1.2.1"
