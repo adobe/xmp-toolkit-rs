@@ -4,7 +4,7 @@ name: Tests
 
 jobs:
   coverage:
-    name: Self tests and code coverage
+    name: Self tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -16,18 +16,7 @@ jobs:
           toolchain: 1.44.0
           override: true
 
-      - name: Build CLI
+      - name: Run self tests
         uses: actions-rs/cargo@v1
         with:
-          command: build
-
-      - name: Run cargo-tarpaulin
-        uses: actions-rs/tarpaulin@v0.1
-        with:
-          version: '0.14.2'
-          args: '--ignore-tests --all-features --verbose -- --test-threads 1'
-
-      - name: Upload to codecov.io
-        uses: codecov/codecov-action@v1.0.13
-        with:
-          token: ${{secrets.CODECOV_TOKEN}}
+          command: test
