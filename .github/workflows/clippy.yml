@@ -13,3 +13,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features -- -D warnings
+          env:
+            RUST_BACKTRACE: 1
