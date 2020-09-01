@@ -12,6 +12,7 @@
 // each license.
 
 use std::env;
+use std::process::Command;
 
 fn main() {
     copy_external_to_third_party("expat/lib");
@@ -223,11 +224,12 @@ fn copy_external_to_third_party(name: &str) {
 
         dest_path.pop();
 
-        let output = Command::new("ls".arg("-al").arg(dest_path.display()).output().unwrap();
-        println!("ls -al {:?}", dest_path.display());
-
-        let copy_options = CopyOptions::new();
-        println!("COPYING {} to {}", src_path.display(), dest_path.display());
+        let output = Command::new("ls")
+            .arg("-al")
+            .arg(dest_path.display().to_string())
+            .output()
+            .unwrap();
+        println!("ls -al {:?}", output);
 
         let copy_options = CopyOptions::new();
         println!("COPYING {} to {}", src_path.display(), dest_path.display());
