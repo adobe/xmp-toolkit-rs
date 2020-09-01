@@ -27,7 +27,7 @@ fn main() {
     zlib_adler_c_path.push("external/xmp_toolkit/third-party/zlib/adler.c");
     if !zlib_adler_c_path.is_file() {
         zlib_adler_c_path.pop();
-        std::fs::remove_dir_all(zlib_adler_c_path).unwrap();
+        let _ignore = std::fs::remove_dir_all(zlib_adler_c_path);
         copy_external_to_third_party("zlib");
     }
 
