@@ -232,10 +232,6 @@ fn copy_external_to_third_party(name: &str) {
 
         dest_path.pop();
 
-        whoami_to_stdout();
-        ls_al_to_stdout(src_path.as_path());
-        ls_al_to_stdout(dest_path.as_path());
-
         let copy_options = CopyOptions::new();
         println!("COPYING {} to {}", src_path.display(), dest_path.display());
         copy(src_path, dest_path, &copy_options).unwrap();
@@ -259,24 +255,4 @@ where
     );
 
     assert_eq!(output.status.code().unwrap(), 0);
-}
-
-fn ls_al_to_stdout(path: &std::path::Path) {
-    let output = std::process::Command::new("ls")
-        .args(&["-al", path.to_str().unwrap()])
-        .output()
-        .unwrap();
-    println!(
-        "> ls -al {}\n\n{}\n\n",
-        path.display(),
-        String::from_utf8(output.stdout).unwrap()
-    );
-}
-
-fn whoami_to_stdout() {
-    let output = std::process::Command::new("whoami").output().unwrap();
-    println!(
-        "> whoami\n\n{}\n\n",
-        String::from_utf8(output.stdout).unwrap()
-    );
 }
