@@ -15,7 +15,10 @@ use std::env;
 use std::ffi::OsStr;
 
 fn main() {
+    println!("> git submodule init\n");
     git_command(&["submodule", "init"]);
+
+    println!("> git submodule update\n");
     git_command(&["submodule", "update"]);
 
     copy_external_to_third_party("expat/lib");
@@ -246,8 +249,6 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    println!("> git {:?}\n", args);
-
     let output = std::process::Command::new("git")
         .args(args)
         .output()
@@ -259,7 +260,7 @@ where
         String::from_utf8(output.stderr).unwrap()
     );
 
-    assert_eq!(output.status.code(), 0);
+    assert_eq!(output.status.code().unwrap(), 0);
 }
 
 fn ls_al_to_stdout(path: &std::path::Path) {
