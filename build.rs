@@ -21,6 +21,11 @@ fn main() {
     println!("> git submodule update\n");
     git_command(&["submodule", "update"]);
 
+    // Special note: Because of the post-processing we're doing here,
+    // you must specify the `--no-verify` option when invoking `cargo publish`.
+    // This is unfortunately necessary because the original XMP Toolkit requires
+    // the modified versions of these files to be present in these locations.
+
     copy_external_to_third_party("expat/lib");
 
     let mut zlib_adler_c_path = env::current_dir().unwrap();
