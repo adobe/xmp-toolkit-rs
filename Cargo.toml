@@ -9,11 +9,14 @@ keywords = ["xmp", "metadata"]
 categories = ["api-bindings", "multimedia::encoding"]
 edition = "2018"
 exclude = [
+    "external/xmp_toolkit/docs",
+    "external/xmp_toolkit/samples",
     "external/xmp_toolkit/third-party/zlib/ReadMe.txt",
     "external/xmp_toolkit/third-party/zlib/README.md",
     "external/xmp_toolkit/third-party/zlib/*.c",
     "external/xmp_toolkit/third-party/zlib/*.h",
     "external/xmp_toolkit/third-party/expat/lib",    
+    "external/xmp_toolkit/XMPFilesPlugins/PDF_Handler",
 ]
 
 [dependencies]
