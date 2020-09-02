@@ -15,6 +15,15 @@ use std::env;
 use std::ffi::OsStr;
 
 fn main() {
+    // docs.rs builds in an environment that doesn't allow us to modify
+    // the underlying source. We don't actually need to fully compile,
+    // so we do a specialized build that makes all the FFIs into no-ops.
+    let docs_rs = env::var("DOCS_RS");
+    if docs_rs == Ok("1".to_string()) {
+        compile_for_docs();
+        return;
+    }
+
     println!("> git submodule init\n");
     git_command(&["submodule", "init"]);
 
@@ -264,4 +273,68 @@ where
     // the submodule doesn't exist, so we should ignore any
     // error from git.
     // assert_eq!(output.status.code().unwrap(), 0);
+}
+
+fn compile_for_docs() {
+    let mut config = cc::Build::new();
+
+    let target_os = env::var("CARGO_CFG_TARGET_OS");
+
+    if target_os == Ok("macos".to_string()) {
+        config
+            .define("MAC_ENV", "1")
+            .define("XMP_MacBuild", "1")
+            .flag("-Wno-deprecated-declarations")
+            .flag("-Wno-deprecated-register")
+            .flag("-Wno-null-conversion")
+            .include("external/xmp_toolkit/XMPCore/resource/mac")
+            .include("external/xmp_toolkit/XMPFiles/resource/mac")
+            .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+            .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp");
+
+        println!("cargo:rustc-link-lib=framework=Carbon");
+        println!("cargo:rustc-link-lib=framework=Security");
+    } else if target_os == Ok("linux".to_string()) {
+        config
+            .define("UNIX_ENV", "1")
+            .define("XMP_UNIXBuild", "1")
+            .flag("-Wno-class-memaccess")
+            .flag("-Wno-extra")
+            .flag("-Wno-ignored-qualifiers")
+            .flag("-Wno-int-in-bool-context")
+            .flag("-Wno-int-to-pointer-cast")
+            .flag("-Wno-multichar")
+            .flag("-Wno-parentheses")
+            .flag("-Wno-unused-but-set-variable")
+            .flag("-Wno-type-limits")
+            .include("external/xmp_toolkit/XMPCore/resource/linux")
+            .include("external/xmp_toolkit/XMPFiles/resource/linux")
+            .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+            .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
+    } else {
+        // See https://github.com/amethyst/rlua/blob/master/build.rs
+        // for suggestions on how to handle other operating systems.
+
+        panic!("Not prepared to build for this OS yet.");
+    }
+
+    config
+        .cpp(true)
+        .define("NOOP_FFI", Some("1"))
+        .flag_if_supported("-std=c++11")
+        .flag_if_supported("-Wno-deprecated")
+        .flag_if_supported("-Wno-deprecated-declarations")
+        .flag_if_supported("-Wno-missing-field-initializers")
+        .flag_if_supported("-Wno-reorder")
+        .flag_if_supported("-Wno-unused-function")
+        .flag_if_supported("-Wno-unused-parameter")
+        .flag_if_supported("-Wno-unused-variable")
+        .flag_if_supported("-Wnon-virtual-dtor")
+        .flag_if_supported("-Woverloaded-virtual")
+        .include("external/xmp_toolkit")
+        .include("external/xmp_toolkit/build")
+        .include("external/xmp_toolkit/public/include")
+        .include("external/xmp_toolkit/XMPFilesPlugins/api/source")
+        .file("src/ffi.cpp")
+        .compile("libxmp.a");
 }

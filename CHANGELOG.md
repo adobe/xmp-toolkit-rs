@@ -2,6 +2,11 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without 
 
+## v0.1.2
+_01 September 2020_
+
+* Fix another build issue that occurs only within the docs.rs environment.
+
 ## v0.1.1
 _01 September 2020_
 
