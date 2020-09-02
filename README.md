@@ -4,9 +4,16 @@
 [![API](https://docs.rs/xmp_toolkit/badge.svg)](https://docs.rs/xmp_toolkit)
 [![Tests](https://github.com/adobe/xmp-toolkit-rs/workflows/Tests/badge.svg)](https://github.com/adobe/xmp-toolkit-rs/actions?query=workflow%3ATests)
 
-This crate provides a minimal binding of the [Adobe XMP Toolkit SDK](https://github.com/adobe/XMP-Toolkit-SDK/) to Rust.
+This crate provides a binding of the [Adobe XMP Toolkit SDK](https://github.com/adobe/XMP-Toolkit-SDK/) to Rust.
 
-Contributions that extend the platform reach or API surface of this binding would be welcomed. Please read the [Contributing Guide](./CONTRIBUTING.md) for more information.
+The portions of the binding that are present are believed to be well-tested and correct, but it is not (as of yet) a complete binding.
+
+Contributions that ...
+
+* extend the supported platforms (current Mac and Linux only)
+* extend the supported API surface
+
+... are especially welcomed. Please read the [Contributing Guide](./CONTRIBUTING.md) for more information.
 
 ## Rust Language Support
 
