@@ -19,20 +19,24 @@
 #define XMP_INCLUDE_XMPFILES 1
 
 #include "XMP.incl_cpp"
-#include "XMP.hpp"
+#ifndef NOOP_FFI
+    #include "XMP.hpp"
+#endif
 
 std::once_flag xmp_init_flag;
 
 inline void init_xmp_fn() {
-    // TO DO: Check return status from Initialize functions.
-    try {
-        SXMPMeta::Initialize();
-        SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText);
-    }
-    catch (XMP_Error& e) {
-        fprintf(stderr, "Failed to initialize XMP Toolkit: %s\n", e.GetErrMsg());
-        exit(1);
-    }
+    #ifndef NOOP_FFI
+        // TO DO: Check return status from Initialize functions.
+        try {
+            SXMPMeta::Initialize();
+            SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText);
+        }
+        catch (XMP_Error& e) {
+            fprintf(stderr, "Failed to initialize XMP Toolkit: %s\n", e.GetErrMsg());
+            exit(1);
+        }
+    #endif
 
     // TO DO: Terminate? How to hook into process exit?
     // Or do we care that it's a messy exit?
@@ -44,7 +48,11 @@ static void init_xmp() {
 
 extern "C" {
     typedef struct CXmpFile {
-        SXMPFiles f;
+        #ifdef NOOP_FFI
+            int x;
+        #else
+            SXMPFiles f;
+        #endif
     } CXmpFile;
 
     CXmpFile* CXmpFileNew() {
@@ -53,20 +61,32 @@ extern "C" {
     }
 
     void CXmpFileDrop(CXmpFile* f) {
-        delete f;
+        #ifdef NOOP_FFI
+            int x;
+        #else
+            delete f;
+        #endif
     }
 
     int CXmpFileOpen(CXmpFile* f,
                      const char* filePath,
                      AdobeXMPCommon::uint32 openFlags) {
-        // TO DO: Bridge file format parameter.
-        // For my purposes at the moment,
-        // kXMP_UnknownFile always suffices.
-        return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
+        #ifdef NOOP_FFI
+            return 1;
+        #else
+            // TO DO: Bridge file format parameter.
+            // For my purposes at the moment,
+            // kXMP_UnknownFile always suffices.
+            return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
+        #endif
     }
 
     typedef struct CXmpDateTime {
-        XMP_DateTime dt;
+        #ifdef NOOP_FFI
+            int x;
+        #else
+            XMP_DateTime dt;
+        #endif
     } CXmpDateTime;
 
     CXmpDateTime* CXmpDateTimeNew() {
@@ -74,27 +94,35 @@ extern "C" {
     }
 
     void CXmpDateTimeDrop(CXmpDateTime* dt) {
-        try {
-            delete dt;
-        }
-        catch (XMP_Error& e) {
-            fprintf(stderr, "CXMPDateTimeDrop: ERROR %s\n", e.GetErrMsg());
-        }
+        #ifndef NOOP_FFI
+            try {
+                delete dt;
+            }
+            catch (XMP_Error& e) {
+                fprintf(stderr, "CXMPDateTimeDrop: ERROR %s\n", e.GetErrMsg());
+            }
+        #endif
     }
 
     CXmpDateTime* CXmpDateTimeCurrent() {
         CXmpDateTime* dt = new CXmpDateTime;
-        try {
-            SXMPUtils::CurrentDateTime(&dt->dt);
-        }
-        catch (XMP_Error& e) {
-            fprintf(stderr, "CXMPDateTimeCurrent: ERROR %s\n", e.GetErrMsg());
-        }
+        #ifndef NOOP_FFI
+            try {
+                SXMPUtils::CurrentDateTime(&dt->dt);
+            }
+            catch (XMP_Error& e) {
+                fprintf(stderr, "CXMPDateTimeCurrent: ERROR %s\n", e.GetErrMsg());
+            }
+        #endif
         return dt;
     }
 
     typedef struct CXmpMeta {
-        SXMPMeta m;
+        #ifdef NOOP_FFI
+            int x;
+        #else
+            SXMPMeta m;
+        #endif
     } CXmpMeta;
 
     CXmpMeta* CXmpMetaNew() {
@@ -103,13 +131,17 @@ extern "C" {
 
     CXmpMeta* CXmpFileGetXmp(CXmpFile* f) {
         CXmpMeta* r = new CXmpMeta;
-        if (f->f.GetXMP(&(r->m))) {
-            return r;
-        } else {
-            // No metadata. Signal this by returning NULL.
-            delete r;
+        #ifdef NOOP_FFI
             return NULL;
-        }
+        #else
+            if (f->f.GetXMP(&(r->m))) {
+                return r;
+            } else {
+                // No metadata. Signal this by returning NULL.
+                delete r;
+                return NULL;
+            }
+        #endif
     }
 
     void CXmpMetaDrop(CXmpMeta* m) {
@@ -125,67 +157,91 @@ extern "C" {
 
     const char* CXmpMetaRegisterNamespace(const char* namespaceURI,
                                           const char* suggestedPrefix) {
-        init_xmp();
+        #ifdef NOOP_FFI
+            return NULL;
+        #else
+            init_xmp();
 
-        std::string registeredPrefix;
+            std::string registeredPrefix;
 
-        SXMPMeta::RegisterNamespace(namespaceURI, suggestedPrefix, &registeredPrefix);
+            SXMPMeta::RegisterNamespace(namespaceURI, suggestedPrefix, &registeredPrefix);
 
-        return copyForResult(registeredPrefix);
+            return copyForResult(registeredPrefix);
+        #endif
     }
 
     const char* CXmpMetaGetProperty(CXmpMeta* m,
                                     const char* schemaNS,
                                     const char* propName) {
-        std::string propValue;
-
-        if (m->m.GetProperty(schemaNS, propName, &propValue, NULL /* options */)) {
-            return copyForResult(propValue);
-        } else {
+        #ifdef NOOP_FFI
             return NULL;
-        }
+        #else
+            std::string propValue;
+
+            if (m->m.GetProperty(schemaNS, propName, &propValue, NULL /* options */)) {
+                return copyForResult(propValue);
+            } else {
+                return NULL;
+            }
+        #endif
     }
 
     void CXmpMetaSetProperty(CXmpMeta* m,
                              const char* schemaNS,
                              const char* propName,
                              const char* propValue) {
-        // TO DO: Bridge options parameter.
-        // For my purposes at the moment,
-        // default value (0) always suffices.
-        m->m.SetProperty(schemaNS, propName, propValue);
+        #ifndef NOOP_FFI
+            // TO DO: Bridge options parameter.
+            // For my purposes at the moment,
+            // default value (0) always suffices.
+            m->m.SetProperty(schemaNS, propName, propValue);
+        #endif
     }
 
     void CXmpMetaSetPropertyDate(CXmpMeta* m,
                                  const char* schemaNS,
                                  const char* propName,
                                  const CXmpDateTime* propValue) {
-        // TO DO: Bridge options parameter.
-        // For my purposes at the moment,
-        // default value (0) always suffices.
-        m->m.SetProperty_Date(schemaNS, propName, propValue->dt);
+        #ifndef NOOP_FFI
+            // TO DO: Bridge options parameter.
+            // For my purposes at the moment,
+            // default value (0) always suffices.
+            m->m.SetProperty_Date(schemaNS, propName, propValue->dt);
+        #endif
     }
 
     int CXmpMetaDoesPropertyExist(CXmpMeta* m,
                                   const char* schemaNS,
                                   const char* propName) {
-        return (m->m.DoesPropertyExist(schemaNS, propName)) ? 1 : 0;
+        #ifdef NOOP_FFI
+            return 0;
+        #else
+            return (m->m.DoesPropertyExist(schemaNS, propName)) ? 1 : 0;
+        #endif
     }
 
     int CXmpFileCanPutXmp(const CXmpFile* f,
                           const CXmpMeta* m) {
-        return const_cast<SXMPFiles&>(f->f).CanPutXMP(m->m) ? 1 : 0;
+        #ifdef NOOP_FFI
+            return 0;
+        #else
+            return const_cast<SXMPFiles&>(f->f).CanPutXMP(m->m) ? 1 : 0;
+        #endif
     }
 
     void CXmpFilePutXmp(CXmpFile* f,
                         const CXmpMeta* m) {
-        f->f.PutXMP(m->m);
+        #ifndef NOOP_FFI
+            f->f.PutXMP(m->m);
+        #endif
     }
 
     void CXmpFileClose(CXmpFile* f) {
-        // TO DO: Bridge closeFlags parameter.
-        // For my purposes at the moment,
-        // default value (0) always suffices.
-        f->f.CloseFile();
+        #ifndef NOOP_FFI
+            // TO DO: Bridge closeFlags parameter.
+            // For my purposes at the moment,
+            // default value (0) always suffices.
+            f->f.CloseFile();
+        #endif
     }
 }
