@@ -11,8 +11,6 @@
 // specific language governing permissions and limitations under
 // each license.
 
-// TO DO: Revise API documentation to fit the Rust wrapper.
-
 use bitflags::bitflags;
 use std::ffi::CString;
 use std::path::Path;
@@ -21,8 +19,8 @@ use crate::ffi;
 use crate::xmp_meta::XmpMeta;
 
 bitflags! {
-    /// Option flags for \c XMPFile::open_file().
-    /// Flags describing the set of lua modules to load.
+    /// Option flags for `XMPFile::open_file()`.
+    /// Flags describing the set of modules to load.
     pub struct OpenFileOptions: u32 {
         /// Open for read-only access.
         const OPEN_FOR_READ = 0x00000001;
@@ -57,11 +55,24 @@ bitflags! {
     }
 }
 
+/// The `XmpFile` struct allows access to the main (document-level) metadata in a file.
+///
+/// This provides convenient access to the main, or document level, XMP for a file. Use
+/// it to obtain metadata from a file, which you can then manipulate with the `xmp_meta`
+/// struct; and to write new or changed
+/// metadata back out to a file.
+///
+/// The functions allow you to open a file, read and write the metadata, then close the file.
+/// While open, portions of the file might be maintained in RAM data structures. Memory
+/// usage can vary considerably depending on file format and access options.
+///
+/// A file can be opened for read-only or read-write access, with typical exclusion for both
+/// modes.
 pub struct XmpFile {
     f: *mut ffi::CXmpFile,
 }
 
-/// XMP File result codes
+/// Describes the potential error conditions that might arise from `XmpFile` operations.
 #[derive(Debug)]
 pub enum XmpFileError {
     CantOpenFile,
@@ -89,46 +100,32 @@ impl XmpFile {
         }
     }
 
-    /// Opens a file for the requested forms of metadata access. Opening the file at a minimum
-    /// causes the raw XMP packet to be read from the file. If the file handler supports legacy
-    /// metadata reconciliation then legacy metadata is also read, unless \c #kXMPFiles_OpenOnlyXMP
-    /// is passed.
+    /// Opens a file for the requested forms of metadata access.
     ///
-    /// If the file is opened for read-only access (passing \c #kXMPFiles_OpenForRead), the disk
-    /// file is closed immediately after reading the data from it; the \c XMPFiles object, however,
-    /// remains in the open state. You must call \c CloseFile() when finished using it. Other
-    /// methods, such as \c GetXMP(), can only be used between the \c OpenFile() and \c CloseFile()
-    /// calls. The \c XMPFiles destructor does not call \c CloseFile(); if you call it without
-    /// closing, any pending updates are lost.
+    /// Opening the file, at a minimum, causes the raw XMP packet to be read from the file.
+    /// If the file handler supports legacy metadata reconciliation then legacy metadata is
+    /// also read, unless `kXMPFiles_OpenOnlyXMP` is passed.
     ///
-    /// If the file is opened for update (passing \c #kXMPFiles_OpenForUpdate), the disk file
-    /// remains open until \c CloseFile() is called. The disk file is only updated once, when
-    /// \c CloseFile() is called, regardless of how many calls are made to \c PutXMP().
+    /// If the file is opened for read-only access (passing `kXMPFiles_OpenForRead`), the disk
+    /// file is closed immediately after reading the data from it; the `XMPFiles` struct, however,
+    /// remains in the open state until `drop()` is called.
     ///
-    /// Typically, the XMP is not parsed and legacy reconciliation is not performed until \c GetXMP()
+    /// If you update the XMP, you must call `put_xmp()` before the struct is dropped; if you
+    /// do not, any pending updates are lost.
+    ///
+    /// Typically, the XMP is not parsed and legacy reconciliation is not performed until `xmp()`
     /// is called, but this is not guaranteed. Specific file handlers might do earlier parsing of
     /// the XMP. Delayed parsing and early disk file close for read-only access are optimizations
     /// to help clients implementing file browsers, so that they can access the file briefly
     /// and possibly display a thumbnail, then postpone more expensive XMP processing until later.
     ///
-    /// @param path The path for the file.
+    /// ## Arguments
     ///
-    /// @param flags A set of option flags that describe the desired access. By default (zero)
+    /// * `path`: The path for the file.
+    ///
+    /// * `flags`: A set of option flags that describe the desired access. By default (zero)
     /// the file is opened for read-only access and the format handler decides on the level of
-    /// reconciliation that will be performed. A logical OR of these bit-flag constants:
-    ///
-    ///   \li \c #kXMPFiles_OpenForRead - Open for read-only access.
-    ///   \li \c #kXMPFiles_OpenForUpdate - Open for reading and writing.
-    ///   \li \c #kXMPFiles_OpenOnlyXMP - Only the XMP is wanted, no reconciliation.
-    ///   \li \c #kXMPFiles_OpenStrictly - Be strict about locating XMP and reconciling with other
-    ///   forms. By default, a best effort is made to locate the correct XMP and to reconcile XMP
-    ///   with other forms (if reconciliation is done). This option forces stricter rules, resulting
-    ///   in exceptions for errors. The definition of strictness is specific to each handler, there
-    ///   might be no difference.
-    ///   \li \c #kXMPFiles_OpenUseSmartHandler - Require the use of a smart handler.
-    ///   \li \c #kXMPFiles_OpenUsePacketScanning - Force packet scanning, do not use a smart handler.
-    ///   \li \c #kXMPFiles_OptimizeFileLayout - When updating a file, spend the effort necessary
-    ///    to optimize file layout.
+    /// reconciliation that will be performed. See `OpenFileOptions`.
     pub fn open_file<P: AsRef<Path>>(
         &mut self,
         path: P,
@@ -163,11 +160,12 @@ impl XmpFile {
 
     /// Reports whether this file can be updated with a specific XMP packet.
     ///
-    /// Use to determine if the file can probably be updated with a given set of XMP metadata. This
-    /// depends on the size of the packet, the options with which the file was opened, and the
-    /// capabilities of the handler for the file format. The function obtains the length of the
-    /// serialized packet for the provided XMP, but does not keep it or modify it, and does not
-    /// cause the file to be written when closed. This is implemented roughly as follows:
+    /// Use this functino to determine if the file can probably be updated with a
+    /// given set of XMP metadata. This depends on the size of the packet, the
+    /// options with which the file was opened, and the capabilities of the handler
+    /// for the file format. The function obtains the length of the serialized
+    /// packet for the provided XMP, but does not keep it or modify it, and does not
+    /// cause the file to be written when closed.
     pub fn can_put_xmp(&self, meta: &XmpMeta) -> bool {
         let r = unsafe { ffi::CXmpFileCanPutXmp(self.f, meta.m) };
         r != 0
@@ -175,30 +173,28 @@ impl XmpFile {
 
     /// Updates the XMP metadata in this object without writing out the file.
     ///
-    /// This function supplies new XMP for the file. However, the disk file is not written until the
-    /// object is closed with \c CloseFile(). The options provided when the file was opened
+    /// This function supplies new XMP for the file. However, the disk file is not written until
+    /// the struct is closed with `close()`. The options provided when the file was opened
     /// determine if reconciliation is done with other forms of metadata.
-    ///
-    /// @param xmpObj The new metadata as an XMP object.
     pub fn put_xmp(&mut self, meta: &XmpMeta) {
         unsafe { ffi::CXmpFilePutXmp(self.f, meta.m) };
     }
 
     /// Explicitly closes an opened file.
     ///
-    /// Performs any necessary output to the file and closes it. Files that are opened for update
-    /// are written to only when closing.
+    /// Performs any necessary output to the file and closes it. Files that are opened
+    /// for update are written to only when closing.
     ///
-    /// If the file is opened for read-only access (passing \c #kXMPFiles_OpenForRead), the disk
-    /// file is closed immediately after reading the data from it; the \c XMPFiles object, however,
-    /// remains in the open state. You must call \c CloseFile() when finished using it. Other
-    /// methods, such as \c GetXMP(), can only be used between the \c OpenFile() and \c CloseFile()
-    /// calls. The \c XMPFiles destructor does not call \c CloseFile(); if you call it without closing,
-    /// any pending updates are lost.
+    /// If the file is opened for read-only access (passing `OpenFileOptions:OPEN_FOR_READ`),
+    /// the disk file is closed immediately after reading the data from it; the `XMPFiles`
+    /// object, however, remains in the open state. You must call `close()` when finished
+    /// using it. Other methods, such as `xmp()`, can only be used between the `open_file()`
+    /// and `close()` calls. The `XMPFiles` destructor does not call `close()`; if the struct
+    /// is dropped without closing, any pending updates are lost.
     ///
-    /// If the file is opened for update (passing \c #kXMPFiles_OpenForUpdate), the disk file remains
-    /// open until \c CloseFile() is called. The disk file is only updated once, when \c CloseFile()
-    /// is called, regardless of how many calls are made to \c PutXMP().
+    /// If the file is opened for update (passing `OpenFileOptions::OPEN_FOR_UPDATE`),
+    /// the disk file remains open until `close()` is called. The disk file is only updated
+    /// once, when `close()` is called, regardless of how many calls are made to `put_xmp()`.
     pub fn close(&mut self) {
         unsafe { ffi::CXmpFileClose(self.f) };
     }

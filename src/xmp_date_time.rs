@@ -11,10 +11,12 @@
 // specific language governing permissions and limitations under
 // each license.
 
-// TO DO: Revise API documentation to fit the Rust wrapper.
-
 use crate::ffi;
 
+/// The expanded type for a date and time.
+///
+/// Dates and time in the serialized XMP are ISO 8601 strings.
+/// The `XmpDateTime` struct allows easy conversion with other formats.
 pub struct XmpDateTime {
     pub(crate) dt: *mut ffi::CXmpDateTime,
 }
@@ -34,13 +36,14 @@ impl Default for XmpDateTime {
 }
 
 impl XmpDateTime {
-    /// Creates a new file struct that is associated with no file.
+    /// Creates a new date-time struct with zeros in all fields.
     pub fn new() -> XmpDateTime {
         XmpDateTime {
             dt: unsafe { ffi::CXmpDateTimeNew() },
         }
     }
 
+    /// Creates a new date-time struct reflecting the current time.
     pub fn current() -> XmpDateTime {
         XmpDateTime {
             dt: unsafe { ffi::CXmpDateTimeCurrent() },
