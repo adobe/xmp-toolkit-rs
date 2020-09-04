@@ -5,6 +5,7 @@ description = "Rust-language bindings for Adobe's XMP Toolkit"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/adobe/xmp-toolkit-rs"
 documentation = "https://docs.rs/xmp_toolkit"
+readme = "README.md"
 authors = ["Eric Scouten <scouten@adobe.com>"]
 keywords = ["xmp", "metadata"]
 categories = ["api-bindings", "multimedia::encoding"]
