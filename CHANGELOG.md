@@ -2,6 +2,12 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without 
 
+## v0.1.4
+_04 September 2020_
+
+* Add Mac OS builds to CI build matrix.
+* Add Rust 1.46.0 to CI build matrix.
+
 ## v0.1.3
 _02 September 2020_
 
