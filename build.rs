@@ -80,7 +80,6 @@ fn main() {
                 .file("external/xmp_toolkit/XMPCore/source/WXMPIterator.cpp")
                 .file("external/xmp_toolkit/source/Host_IO-Win.cpp")
                 .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_WIN.cpp");
-
         }
 
         "macos" => {
@@ -318,45 +317,48 @@ where
 fn compile_for_docs() {
     let mut config = cc::Build::new();
 
-    let target_os = env::var("CARGO_CFG_TARGET_OS");
+    let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not defined");
 
-    if target_os == Ok("macos".to_string()) {
-        config
-            .define("MAC_ENV", "1")
-            .define("XMP_MacBuild", "1")
-            .flag("-Wno-deprecated-declarations")
-            .flag("-Wno-deprecated-register")
-            .flag("-Wno-null-conversion")
-            .include("external/xmp_toolkit/XMPCore/resource/mac")
-            .include("external/xmp_toolkit/XMPFiles/resource/mac")
-            .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
-            .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp");
+    match target_os.as_ref() {
+        "macos" => {
+            config
+                .define("MAC_ENV", "1")
+                .define("XMP_MacBuild", "1")
+                .flag("-Wno-deprecated-declarations")
+                .flag("-Wno-deprecated-register")
+                .flag("-Wno-null-conversion")
+                .include("external/xmp_toolkit/XMPCore/resource/mac")
+                .include("external/xmp_toolkit/XMPFiles/resource/mac")
+                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp");
 
-        println!("cargo:rustc-link-lib=framework=Carbon");
-        println!("cargo:rustc-link-lib=framework=Security");
-    } else if target_os == Ok("linux".to_string()) {
-        config
-            .define("UNIX_ENV", "1")
-            .define("XMP_UNIXBuild", "1")
-            .flag("-Wno-class-memaccess")
-            .flag("-Wno-extra")
-            .flag("-Wno-ignored-qualifiers")
-            .flag("-Wno-int-in-bool-context")
-            .flag("-Wno-int-to-pointer-cast")
-            .flag("-Wno-multichar")
-            .flag("-Wno-parentheses")
-            .flag("-Wno-unused-but-set-variable")
-            .flag("-Wno-type-limits")
-            .include("external/xmp_toolkit/XMPCore/resource/linux")
-            .include("external/xmp_toolkit/XMPFiles/resource/linux")
-            .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
-            .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
-    } else {
-        // See https://github.com/amethyst/rlua/blob/master/build.rs
-        // for suggestions on how to handle other operating systems.
+            println!("cargo:rustc-link-lib=framework=Carbon");
+            println!("cargo:rustc-link-lib=framework=Security");
+        }
 
-        panic!("Not prepared to build for this OS yet.");
-    }
+        "linux" => {
+            config
+                .define("UNIX_ENV", "1")
+                .define("XMP_UNIXBuild", "1")
+                .flag("-Wno-class-memaccess")
+                .flag("-Wno-extra")
+                .flag("-Wno-ignored-qualifiers")
+                .flag("-Wno-int-in-bool-context")
+                .flag("-Wno-int-to-pointer-cast")
+                .flag("-Wno-multichar")
+                .flag("-Wno-parentheses")
+                .flag("-Wno-unused-but-set-variable")
+                .flag("-Wno-type-limits")
+                .include("external/xmp_toolkit/XMPCore/resource/linux")
+                .include("external/xmp_toolkit/XMPFiles/resource/linux")
+                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
+        }
+
+        _ => {
+            panic!("Not prepared to do docs build for this OS yet.");
+        }
+    };
 
     config
         .cpp(true)
