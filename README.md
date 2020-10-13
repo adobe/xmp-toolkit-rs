@@ -10,7 +10,7 @@ The portions of the binding that are present are believed to be well-tested and 
 
 Contributions that ...
 
-* extend the supported platforms (currently Mac and Linux only)
+* extend the supported platforms (currently Windows, Mac, and Linux only)
 * extend the supported API surface
 
 ... are especially welcomed. Please read the [Contributing Guide](./CONTRIBUTING.md) for more information.
