@@ -2,6 +2,13 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without 
 
+## v0.1.5
+_12 October 2020_
+
+* Add support for building on Windows.
+* Add Rust 1.47.0 to CI build matrix.
+* Remove Rust 1.46.0 from CI build matrix.
+
 ## v0.1.4
 _04 September 2020_
 
