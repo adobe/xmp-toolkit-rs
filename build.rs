@@ -47,53 +47,92 @@ fn main() {
 
     let mut config = cc::Build::new();
 
-    let target_os = env::var("CARGO_CFG_TARGET_OS");
+    let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not defined");
 
-    if target_os == Ok("macos".to_string()) {
-        config
-            .define("MAC_ENV", "1")
-            .define("XMP_MacBuild", "1")
-            .flag("-Wno-deprecated-declarations")
-            .flag("-Wno-deprecated-register")
-            .flag("-Wno-null-conversion")
-            .include("external/xmp_toolkit/XMPCore/resource/mac")
-            .include("external/xmp_toolkit/XMPFiles/resource/mac")
-            .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
-            .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp");
+    match target_os.as_ref() {
+        "windows" => {
+            config
+                .define("WIN_ENV", "1")
+                .define("XMP_WinBuild", "1")
+                .define("WIN64", "")
+                .define("_WIN64", "1")
+                .define("NOMINMAX", "")
+                .define("UNICODE", "")
+                .define("_UNICODE", "")
+                .define("NDEBUG", "")
+                .define("_LARGEFILE64_SOURCE", "0")
+                .flag("/EHsc")
+                .flag("/GF")
+                .flag("/GS")
+                .flag("/MP")
+                .flag("/wd4100")
+                .flag("/wd4189")
+                .flag("/wd4245")
+                .flag("/wd4310")
+                .flag("/wd4458")
+                .flag("/wd4505")
+                .flag("/wd4530")
+                .flag("/wd4701")
+                .flag("/wd4702")
+                .flag("/wd4996")
+                .include("external/xmp_toolkit/XMPCore/resource/win")
+                .include("external/xmp_toolkit/XMPFiles/resource/win")
+                .file("external/xmp_toolkit/XMPCore/source/WXMPIterator.cpp")
+                .file("external/xmp_toolkit/source/Host_IO-Win.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_WIN.cpp");
+        }
 
-        println!("cargo:rustc-link-lib=framework=Carbon");
-        println!("cargo:rustc-link-lib=framework=Security");
-    } else if target_os == Ok("linux".to_string()) {
-        config
-            .define("UNIX_ENV", "1")
-            .define("XMP_UNIXBuild", "1")
-            .flag("-Wno-class-memaccess")
-            .flag("-Wno-extra")
-            .flag("-Wno-ignored-qualifiers")
-            .flag("-Wno-int-in-bool-context")
-            .flag("-Wno-int-to-pointer-cast")
-            .flag("-Wno-multichar")
-            .flag("-Wno-parentheses")
-            .flag("-Wno-unused-but-set-variable")
-            .flag("-Wno-type-limits")
-            .include("external/xmp_toolkit/XMPCore/resource/linux")
-            .include("external/xmp_toolkit/XMPFiles/resource/linux")
-            .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
-            .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
-    } else {
-        // See https://github.com/amethyst/rlua/blob/master/build.rs
-        // for suggestions on how to handle other operating systems.
+        "macos" => {
+            config
+                .define("MAC_ENV", "1")
+                .define("XMP_MacBuild", "1")
+                .define("_LARGEFILE64_SOURCE", None)
+                .flag("-Wno-deprecated-declarations")
+                .flag("-Wno-deprecated-register")
+                .flag("-Wno-null-conversion")
+                .include("external/xmp_toolkit/XMPCore/resource/mac")
+                .include("external/xmp_toolkit/XMPFiles/resource/mac")
+                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp");
 
-        panic!("Not prepared to build for this OS yet.");
-    }
+            println!("cargo:rustc-link-lib=framework=Carbon");
+            println!("cargo:rustc-link-lib=framework=Security");
+        }
+
+        "linux" => {
+            config
+                .define("UNIX_ENV", "1")
+                .define("XMP_UNIXBuild", "1")
+                .define("_LARGEFILE64_SOURCE", None)
+                .flag("-Wno-class-memaccess")
+                .flag("-Wno-extra")
+                .flag("-Wno-ignored-qualifiers")
+                .flag("-Wno-int-in-bool-context")
+                .flag("-Wno-int-to-pointer-cast")
+                .flag("-Wno-multichar")
+                .flag("-Wno-parentheses")
+                .flag("-Wno-unused-but-set-variable")
+                .flag("-Wno-type-limits")
+                .include("external/xmp_toolkit/XMPCore/resource/linux")
+                .include("external/xmp_toolkit/XMPFiles/resource/linux")
+                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
+        }
+
+        _ => {
+            // See https://github.com/amethyst/rlua/blob/master/build.rs
+            // for suggestions on how to handle other operating systems.
+
+            panic!("Not prepared to build for this OS ({:?}) yet.", target_os);
+        }
+    };
 
     config
         .cpp(true)
-        .define("HAVE_EXPAT_CONFIG_H", "1")
         .define("TXMP_STRING_TYPE", "std::string")
         .define("XML_STATIC", "1")
         .define("XMP_StaticBuild", "1")
-        .define("_LARGEFILE64_SOURCE", None)
+        .define("HAVE_EXPAT_CONFIG_H", "1")
         .flag_if_supported("-std=c++11")
         .flag_if_supported("-Wno-deprecated")
         .flag_if_supported("-Wno-deprecated-declarations")
@@ -278,45 +317,48 @@ where
 fn compile_for_docs() {
     let mut config = cc::Build::new();
 
-    let target_os = env::var("CARGO_CFG_TARGET_OS");
+    let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not defined");
 
-    if target_os == Ok("macos".to_string()) {
-        config
-            .define("MAC_ENV", "1")
-            .define("XMP_MacBuild", "1")
-            .flag("-Wno-deprecated-declarations")
-            .flag("-Wno-deprecated-register")
-            .flag("-Wno-null-conversion")
-            .include("external/xmp_toolkit/XMPCore/resource/mac")
-            .include("external/xmp_toolkit/XMPFiles/resource/mac")
-            .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
-            .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp");
+    match target_os.as_ref() {
+        "macos" => {
+            config
+                .define("MAC_ENV", "1")
+                .define("XMP_MacBuild", "1")
+                .flag("-Wno-deprecated-declarations")
+                .flag("-Wno-deprecated-register")
+                .flag("-Wno-null-conversion")
+                .include("external/xmp_toolkit/XMPCore/resource/mac")
+                .include("external/xmp_toolkit/XMPFiles/resource/mac")
+                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp");
 
-        println!("cargo:rustc-link-lib=framework=Carbon");
-        println!("cargo:rustc-link-lib=framework=Security");
-    } else if target_os == Ok("linux".to_string()) {
-        config
-            .define("UNIX_ENV", "1")
-            .define("XMP_UNIXBuild", "1")
-            .flag("-Wno-class-memaccess")
-            .flag("-Wno-extra")
-            .flag("-Wno-ignored-qualifiers")
-            .flag("-Wno-int-in-bool-context")
-            .flag("-Wno-int-to-pointer-cast")
-            .flag("-Wno-multichar")
-            .flag("-Wno-parentheses")
-            .flag("-Wno-unused-but-set-variable")
-            .flag("-Wno-type-limits")
-            .include("external/xmp_toolkit/XMPCore/resource/linux")
-            .include("external/xmp_toolkit/XMPFiles/resource/linux")
-            .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
-            .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
-    } else {
-        // See https://github.com/amethyst/rlua/blob/master/build.rs
-        // for suggestions on how to handle other operating systems.
+            println!("cargo:rustc-link-lib=framework=Carbon");
+            println!("cargo:rustc-link-lib=framework=Security");
+        }
 
-        panic!("Not prepared to build for this OS yet.");
-    }
+        "linux" => {
+            config
+                .define("UNIX_ENV", "1")
+                .define("XMP_UNIXBuild", "1")
+                .flag("-Wno-class-memaccess")
+                .flag("-Wno-extra")
+                .flag("-Wno-ignored-qualifiers")
+                .flag("-Wno-int-in-bool-context")
+                .flag("-Wno-int-to-pointer-cast")
+                .flag("-Wno-multichar")
+                .flag("-Wno-parentheses")
+                .flag("-Wno-unused-but-set-variable")
+                .flag("-Wno-type-limits")
+                .include("external/xmp_toolkit/XMPCore/resource/linux")
+                .include("external/xmp_toolkit/XMPFiles/resource/linux")
+                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
+        }
+
+        _ => {
+            panic!("Not prepared to do docs build for this OS yet.");
+        }
+    };
 
     config
         .cpp(true)
