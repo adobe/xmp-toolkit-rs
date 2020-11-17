@@ -77,7 +77,13 @@ extern "C" {
             // TO DO: Bridge file format parameter.
             // For my purposes at the moment,
             // kXMP_UnknownFile always suffices.
-            return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
+            try {
+                return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
+            }
+            catch (XMP_Error& e) {
+                fprintf(stderr, "Failed to initialize XMP Toolkit: %s\n", e.GetErrMsg());
+                return 0;
+            }
         #endif
     }
 
