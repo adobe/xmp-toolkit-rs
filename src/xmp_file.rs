@@ -319,7 +319,6 @@ mod tests {
                     OpenFileOptions::OPEN_FOR_UPDATE | OpenFileOptions::OPEN_USE_SMART_HANDLER
                 )
                 .is_err());
-
         }
     }
 }

@@ -78,7 +78,7 @@ extern "C" {
             // For my purposes at the moment,
             // kXMP_UnknownFile always suffices.
             try {
-                throw XMP_Error( kXMPErr_UserAbort, "User abort" );
+                //throw XMP_Error( kXMPErr_UserAbort, "User abort" ); // for testing this
                 return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
             }
             catch (XMP_Error& e) {
