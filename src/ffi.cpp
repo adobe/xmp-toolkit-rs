@@ -78,10 +78,11 @@ extern "C" {
             // For my purposes at the moment,
             // kXMP_UnknownFile always suffices.
             try {
+                throw XMP_Error( kXMPErr_UserAbort, "User abort" );
                 return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
             }
             catch (XMP_Error& e) {
-                fprintf(stderr, "Failed to initialize XMP Toolkit: %s\n", e.GetErrMsg());
+               fprintf(stderr, "Failed to open File: %s, %s\n", filePath, e.GetErrMsg());
                 return 0;
             }
         #endif

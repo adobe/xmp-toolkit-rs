@@ -305,4 +305,21 @@ mod tests {
             assert_eq!(m.property("http://purl.org/dc/terms/", "provenancx"), None);
         }
     }
+
+    #[test]
+    fn open_fail() {
+        let bad_path = PathBuf::from("doesnotexist.jpg");
+
+        {
+            let mut f = XmpFile::new();
+
+            assert!(f
+                .open_file(
+                    &bad_path,
+                    OpenFileOptions::OPEN_FOR_UPDATE | OpenFileOptions::OPEN_USE_SMART_HANDLER
+                )
+                .is_err());
+
+        }
+    }
 }
