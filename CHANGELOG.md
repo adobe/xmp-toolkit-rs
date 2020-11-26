@@ -2,6 +2,13 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without 
 
+## v0.1.6
+_25 November 2020_
+
+* Handle exceptions on OpenFile. (#13)
+* Add Rust 1.48.0 to CI build matrix.
+* Remove Rust 1.47.0 from CI build matrix.
+
 ## v0.1.5
 _12 October 2020_
 
