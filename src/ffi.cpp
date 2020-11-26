@@ -82,7 +82,7 @@ extern "C" {
                 return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
             }
             catch (XMP_Error& e) {
-               fprintf(stderr, "Failed to open File: %s, %s\n", filePath, e.GetErrMsg());
+                fprintf(stderr, "Failed to open File: %s, %s\n", filePath, e.GetErrMsg());
                 return 0;
             }
         #endif
