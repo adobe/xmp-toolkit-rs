@@ -114,10 +114,13 @@ fn main() {
                 .flag("-Wno-parentheses")
                 .flag("-Wno-unused-but-set-variable")
                 .flag("-Wno-type-limits")
+                .flag("-permissive")
                 .include("external/xmp_toolkit/XMPCore/resource/linux")
                 .include("external/xmp_toolkit/XMPFiles/resource/linux")
                 .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
                 .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
+
+            // Remove -fpermissive when https://github.com/libexpat/libexpat/issues/497 is addressed.
         }
 
         _ => {
