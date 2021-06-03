@@ -35,14 +35,14 @@ fn main() {
     // This is unfortunately necessary because the original XMP Toolkit requires
     // the modified versions of these files to be present in these locations.
 
-    copy_external_to_third_party("expat/lib");
+    copy_external_to_third_party("libexpat/expat/lib", "expat/lib");
 
     let mut zlib_adler_c_path = env::current_dir().unwrap();
     zlib_adler_c_path.push("external/xmp_toolkit/third-party/zlib/adler.c");
     if !zlib_adler_c_path.is_file() {
         zlib_adler_c_path.pop();
         let _ignore = std::fs::remove_dir_all(zlib_adler_c_path);
-        copy_external_to_third_party("zlib");
+        copy_external_to_third_party("zlib", "zlib");
     }
 
     let mut config = cc::Build::new();
@@ -269,17 +269,17 @@ fn main() {
         .compile("libxmp.a");
 }
 
-fn copy_external_to_third_party(name: &str) {
+fn copy_external_to_third_party(from_path: &str, to_path: &str) {
     use fs_extra::dir::{copy, CopyOptions};
 
     let mut dest_path = env::current_dir().unwrap();
     dest_path.push("external/xmp_toolkit/third-party");
-    dest_path.push(name);
+    dest_path.push(to_path);
 
     if !dest_path.is_dir() {
         let mut src_path = env::current_dir().unwrap();
         src_path.push("external");
-        src_path.push(name);
+        src_path.push(from_path);
 
         assert!(src_path.is_dir());
 
