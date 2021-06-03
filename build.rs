@@ -115,7 +115,7 @@ fn main() {
                 .flag("-Wno-parentheses")
                 .flag("-Wno-unused-but-set-variable")
                 .flag("-Wno-type-limits")
-                .flag("-permissive")
+                .flag("-fpermissive")
                 .include("external/xmp_toolkit/XMPCore/resource/linux")
                 .include("external/xmp_toolkit/XMPFiles/resource/linux")
                 .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
