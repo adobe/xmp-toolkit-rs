@@ -105,6 +105,7 @@ fn main() {
                 .define("UNIX_ENV", "1")
                 .define("XMP_UNIXBuild", "1")
                 .define("_LARGEFILE64_SOURCE", None)
+                .define("XML_DEV_URANDOM", None)
                 .flag("-Wno-class-memaccess")
                 .flag("-Wno-extra")
                 .flag("-Wno-ignored-qualifiers")
