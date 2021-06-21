@@ -14,6 +14,8 @@
 use std::{env, ffi::OsStr, path::PathBuf};
 
 fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+
     // docs.rs builds in an environment that doesn't allow us to modify
     // the underlying source. We don't actually need to fully compile,
     // so we do a specialized build that makes all the FFIs into no-ops.
@@ -43,6 +45,9 @@ fn main() {
         let _ignore = std::fs::remove_dir_all(zlib_adler_c_path);
         copy_external_to_third_party("zlib", "zlib");
     }
+
+    // C vs C++ compilation approach adapted from
+    // https://github.com/rust-lang/rust/blob/7510b0ca45d1204f8f0e9dc1bb2dc7d95b279c9a/library/unwind/build.rs.
 
     let mut expat_config = cc::Build::new();
     let mut xmp_config = cc::Build::new();
@@ -134,8 +139,6 @@ fn main() {
                 .include("external/xmp_toolkit/XMPFiles/resource/linux")
                 .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
                 .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
-
-            // Remove -fpermissive when https://github.com/libexpat/libexpat/issues/497 is addressed.
         }
 
         _ => {
@@ -159,9 +162,26 @@ fn main() {
         .compile("libexpat.a");
 
     let out_dir = env::var("OUT_DIR").expect("OUT_DIR not defined");
+    println!("cargo:rustc-link-search=native={}", &out_dir);
 
-    let mut libexpat_path = PathBuf::from(&out_dir);
-    libexpat_path.push("libexpat.a");
+    let mut expat_dir = PathBuf::from(&out_dir);
+    expat_dir.push("external/xmp_toolkit/third-party/expat/lib");
+
+    let mut count = 0;
+    for entry in std::fs::read_dir(&expat_dir).unwrap() {
+        let obj = entry.unwrap().path().canonicalize().unwrap();
+        if let Some(ext) = obj.extension() {
+            if ext == "o" {
+                xmp_config.object(&obj);
+                count += 1;
+            }
+        }
+    }
+    assert_eq!(
+        count, 3,
+        "Didn't find expected object files from {:?}",
+        &out_dir
+    );
 
     xmp_config
         .cpp(true)
@@ -299,7 +319,6 @@ fn main() {
         .file("external/xmp_toolkit/third-party/zlib/zutil.c")
         .file("src/ffi.cpp")
         .file("external/xmp_toolkit/third-party/zuid/interfaces/MD5.cpp")
-        .object(&libexpat_path)
         .compile("libxmp.a");
 }
 
