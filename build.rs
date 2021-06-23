@@ -11,10 +11,11 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::env;
-use std::ffi::OsStr;
+use std::{env, ffi::OsStr, path::PathBuf};
 
 fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+
     // docs.rs builds in an environment that doesn't allow us to modify
     // the underlying source. We don't actually need to fully compile,
     // so we do a specialized build that makes all the FFIs into no-ops.
@@ -35,23 +36,30 @@ fn main() {
     // This is unfortunately necessary because the original XMP Toolkit requires
     // the modified versions of these files to be present in these locations.
 
-    copy_external_to_third_party("expat/lib");
+    copy_external_to_third_party("libexpat/expat/lib", "expat/lib");
 
     let mut zlib_adler_c_path = env::current_dir().unwrap();
     zlib_adler_c_path.push("external/xmp_toolkit/third-party/zlib/adler.c");
     if !zlib_adler_c_path.is_file() {
         zlib_adler_c_path.pop();
         let _ignore = std::fs::remove_dir_all(zlib_adler_c_path);
-        copy_external_to_third_party("zlib");
+        copy_external_to_third_party("zlib", "zlib");
     }
 
-    let mut config = cc::Build::new();
+    // C vs C++ compilation approach adapted from
+    // https://github.com/rust-lang/rust/blob/7510b0ca45d1204f8f0e9dc1bb2dc7d95b279c9a/library/unwind/build.rs.
+
+    let mut expat_config = cc::Build::new();
+    let mut xmp_config = cc::Build::new();
 
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not defined");
-
     match target_os.as_ref() {
         "windows" => {
-            config
+            expat_config
+                .include("external/xmp_toolkit/XMPCore/resource/win")
+                .include("external/xmp_toolkit/XMPFiles/resource/win");
+
+            xmp_config
                 .define("WIN_ENV", "1")
                 .define("XMP_WinBuild", "1")
                 .define("WIN64", "")
@@ -83,13 +91,20 @@ fn main() {
         }
 
         "macos" => {
-            config
+            expat_config
+                .define("XML_DEV_URANDOM", None)
+                .include("external/xmp_toolkit/XMPCore/resource/mac")
+                .include("external/xmp_toolkit/XMPFiles/resource/mac");
+
+            xmp_config
                 .define("MAC_ENV", "1")
                 .define("XMP_MacBuild", "1")
                 .define("_LARGEFILE64_SOURCE", None)
+                .define("XML_DEV_URANDOM", None)
                 .flag("-Wno-deprecated-declarations")
                 .flag("-Wno-deprecated-register")
                 .flag("-Wno-null-conversion")
+                .flag("-Wno-int-in-bool-context")
                 .include("external/xmp_toolkit/XMPCore/resource/mac")
                 .include("external/xmp_toolkit/XMPFiles/resource/mac")
                 .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
@@ -100,10 +115,16 @@ fn main() {
         }
 
         "linux" => {
-            config
+            expat_config
+                .define("XML_DEV_URANDOM", None)
+                .include("external/xmp_toolkit/XMPCore/resource/linux")
+                .include("external/xmp_toolkit/XMPFiles/resource/linux");
+
+            xmp_config
                 .define("UNIX_ENV", "1")
                 .define("XMP_UNIXBuild", "1")
                 .define("_LARGEFILE64_SOURCE", None)
+                .define("XML_DEV_URANDOM", None)
                 .flag("-Wno-class-memaccess")
                 .flag("-Wno-extra")
                 .flag("-Wno-ignored-qualifiers")
@@ -113,6 +134,7 @@ fn main() {
                 .flag("-Wno-parentheses")
                 .flag("-Wno-unused-but-set-variable")
                 .flag("-Wno-type-limits")
+                .flag("-fpermissive")
                 .include("external/xmp_toolkit/XMPCore/resource/linux")
                 .include("external/xmp_toolkit/XMPFiles/resource/linux")
                 .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
@@ -127,7 +149,42 @@ fn main() {
         }
     };
 
-    config
+    expat_config
+        .cpp(false)
+        .define("HAVE_EXPAT_CONFIG_H", "1")
+        .define("NDEBUG", "")
+        .flag_if_supported("-Wno-enum-conversion")
+        .flag_if_supported("-Wno-missing-field-initializers")
+        .flag_if_supported("-Wno-unused-parameter")
+        .file("external/xmp_toolkit/third-party/expat/lib/xmlparse.c")
+        .file("external/xmp_toolkit/third-party/expat/lib/xmlrole.c")
+        .file("external/xmp_toolkit/third-party/expat/lib/xmltok.c")
+        .cargo_metadata(false)
+        .compile("libexpat.a");
+
+    let out_dir = env::var("OUT_DIR").expect("OUT_DIR not defined");
+    println!("cargo:rustc-link-search=native={}", &out_dir);
+
+    let mut expat_dir = PathBuf::from(&out_dir);
+    expat_dir.push("external/xmp_toolkit/third-party/expat/lib");
+
+    let mut count = 0;
+    for entry in std::fs::read_dir(&expat_dir).unwrap() {
+        let obj = entry.unwrap().path().canonicalize().unwrap();
+        if let Some(ext) = obj.extension() {
+            if ext == "o" {
+                xmp_config.object(&obj);
+                count += 1;
+            }
+        }
+    }
+    assert_eq!(
+        count, 3,
+        "Didn't find expected object files from {:?}",
+        &out_dir
+    );
+
+    xmp_config
         .cpp(true)
         .define("TXMP_STRING_TYPE", "std::string")
         .define("XML_STATIC", "1")
@@ -246,9 +303,6 @@ fn main() {
         .file("external/xmp_toolkit/XMPFiles/source/WXMPFiles.cpp")
         .file("external/xmp_toolkit/XMPFiles/source/XMPFiles.cpp")
         .file("external/xmp_toolkit/XMPFiles/source/XMPFiles_Impl.cpp")
-        .file("external/xmp_toolkit/third-party/expat/lib/xmlparse.c")
-        .file("external/xmp_toolkit/third-party/expat/lib/xmlrole.c")
-        .file("external/xmp_toolkit/third-party/expat/lib/xmltok.c")
         .file("external/xmp_toolkit/third-party/zlib/adler32.c")
         .file("external/xmp_toolkit/third-party/zlib/compress.c")
         .file("external/xmp_toolkit/third-party/zlib/crc32.c")
@@ -264,22 +318,22 @@ fn main() {
         .file("external/xmp_toolkit/third-party/zlib/trees.c")
         .file("external/xmp_toolkit/third-party/zlib/uncompr.c")
         .file("external/xmp_toolkit/third-party/zlib/zutil.c")
-        .file("external/xmp_toolkit/third-party/zuid/interfaces/MD5.cpp")
         .file("src/ffi.cpp")
+        .file("external/xmp_toolkit/third-party/zuid/interfaces/MD5.cpp")
         .compile("libxmp.a");
 }
 
-fn copy_external_to_third_party(name: &str) {
+fn copy_external_to_third_party(from_path: &str, to_path: &str) {
     use fs_extra::dir::{copy, CopyOptions};
 
     let mut dest_path = env::current_dir().unwrap();
     dest_path.push("external/xmp_toolkit/third-party");
-    dest_path.push(name);
+    dest_path.push(to_path);
 
     if !dest_path.is_dir() {
         let mut src_path = env::current_dir().unwrap();
         src_path.push("external");
-        src_path.push(name);
+        src_path.push(from_path);
 
         assert!(src_path.is_dir());
 

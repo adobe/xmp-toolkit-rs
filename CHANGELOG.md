@@ -2,6 +2,11 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without 
 
+## v0.1.8
+_03 June 2021_
+
+* Include libexpat via git submodule and update to version 2.4.1. (#18)
+
 ## v0.1.7
 _29 March 2021_
 

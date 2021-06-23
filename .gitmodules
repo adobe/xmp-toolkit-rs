@@ -1,3 +1,6 @@
 [submodule "external/xmp_toolkit"]
 	path = external/xmp_toolkit
 	url = https://github.com/adobe/XMP-Toolkit-SDK.git
+[submodule "external/libexpat"]
+	path = external/libexpat
+	url = https://github.com/libexpat/libexpat.git
