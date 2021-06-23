@@ -159,6 +159,7 @@ fn main() {
         .file("external/xmp_toolkit/third-party/expat/lib/xmlparse.c")
         .file("external/xmp_toolkit/third-party/expat/lib/xmlrole.c")
         .file("external/xmp_toolkit/third-party/expat/lib/xmltok.c")
+        .cargo_metadata(false)
         .compile("libexpat.a");
 
     let out_dir = env::var("OUT_DIR").expect("OUT_DIR not defined");
