@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 _date_
 
 * Bumped MSRV to 1.46.0 due to new dependency from bitflags crate.
+* Add Rust 1.55.0 to CI build matrix.
+* Remove Rust 1.53.0 from CI build matrix.
 
 ## v0.1.8
 _23 June 2021_
