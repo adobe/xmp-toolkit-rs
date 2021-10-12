@@ -17,7 +17,7 @@ Contributions that ...
 
 ## Rust Language Support
 
-As of this writing, this crate requires **Rust version 1.44** or newer. (The CI builds use this version of Rust.) This may be increased to a newer version at any time, but will be noted in the changelog.
+As of this writing, this crate requires **Rust version 1.46** or newer. (The CI builds use this version of Rust.) This may be increased to a newer version at any time, but will be noted in the changelog.
 
 This crate follows all of the typical Rust conventions (`cargo build`, `cargo test`, etc.). There is a `build.rs` script which will ensure that the C++ portions of the library are built as needed. It may need to be updated for platforms that haven't already been tested.
 

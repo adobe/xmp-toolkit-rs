@@ -1,4 +1,8 @@
-on: [push]
+on:  
+  push:
+  pull_request:
+    branches:
+      - main
 
 name: Tests
 
@@ -9,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        rust_version: [1.44.0, 1.53.0]
+        rust_version: [1.46.0, 1.55.0]
 
     steps:
       - name: Checkout repository
