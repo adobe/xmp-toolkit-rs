@@ -2,6 +2,11 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without 
 
+## Unreleased (likely v0.2.0)
+_date_
+
+* Bumped MSRV to 1.46.0 due to new dependency from bitflags crate.
+
 ## v0.1.8
 _23 June 2021_
 
