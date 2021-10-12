@@ -1,11 +1,11 @@
 # Changelog for v0.x Series
 
-This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without 
+This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without a major version increase.
 
-## Unreleased (likely v0.2.0)
-_date_
+## v0.2.0
+_12 October 2021_
 
-* Update XMP Toolkit submodule to August 2021 Release
+* Update XMP Toolkit submodule to August 2021 Release.
 * Bumped MSRV to 1.46.0 due to new dependency from bitflags crate.
 * Add Rust 1.55.0 to CI build matrix.
 * Remove Rust 1.53.0 from CI build matrix.
