@@ -4,7 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 ## Unreleased
 
-* Update XMP Toolkit submodule to October 2021 Release.
+* Add Rust 1.56.0 to CI build matrix. (#29)
+* Remove Rust 1.53.0 from CI build matrix.
+* Update XMP Toolkit submodule to October 2021 Release. (#28)
 
 ## v0.2.0
 _12 October 2021_
