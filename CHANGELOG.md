@@ -2,6 +2,10 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without a major version increase.
 
+## Unreleased
+
+* Update XMP Toolkit submodule to October 2021 Release.
+
 ## v0.2.0
 _12 October 2021_
 
