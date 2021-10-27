@@ -2,7 +2,8 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without a major version increase.
 
-## Unreleased
+## v0.3.0
+_27 October 2021_
 
 * Add Rust 1.56.0 to CI build matrix. (#29)
 * Remove Rust 1.53.0 from CI build matrix.
