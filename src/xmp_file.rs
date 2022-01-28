@@ -274,21 +274,15 @@ mod tests {
             let mut m = opt_m.unwrap();
             m.set_property("http://purl.org/dc/terms/", "provenance", "blah");
 
-            assert_eq!(
-                m.does_property_exist("http://purl.org/dc/terms/", "provenance"),
-                true
-            );
-            assert_eq!(
-                m.does_property_exist("http://purl.org/dc/terms/", "provenancx"),
-                false
-            );
+            assert!(m.does_property_exist("http://purl.org/dc/terms/", "provenance"),);
+            assert!(!m.does_property_exist("http://purl.org/dc/terms/", "provenancx"),);
 
             if m.does_property_exist(XMP_NS_XMP, "MetadataDate") {
                 let updated_time = XmpDateTime::current();
                 m.set_property_date(XMP_NS_XMP, "MetadataDate", &updated_time);
             }
 
-            assert_eq!(f.can_put_xmp(&m), true);
+            assert!(f.can_put_xmp(&m));
             f.put_xmp(&m);
 
             f.close();
