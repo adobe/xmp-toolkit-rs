@@ -11,12 +11,11 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use bitflags::bitflags;
-use std::ffi::CString;
-use std::path::Path;
+use std::{ffi::CString, fmt, path::Path};
 
-use crate::ffi;
-use crate::xmp_meta::XmpMeta;
+use bitflags::bitflags;
+
+use crate::{ffi, xmp_meta::XmpMeta};
 
 bitflags! {
     /// Option flags for `XMPFile::open_file()`.
@@ -55,6 +54,23 @@ bitflags! {
     }
 }
 
+/// Describes the potential error conditions that might arise from `XmpFile` operations.
+#[derive(Debug)]
+pub enum XmpFileError {
+    /// Returned if the XMP Toolkit could not open the file.
+    CantOpenFile,
+}
+
+impl fmt::Display for XmpFileError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            Self::CantOpenFile => {
+                write!(f, "could not open XMP content from this file")
+            }
+        }
+    }
+}
+
 /// The `XmpFile` struct allows access to the main (document-level) metadata in a file.
 ///
 /// This provides convenient access to the main, or document level, XMP for a file. Use
@@ -70,12 +86,6 @@ bitflags! {
 /// modes.
 pub struct XmpFile {
     f: *mut ffi::CXmpFile,
-}
-
-/// Describes the potential error conditions that might arise from `XmpFile` operations.
-#[derive(Debug)]
-pub enum XmpFileError {
-    CantOpenFile,
 }
 
 impl Drop for XmpFile {
