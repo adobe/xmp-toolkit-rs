@@ -2,6 +2,14 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without a major version increase.
 
+## v0.3.1
+_28 January 2022_
+
+* Implement `Display` trait in `XmpFileError` enum. (#32)
+* Fix Clippy warning about `assert_eq!` with a bool value. (#33)
+* Add Rust 1.58.0 to CI build matrix. (#30)
+* Remove Rust 1.56.0 from CI build matrix.
+
 ## v0.3.0
 _27 October 2021_
 
