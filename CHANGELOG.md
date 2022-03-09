@@ -2,6 +2,14 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without a major version increase.
 
+## v0.3.2
+_08 March 2022_
+
+* Update XMP Toolkit to February 2022 release. (#35)
+* Update libexpat to v2.4.6. (#36)
+* Add Rust 1.59.0 to CI build matrix. (#30)
+* Remove Rust 1.58.0 from CI build matrix.
+
 ## v0.3.1
 _28 January 2022_
 
