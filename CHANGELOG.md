@@ -7,7 +7,7 @@ _08 March 2022_
 
 * Update XMP Toolkit to February 2022 release. (#35)
 * Update libexpat to v2.4.6. (#36)
-* Add Rust 1.59.0 to CI build matrix. (#30)
+* Add Rust 1.59.0 to CI build matrix.
 * Remove Rust 1.58.0 from CI build matrix.
 
 ## v0.3.1
