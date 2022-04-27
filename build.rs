@@ -381,6 +381,7 @@ fn compile_for_docs() {
                 .flag("-Wno-deprecated-declarations")
                 .flag("-Wno-deprecated-register")
                 .flag("-Wno-null-conversion")
+                .flag("-Wno-unused-but-set-variable")
                 .include("external/xmp_toolkit/XMPCore/resource/mac")
                 .include("external/xmp_toolkit/XMPFiles/resource/mac")
                 .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
