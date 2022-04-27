@@ -130,14 +130,14 @@ void ZLIB_INTERNAL z_error (m)
 /* exported to allow conversion of error code to string for compress() and
  * uncompress()
  */
-const char * ZEXPORT zError(
-    int err)
+const char * ZEXPORT zError(err)
+    int err;
 {
     return ERR_MSG(err);
 }
 
-#if defined(_WIN32_WCE)
-    /* The Microsoft C Run-Time Library for Windows CE doesn't have
+#if defined(_WIN32_WCE) && _WIN32_WCE < 0x800
+    /* The older Microsoft C Run-Time Library for Windows CE doesn't have
      * errno.  We define it as a global variable to simplify porting.
      * Its value is always 0 and should not be used.
      */
@@ -302,19 +302,19 @@ extern voidp  calloc OF((uInt items, uInt size));
 extern void   free   OF((voidpf ptr));
 #endif
 
-voidpf ZLIB_INTERNAL zcalloc (
-    voidpf opaque,
-    unsigned items,
-    unsigned size)
+voidpf ZLIB_INTERNAL zcalloc (opaque, items, size)
+    voidpf opaque;
+    unsigned items;
+    unsigned size;
 {
     (void)opaque;
     return sizeof(uInt) > 2 ? (voidpf)malloc(items * size) :
                               (voidpf)calloc(items, size);
 }
 
-void ZLIB_INTERNAL zcfree (
-    voidpf opaque,
-    voidpf ptr)
+void ZLIB_INTERNAL zcfree (opaque, ptr)
+    voidpf opaque;
+    voidpf ptr;
 {
     (void)opaque;
     free(ptr);

@@ -1,11 +1,11 @@
 /* gzlib.c -- zlib functions common to reading and writing gzip files
- * Copyright (C) 2004-2017 Mark Adler
+ * Copyright (C) 2004-2019 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
 #include "gzguts.h"
 
-#if defined(_WIN32) && !defined(__BORLANDC__) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(__BORLANDC__)
 #  define LSEEK _lseeki64
 #else
 #if defined(_LARGEFILE64_SOURCE) && _LFS64_LARGEFILE-0
@@ -72,8 +72,8 @@ char ZLIB_INTERNAL *gz_strwinerror (error)
 #endif /* UNDER_CE */
 
 /* Reset gzip file state */
-local void gz_reset(
-    gz_statep state)
+local void gz_reset(state)
+    gz_statep state;
 {
     state->x.have = 0;              /* no output data available */
     if (state->mode == GZ_READ) {   /* for reading ... */
@@ -81,6 +81,8 @@ local void gz_reset(
         state->past = 0;            /* have not read past end yet */
         state->how = LOOK;          /* look for gzip header */
     }
+    else                            /* for writing ... */
+        state->reset = 0;           /* no deflateReset pending */
     state->seek = 0;                /* no seek request pending */
     gz_error(state, Z_OK, NULL);    /* clear error */
     state->x.pos = 0;               /* no uncompressed data yet */
@@ -88,10 +90,10 @@ local void gz_reset(
 }
 
 /* Open a gzip file either by name or file descriptor. */
-local gzFile gz_open(
-    const void *path,
-    int fd,
-    const char *mode)
+local gzFile gz_open(path, fd, mode)
+    const void *path;
+    int fd;
+    const char *mode;
 {
     gz_statep state;
     z_size_t len;
@@ -267,25 +269,25 @@ local gzFile gz_open(
 }
 
 /* -- see zlib.h -- */
-gzFile ZEXPORT gzopen(
-    const char *path,
-    const char *mode)
+gzFile ZEXPORT gzopen(path, mode)
+    const char *path;
+    const char *mode;
 {
     return gz_open(path, -1, mode);
 }
 
 /* -- see zlib.h -- */
-gzFile ZEXPORT gzopen64(
-    const char *path,
-    const char *mode)
+gzFile ZEXPORT gzopen64(path, mode)
+    const char *path;
+    const char *mode;
 {
     return gz_open(path, -1, mode);
 }
 
 /* -- see zlib.h -- */
-gzFile ZEXPORT gzdopen(
-    int fd,
-    const char *mode)
+gzFile ZEXPORT gzdopen(fd, mode)
+    int fd;
+    const char *mode;
 {
     char *path;         /* identifier for error messages */
     gzFile gz;
@@ -313,9 +315,9 @@ gzFile ZEXPORT gzopen_w(path, mode)
 #endif
 
 /* -- see zlib.h -- */
-int ZEXPORT gzbuffer(
-    gzFile file,
-    unsigned size)
+int ZEXPORT gzbuffer(file, size)
+    gzFile file;
+    unsigned size;
 {
     gz_statep state;
 
@@ -340,8 +342,8 @@ int ZEXPORT gzbuffer(
 }
 
 /* -- see zlib.h -- */
-int ZEXPORT gzrewind(
-    gzFile file)
+int ZEXPORT gzrewind(file)
+    gzFile file;
 {
     gz_statep state;
 
@@ -363,10 +365,10 @@ int ZEXPORT gzrewind(
 }
 
 /* -- see zlib.h -- */
-z_off64_t ZEXPORT gzseek64(
-    gzFile file,
-    z_off64_t offset,
-    int whence)
+z_off64_t ZEXPORT gzseek64(file, offset, whence)
+    gzFile file;
+    z_off64_t offset;
+    int whence;
 {
     unsigned n;
     z_off64_t ret;
@@ -397,7 +399,7 @@ z_off64_t ZEXPORT gzseek64(
     /* if within raw area while reading, just go there */
     if (state->mode == GZ_READ && state->how == COPY &&
             state->x.pos + offset >= 0) {
-        ret = LSEEK(state->fd, offset - state->x.have, SEEK_CUR);
+        ret = LSEEK(state->fd, offset - (z_off64_t)state->x.have, SEEK_CUR);
         if (ret == -1)
             return -1;
         state->x.have = 0;
@@ -440,10 +442,10 @@ z_off64_t ZEXPORT gzseek64(
 }
 
 /* -- see zlib.h -- */
-z_off_t ZEXPORT gzseek(
-    gzFile file,
-    z_off_t offset,
-    int whence)
+z_off_t ZEXPORT gzseek(file, offset, whence)
+    gzFile file;
+    z_off_t offset;
+    int whence;
 {
     z_off64_t ret;
 
@@ -452,8 +454,8 @@ z_off_t ZEXPORT gzseek(
 }
 
 /* -- see zlib.h -- */
-z_off64_t ZEXPORT gztell64(
-    gzFile file)
+z_off64_t ZEXPORT gztell64(file)
+    gzFile file;
 {
     gz_statep state;
 
@@ -469,8 +471,8 @@ z_off64_t ZEXPORT gztell64(
 }
 
 /* -- see zlib.h -- */
-z_off_t ZEXPORT gztell(
-    gzFile file)
+z_off_t ZEXPORT gztell(file)
+    gzFile file;
 {
     z_off64_t ret;
 
@@ -479,8 +481,8 @@ z_off_t ZEXPORT gztell(
 }
 
 /* -- see zlib.h -- */
-z_off64_t ZEXPORT gzoffset64(
-    gzFile file)
+z_off64_t ZEXPORT gzoffset64(file)
+    gzFile file;
 {
     z_off64_t offset;
     gz_statep state;
@@ -502,8 +504,8 @@ z_off64_t ZEXPORT gzoffset64(
 }
 
 /* -- see zlib.h -- */
-z_off_t ZEXPORT gzoffset(
-    gzFile file)
+z_off_t ZEXPORT gzoffset(file)
+    gzFile file;
 {
     z_off64_t ret;
 
@@ -512,8 +514,8 @@ z_off_t ZEXPORT gzoffset(
 }
 
 /* -- see zlib.h -- */
-int ZEXPORT gzeof(
-    gzFile file)
+int ZEXPORT gzeof(file)
+    gzFile file;
 {
     gz_statep state;
 
@@ -529,9 +531,9 @@ int ZEXPORT gzeof(
 }
 
 /* -- see zlib.h -- */
-const char * ZEXPORT gzerror(
-    gzFile file,
-    int *errnum)
+const char * ZEXPORT gzerror(file, errnum)
+    gzFile file;
+    int *errnum;
 {
     gz_statep state;
 
@@ -550,8 +552,8 @@ const char * ZEXPORT gzerror(
 }
 
 /* -- see zlib.h -- */
-void ZEXPORT gzclearerr(
-    gzFile file)
+void ZEXPORT gzclearerr(file)
+    gzFile file;
 {
     gz_statep state;
 
@@ -576,10 +578,10 @@ void ZEXPORT gzclearerr(
    memory).  Simply save the error message as a static string.  If there is an
    allocation failure constructing the error message, then convert the error to
    out of memory. */
-void ZLIB_INTERNAL gz_error(
-    gz_statep state,
-    int err,
-    const char *msg)
+void ZLIB_INTERNAL gz_error(state, err, msg)
+    gz_statep state;
+    int err;
+    const char *msg;
 {
     /* free previously allocated message and clear */
     if (state->msg != NULL) {
