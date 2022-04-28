@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 ## v0.3.4
 _28 April 2022_
 
-* Fix a packaging error that caused zlib v1.2.11 to still be used.
+* Fix a subtle bug in converting to modern function prototypes.
 
 ## v0.3.3
 _28 April 2022_
