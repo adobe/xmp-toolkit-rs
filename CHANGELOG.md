@@ -2,6 +2,13 @@
 
 This project adheres to [Semantic Versioning](https://semver.org), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without a major version increase.
 
+## v0.3.3
+_28 April 2022_
+
+* Update zlip to v1.2.12. (#38)
+* Add Rust 1.60.0 to CI build matrix.
+* Remove Rust 1.59.0 from CI build matrix.
+
 ## v0.3.2
 _08 March 2022_
 
