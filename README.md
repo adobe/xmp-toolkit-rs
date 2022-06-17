@@ -1,8 +1,6 @@
 # XMP Toolkit bindings for Rust
 
-[![Crate](https://img.shields.io/crates/v/xmp_toolkit.svg)](https://crates.io/crates/xmp_toolkit)
-[![API](https://docs.rs/xmp_toolkit/badge.svg)](https://docs.rs/xmp_toolkit)
-[![Tests](https://github.com/adobe/xmp-toolkit-rs/workflows/Tests/badge.svg)](https://github.com/adobe/xmp-toolkit-rs/actions?query=workflow%3ATests)
+[![CI](https://github.com/adobe/xmp-toolkit-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/adobe/xmp-toolkit-rs/actions/workflows/ci.yml) [![Latest Version](https://img.shields.io/crates/v/xmp_toolkit.svg)](https://crates.io/crates/xmp_toolkit) [![codecov](https://codecov.io/gh/adobe/xmp-toolkit-rs/branch/main/graph/badge.svg?token=z1yA0Y6HZK)](https://codecov.io/gh/adobe/xmp-toolkit-rs)
 
 This crate provides a binding of the [Adobe XMP Toolkit SDK](https://github.com/adobe/XMP-Toolkit-SDK/) to Rust.
 
@@ -15,7 +13,7 @@ Contributions that ...
 
 ... are especially welcomed. Please read the [Contributing Guide](./CONTRIBUTING.md) for more information.
 
-## Rust Language Support
+## Rust language support
 
 As of this writing, this crate requires **Rust version 1.46** or newer. (The CI builds use this version of Rust.) This may be increased to a newer version at any time, but will be noted in the changelog.
 
@@ -27,9 +25,13 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-xmp_toolkit = "0.3"
+xmp_toolkit = "0.3.6"
 ```
 
 ## License
 
-This project is licensed under the Apache V2 License or the MIT License, at your option. See the [LICENSE-MIT](./LICENSE-MIT) and [LICENSE-APACHE](./LICENSE-APACHE) files for more information.
+The `xmp_toolkit` crate is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
+
+See [LICENSE-APACHE](./LICENSE-APACHE) and [LICENSE-MIT](./LICENSE-MIT).
+
+Note that some components and dependent crates are licensed under different terms; please check the license terms for each crate and component for details.
