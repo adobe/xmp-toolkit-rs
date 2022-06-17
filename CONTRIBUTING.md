@@ -4,7 +4,7 @@ Thanks for choosing to contribute!
 
 The following are a set of guidelines to follow when contributing to this project.
 
-## Code Of Conduct
+## Code of Conduct
 
 This project adheres to the Adobe [code of conduct](../CODE_OF_CONDUCT.md). By participating,
 you are expected to uphold this code. Please report unacceptable behavior to
@@ -30,25 +30,11 @@ All submissions should come in the form of pull requests and need to be reviewed
 by project committers. Read [GitHub's pull request documentation](https://help.github.com/articles/about-pull-requests/)
 for more information on sending pull requests.
 
-Lastly, please follow the [pull request template](PULL_REQUEST_TEMPLATE.md) when
-submitting a pull request!
+Code submissions will need to pass all automated tests in place at the time of submission.
+These include such things as Rust code format, Clippy/lint checks, and unit test coverage.
 
-## Code Quality
-
-Please ensure that your contributions:
-
-* Follow [Rust's code format](https://github.com/rust-lang/rustfmt) where relevant.
-  (Hint: Run `cargo fmt` before committing.)
-* Provide [API documentation](https://doc.rust-lang.org/stable/rust-by-example/meta/doc.html)
-  where relevant. (If you are adding new APIs, please run `cargo doc` to review
-  the documentation.)
-* Provide test coverage for any new features being added.
-* Pass all existing tests. (Please run `cargo test` before submitting.)
-* Pass Rust's standard lint checks. (Please run `cargo clippy` before submitting.)
-
-With the exception of documentation and code coverage, all of these requirements
-are enforced by PR validation. Please fix any validation failures as they are
-flagged; that will save time for the reviewers who will read your PR.
+We encourage you to raise an issue in GitHub before starting work on a major addition to the crate.
+This will give us an opportunity to discuss API design and avoid duplicate efforts.
 
 ## From Contributor to Committer
 
@@ -61,4 +47,5 @@ feel free to reach out to existing committers to have a conversation about that.
 
 ## Security Issues
 
-Security issues shouldn't be reported on this issue tracker. Instead, [file an issue to our security experts](https://helpx.adobe.com/security/alertus.html).
+Security issues shouldn't be reported on this issue tracker. Instead,
+[file an issue to our security experts](https://helpx.adobe.com/security/alertus.html).
