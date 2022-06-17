@@ -96,6 +96,6 @@ jobs:
 
     - name: Publish crate
       run: |
-        cargo publish --token $CRATES_IO_SECRET
+        cargo publish --no-verify --token $CRATES_IO_SECRET
       env:
         CRATES_IO_SECRET: ${{ secrets.CRATES_IO_SECRET }}
