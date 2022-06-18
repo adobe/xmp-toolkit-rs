@@ -11,12 +11,12 @@ _18 June 2022_
 
 * Fix publish workflow to include git submodules
 
-## 0.3.6
+## 0.3.6 (YANKED because the release was incomplete)
 _17 June 2022_
 
 * Use cargo publish --no-verify because repo contents must be modified during build
 
-## 0.3.5
+## 0.3.5 (NOT RELEASED on crates.io due to bug in publish workflow)
 _17 June 2022_
 
 * Improve build infrastructure ([#44](https://github.com/adobe/xmp-toolkit-rs/pull/44))
