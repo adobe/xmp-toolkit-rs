@@ -12,6 +12,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
+        submodules: true
         token: ${{ secrets.GH_ADMIN_COMMIT_TOKEN }}
 
     - name: Get latest existing tag
