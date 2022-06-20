@@ -11,10 +11,12 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::ffi::{CStr, CString};
+use std::{
+    ffi::{CStr, CString},
+    path::Path,
+};
 
-use crate::ffi;
-use crate::xmp_date_time::XmpDateTime;
+use crate::{ffi, OpenFileOptions, XmpDateTime, XmpFile, XmpFileError};
 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
@@ -45,6 +47,24 @@ impl XmpMeta {
     pub fn new() -> XmpMeta {
         let m = unsafe { ffi::CXmpMetaNew() };
         XmpMeta { m }
+    }
+
+    /// Reads the XMP from a file without keeping the file open.
+    ///
+    /// This is a convenience function for read-only workflows.
+    ///
+    /// If no XMP is found in the file, will return an empty `XmpMeta`
+    /// struct (i.e. same as `XmpMeta::new()`).
+    ///
+    /// ## Arguments
+    ///
+    /// * `path`: Path to the file to be read
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, XmpFileError> {
+        let mut f = XmpFile::new();
+
+        f.open_file(path, OpenFileOptions::OPEN_ONLY_XMP)?;
+
+        Ok(f.xmp().unwrap_or_else(|| Self::new()))
     }
 
     /// Registers a namespace URI with a suggested prefix.
@@ -136,7 +156,7 @@ impl XmpMeta {
         }
     }
 
-    /// Creates or sets a property value using an `XmpDateTeim` structure.
+    /// Creates or sets a property value using an `XmpDateTime` structure.
     ///
     /// This is the simplest property setter. Use it for top-level
     /// simple properties.
@@ -164,7 +184,7 @@ impl XmpMeta {
         }
     }
 
-    /// Rreports whether a property currently exists.
+    /// Reports whether a property currently exists.
     ///
     /// ## Arguments
     ///
@@ -186,9 +206,40 @@ impl XmpMeta {
 mod tests {
     use super::*;
 
+    use std::{env, path::PathBuf};
+
+    fn fixture_path(name: &str) -> PathBuf {
+        let root_dir = &env::var("CARGO_MANIFEST_DIR").unwrap();
+        let mut path = PathBuf::from(root_dir);
+        path.push("tests/fixtures");
+        path.push(name);
+        path
+    }
+
     #[test]
     fn new_empty() {
         let mut _m = XmpMeta::new();
+    }
+
+    #[test]
+    fn from_file() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+                .unwrap(),
+            "Adobe Photoshop CS2 Windows"
+        );
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+                .unwrap(),
+            "Dell 1905FP Color Profile"
+        );
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
     }
 
     #[test]
