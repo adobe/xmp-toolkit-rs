@@ -64,7 +64,7 @@ impl XmpMeta {
 
         f.open_file(path, OpenFileOptions::OPEN_ONLY_XMP)?;
 
-        Ok(f.xmp().unwrap_or_else(|| Self::new()))
+        Ok(f.xmp().unwrap_or_else(Self::new))
     }
 
     /// Registers a namespace URI with a suggested prefix.
