@@ -25,7 +25,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-xmp_toolkit = "0.3.7"
+xmp_toolkit = "0.3.8"
 ```
 
 ## License

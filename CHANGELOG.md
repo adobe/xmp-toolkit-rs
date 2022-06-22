@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.3.8
+_22 June 2022_
+
+* Add convenience function for reading XMP from a file ([#46](https://github.com/adobe/xmp-toolkit-rs/pull/46))
+* Update XMP Toolkit to June 2022 release ([#42](https://github.com/adobe/xmp-toolkit-rs/pull/42))
+* Update libexpat to v2.4.8 ([#41](https://github.com/adobe/xmp-toolkit-rs/pull/41))
+
 ## 0.3.7
 _18 June 2022_
 
