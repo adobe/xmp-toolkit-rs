@@ -29,4 +29,5 @@ cc = "1.0"
 fs_extra = "1.2"
 
 [dev-dependencies]
+anyhow = "1.0"
 tempfile = "3.2"
