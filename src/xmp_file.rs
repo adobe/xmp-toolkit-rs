@@ -71,6 +71,8 @@ impl fmt::Display for XmpFileError {
     }
 }
 
+impl std::error::Error for XmpFileError {}
+
 /// The `XmpFile` struct allows access to the main (document-level) metadata in a file.
 ///
 /// This provides convenient access to the main, or document level, XMP for a file. Use
