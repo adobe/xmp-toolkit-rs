@@ -17,68 +17,11 @@ use bitflags::bitflags;
 
 use crate::{ffi, xmp_meta::XmpMeta};
 
-bitflags! {
-    /// Option flags for `XMPFile::open_file()`.
-    /// Flags describing the set of modules to load.
-    pub struct OpenFileOptions: u32 {
-        /// Open for read-only access.
-        const OPEN_FOR_READ = 0x00000001;
-
-        /// Open for reading and writing.
-        const OPEN_FOR_UPDATE = 0x00000002;
-
-        /// Only the XMP is wanted, allows space/time optimizations.
-        const OPEN_ONLY_XMP = 0x00000004;
-
-        /// Force use of the given handler (format), do not even verify the format.
-        const FORCE_GIVEN_HANDLER = 0x00000008;
-
-        /// Be strict about only attempting to use the designated file handler,
-        /// no fallback to other handlers.
-        const OPEN_STRICTLY = 0x00000010;
-
-        /// Require the use of a smart handler.
-        const OPEN_USE_SMART_HANDLER = 0x00000020;
-
-        /// Force packet scanning, do not use a smart handler.
-        const OPEN_USE_PACKET_SCANNING = 0x00000040;
-
-        /// Only packet scan files "known" to need scanning.
-        const OPEN_LIMITED_SCANNING = 0x00000080;
-
-        /// Attempt to repair a file opened for update, default is to not open (throw an exception).
-        const OPEN_REPAIR_FILE = 0x00000100;
-
-        /// When updating a file, spend the effort necessary to optimize file layout.
-        const OPTIMIZE_FILE_LAYOUT = 0x00000200;
-    }
-}
-
-/// Describes the potential error conditions that might arise from `XmpFile` operations.
-#[derive(Debug)]
-pub enum XmpFileError {
-    /// Returned if the XMP Toolkit could not open the file.
-    CantOpenFile,
-}
-
-impl fmt::Display for XmpFileError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            Self::CantOpenFile => {
-                write!(f, "could not open XMP content from this file")
-            }
-        }
-    }
-}
-
-impl std::error::Error for XmpFileError {}
-
 /// The `XmpFile` struct allows access to the main (document-level) metadata in a file.
 ///
 /// This provides convenient access to the main, or document level, XMP for a file. Use
-/// it to obtain metadata from a file, which you can then manipulate with the `xmp_meta`
-/// struct; and to write new or changed
-/// metadata back out to a file.
+/// it to obtain metadata from a file, which you can then manipulate with the [`XmpMeta`]
+/// struct; and to write new or changed metadata back out to a file.
 ///
 /// The functions allow you to open a file, read and write the metadata, then close the file.
 /// While open, portions of the file might be maintained in RAM data structures. Memory
@@ -118,18 +61,19 @@ impl XmpFile {
     /// If the file handler supports legacy metadata reconciliation then legacy metadata is
     /// also read, unless `kXMPFiles_OpenOnlyXMP` is passed.
     ///
-    /// If the file is opened for read-only access (passing `kXMPFiles_OpenForRead`), the disk
-    /// file is closed immediately after reading the data from it; the `XMPFiles` struct, however,
-    /// remains in the open state until `drop()` is called.
+    /// If the file is opened for read-only access (passing [`OpenFileOptions::OPEN_FOR_READ`]),
+    /// the disk file is closed immediately after reading the data from it; the `XMPFile` struct,
+    /// however, remains in the open state until `drop()` is called.
     ///
-    /// If you update the XMP, you must call `put_xmp()` before the struct is dropped; if you
-    /// do not, any pending updates are lost.
+    /// If you update the XMP, you must call [`XmpFile::put_xmp()`] before the struct is dropped;
+    /// if you do not, any pending updates are lost.
     ///
-    /// Typically, the XMP is not parsed and legacy reconciliation is not performed until `xmp()`
-    /// is called, but this is not guaranteed. Specific file handlers might do earlier parsing of
-    /// the XMP. Delayed parsing and early disk file close for read-only access are optimizations
-    /// to help clients implementing file browsers, so that they can access the file briefly
-    /// and possibly display a thumbnail, then postpone more expensive XMP processing until later.
+    /// Typically, the XMP is not parsed and legacy reconciliation is not performed until
+    /// [`XmpFile::xmp()`] is called, but this is not guaranteed. Specific file handlers might
+    /// do earlier parsing of the XMP. Delayed parsing and early disk file close for read-only
+    /// access are optimizations to help clients implementing file browsers, so that they can
+    /// access the file briefly and possibly display a thumbnail, then postpone more expensive
+    /// XMP processing until later.
     ///
     /// ## Arguments
     ///
@@ -137,23 +81,19 @@ impl XmpFile {
     ///
     /// * `flags`: A set of option flags that describe the desired access. By default (zero)
     /// the file is opened for read-only access and the format handler decides on the level of
-    /// reconciliation that will be performed. See `OpenFileOptions`.
+    /// reconciliation that will be performed. See [`OpenFileOptions`].
     pub fn open_file<P: AsRef<Path>>(
         &mut self,
         path: P,
         flags: OpenFileOptions,
     ) -> Result<(), XmpFileError> {
-        match path_to_cstr(path.as_ref()) {
-            Some(c_path) => {
-                let ok = unsafe { ffi::CXmpFileOpen(self.f, c_path.as_ptr(), flags.bits()) };
-                if ok != 0 {
-                    Ok(())
-                } else {
-                    Err(XmpFileError::CantOpenFile)
-                }
+        if let Some(c_path) = path_to_cstr(path.as_ref()) {
+            if unsafe { ffi::CXmpFileOpen(self.f, c_path.as_ptr(), flags.bits()) } != 0 {
+                return Ok(());
             }
-            None => Err(XmpFileError::CantOpenFile),
         }
+
+        Err(XmpFileError::CantOpenFile)
     }
 
     /// Retrieves the XMP metadata from an open file.
@@ -186,7 +126,7 @@ impl XmpFile {
     /// Updates the XMP metadata in this object without writing out the file.
     ///
     /// This function supplies new XMP for the file. However, the disk file is not written until
-    /// the struct is closed with `close()`. The options provided when the file was opened
+    /// the struct is closed with [`XmpFile::close()`]. The options provided when the file was opened
     /// determine if reconciliation is done with other forms of metadata.
     pub fn put_xmp(&mut self, meta: &XmpMeta) {
         unsafe { ffi::CXmpFilePutXmp(self.f, meta.m) };
@@ -197,20 +137,79 @@ impl XmpFile {
     /// Performs any necessary output to the file and closes it. Files that are opened
     /// for update are written to only when closing.
     ///
-    /// If the file is opened for read-only access (passing `OpenFileOptions:OPEN_FOR_READ`),
-    /// the disk file is closed immediately after reading the data from it; the `XMPFiles`
-    /// object, however, remains in the open state. You must call `close()` when finished
-    /// using it. Other methods, such as `xmp()`, can only be used between the `open_file()`
-    /// and `close()` calls. The `XMPFiles` destructor does not call `close()`; if the struct
-    /// is dropped without closing, any pending updates are lost.
+    /// If the file is opened for read-only access (passing [`OpenFileOptions::OPEN_FOR_READ`]),
+    /// the disk file is closed immediately after reading the data from it; the `XMPFile`
+    /// struct, however, remains in the open state. You must call [`XmpFile::close()`] when finished
+    /// using it. Other methods, such as [`XmpFile::xmp()`], can only be used between the
+    /// [`XmpFile::open_file()`] and [`XmpFile::close()`] calls. The `XMPFile` destructor does
+    /// not call [`XmpFile::close()`]; if the struct is dropped without closing, any pending
+    /// updates are lost.
     ///
-    /// If the file is opened for update (passing `OpenFileOptions::OPEN_FOR_UPDATE`),
-    /// the disk file remains open until `close()` is called. The disk file is only updated
-    /// once, when `close()` is called, regardless of how many calls are made to `put_xmp()`.
+    /// If the file is opened for update (passing [`OpenFileOptions::OPEN_FOR_UPDATE`]),
+    /// the disk file remains open until [`XmpFile::close()`] is called. The disk file is only
+    /// updated once, when [`XmpFile::close()`] is called, regardless of how many calls are
+    /// made to [`XmpFile::put_xmp()`].
     pub fn close(&mut self) {
         unsafe { ffi::CXmpFileClose(self.f) };
     }
 }
+
+bitflags! {
+    /// Option flags for [`XMPFile::open_file()`].
+    ///
+    /// Flags describing the set of modules to load.
+    pub struct OpenFileOptions: u32 {
+        /// Open for read-only access.
+        const OPEN_FOR_READ = 0x00000001;
+
+        /// Open for reading and writing.
+        const OPEN_FOR_UPDATE = 0x00000002;
+
+        /// Only the XMP is wanted, allows space/time optimizations.
+        const OPEN_ONLY_XMP = 0x00000004;
+
+        /// Force use of the given handler (format), do not even verify the format.
+        const FORCE_GIVEN_HANDLER = 0x00000008;
+
+        /// Be strict about only attempting to use the designated file handler,
+        /// no fallback to other handlers.
+        const OPEN_STRICTLY = 0x00000010;
+
+        /// Require the use of a smart handler.
+        const OPEN_USE_SMART_HANDLER = 0x00000020;
+
+        /// Force packet scanning, do not use a smart handler.
+        const OPEN_USE_PACKET_SCANNING = 0x00000040;
+
+        /// Only packet scan files "known" to need scanning.
+        const OPEN_LIMITED_SCANNING = 0x00000080;
+
+        /// Attempt to repair a file opened for update, default is to not open (throw an exception).
+        const OPEN_REPAIR_FILE = 0x00000100;
+
+        /// When updating a file, spend the effort necessary to optimize file layout.
+        const OPTIMIZE_FILE_LAYOUT = 0x00000200;
+    }
+}
+
+/// Describes the potential error conditions that might arise from [`XmpFile`] operations.
+#[derive(Debug)]
+pub enum XmpFileError {
+    /// Returned if the XMP Toolkit could not open the file.
+    CantOpenFile,
+}
+
+impl fmt::Display for XmpFileError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            Self::CantOpenFile => {
+                write!(f, "could not open XMP content from this file")
+            }
+        }
+    }
+}
+
+impl std::error::Error for XmpFileError {}
 
 fn path_to_cstr(path: &Path) -> Option<CString> {
     match path.to_str() {
@@ -224,20 +223,20 @@ fn path_to_cstr(path: &Path) -> Option<CString> {
 
 #[cfg(test)]
 mod tests {
-    use std::env;
-    use std::fs;
-    use std::path::Path;
-    use std::path::PathBuf;
+    use super::*;
+
+    use std::{
+        env, fs,
+        path::{Path, PathBuf},
+    };
 
     use tempfile::tempdir;
 
-    use crate::xmp_const::*;
-    use crate::xmp_date_time::XmpDateTime;
-
-    use super::*;
+    use crate::{xmp_const::*, XmpDateTime};
 
     fn fixture_path(name: &str) -> String {
-        let root_dir = &env::var("CARGO_MANIFEST_DIR").expect("$CARGO_MANIFEST_DIR");
+        let root_dir = &env::var("CARGO_MANIFEST_DIR").unwrap();
+
         let mut path = PathBuf::from(root_dir);
         path.push("tests/fixtures");
         path.push(name);
