@@ -13,8 +13,6 @@
 
 use std::{ffi::CString, fmt, path::Path};
 
-use bitflags::bitflags;
-
 use crate::{ffi, xmp_meta::XmpMeta};
 
 /// The `XmpFile` struct allows access to the main (document-level) metadata in a file.
@@ -61,7 +59,7 @@ impl XmpFile {
     /// If the file handler supports legacy metadata reconciliation then legacy metadata is
     /// also read, unless `kXMPFiles_OpenOnlyXMP` is passed.
     ///
-    /// If the file is opened for read-only access (passing [`OpenFileOptions::OPEN_FOR_READ`]),
+    /// If the file is opened for read-only access (passing [`OpenFileOptions::for_read()`]),
     /// the disk file is closed immediately after reading the data from it; the `XMPFile` struct,
     /// however, remains in the open state until `drop()` is called.
     ///
@@ -79,16 +77,17 @@ impl XmpFile {
     ///
     /// * `path`: The path for the file.
     ///
-    /// * `flags`: A set of option flags that describe the desired access. By default (zero)
-    /// the file is opened for read-only access and the format handler decides on the level of
-    /// reconciliation that will be performed. See [`OpenFileOptions`].
+    /// * `flags`: A set of option flags that describe the desired access. By default
+    /// ([`OpenFileOptions::default()`]), the file is opened for read-only access and the
+    /// format handler decides on the level of reconciliation that will be performed.
+    /// See [`OpenFileOptions`] for other options.
     pub fn open_file<P: AsRef<Path>>(
         &mut self,
         path: P,
         flags: OpenFileOptions,
     ) -> Result<(), XmpFileError> {
         if let Some(c_path) = path_to_cstr(path.as_ref()) {
-            if unsafe { ffi::CXmpFileOpen(self.f, c_path.as_ptr(), flags.bits()) } != 0 {
+            if unsafe { ffi::CXmpFileOpen(self.f, c_path.as_ptr(), flags.options) } != 0 {
                 return Ok(());
             }
         }
@@ -112,7 +111,7 @@ impl XmpFile {
 
     /// Reports whether this file can be updated with a specific XMP packet.
     ///
-    /// Use this functino to determine if the file can probably be updated with a
+    /// Use this function to determine if the file can probably be updated with a
     /// given set of XMP metadata. This depends on the size of the packet, the
     /// options with which the file was opened, and the capabilities of the handler
     /// for the file format. The function obtains the length of the serialized
@@ -137,7 +136,7 @@ impl XmpFile {
     /// Performs any necessary output to the file and closes it. Files that are opened
     /// for update are written to only when closing.
     ///
-    /// If the file is opened for read-only access (passing [`OpenFileOptions::OPEN_FOR_READ`]),
+    /// If the file is opened for read-only access (passing [`OpenFileOptions::for_read()`]),
     /// the disk file is closed immediately after reading the data from it; the `XMPFile`
     /// struct, however, remains in the open state. You must call [`XmpFile::close()`] when finished
     /// using it. Other methods, such as [`XmpFile::xmp()`], can only be used between the
@@ -145,7 +144,7 @@ impl XmpFile {
     /// not call [`XmpFile::close()`]; if the struct is dropped without closing, any pending
     /// updates are lost.
     ///
-    /// If the file is opened for update (passing [`OpenFileOptions::OPEN_FOR_UPDATE`]),
+    /// If the file is opened for update (passing [`OpenFileOptions::for_update()`]),
     /// the disk file remains open until [`XmpFile::close()`] is called. The disk file is only
     /// updated once, when [`XmpFile::close()`] is called, regardless of how many calls are
     /// made to [`XmpFile::put_xmp()`].
@@ -154,41 +153,110 @@ impl XmpFile {
     }
 }
 
-bitflags! {
-    /// Option flags for [`XMPFile::open_file()`].
+/// Option flags for [`XmpFile::open_file()`].
+///
+/// Invoke by calling [`OpenFileOptions::default()`] and then calling methods
+/// on this struct to add options as needed.
+
+pub struct OpenFileOptions {
+    pub(crate) options: u32,
+}
+
+impl Default for OpenFileOptions {
+    fn default() -> Self {
+        Self { options: 0 }
+    }
+}
+
+impl OpenFileOptions {
+    /// Open for read-only access.
     ///
-    /// Flags describing the set of modules to load.
-    pub struct OpenFileOptions: u32 {
-        /// Open for read-only access.
-        const OPEN_FOR_READ = 0x00000001;
+    /// See `kXMPFiles_OpenForRead` constant in C++ SDK.
+    pub fn for_read(mut self) -> Self {
+        self.options |= 0x00000001;
+        self
+    }
 
-        /// Open for reading and writing.
-        const OPEN_FOR_UPDATE = 0x00000002;
+    /// Open for reading and writing.
+    ///
+    /// See `kXMPFiles_OpenForUpdate` constant in C++ SDK.
+    pub fn for_update(mut self) -> Self {
+        self.options |= 0x00000002;
+        self
+    }
 
-        /// Only the XMP is wanted, allows space/time optimizations.
-        const OPEN_ONLY_XMP = 0x00000004;
+    /// Only the XMP is wanted.
+    ///
+    /// This allows space/time optimizations.
+    ///
+    /// See `kXMPFiles_OpenOnlyXMP` constant in C++ SDK.
+    pub fn only_xmp(mut self) -> Self {
+        self.options |= 0x00000004;
+        self
+    }
 
-        /// Force use of the given handler (format), do not even verify the format.
-        const FORCE_GIVEN_HANDLER = 0x00000008;
+    /// Force use of the given handler (format).
+    ///
+    /// Do not even verify the format.
+    ///
+    /// See `kXMPFiles_ForceGivenHandler` constant in C++ SDK.
+    pub fn force_given_handler(mut self) -> Self {
+        self.options |= 0x00000008;
+        self
+    }
 
-        /// Be strict about only attempting to use the designated file handler,
-        /// no fallback to other handlers.
-        const OPEN_STRICTLY = 0x00000010;
+    /// Be strict about only attempting to use the designated file handler.
+    ///
+    /// Do not fall back to other handlers.
+    ///
+    /// See `kXMPFiles_OpenStrictly` constant in C++ SDK.
+    pub fn strict(mut self) -> Self {
+        self.options |= 0x00000010;
+        self
+    }
 
-        /// Require the use of a smart handler.
-        const OPEN_USE_SMART_HANDLER = 0x00000020;
+    /// Require the use of a smart handler.
+    ///
+    /// See `kXMPFiles_OpenUseSmartHandler` constant in C++ SDK.
+    pub fn use_smart_handler(mut self) -> Self {
+        self.options |= 0x00000020;
+        self
+    }
 
-        /// Force packet scanning, do not use a smart handler.
-        const OPEN_USE_PACKET_SCANNING = 0x00000040;
+    /// Force packet scanning.
+    ///
+    /// Do not use a smart handler.
+    ///
+    /// See `kXMPFiles_OpenUsePacketScanning` constant in C++ SDK.
+    pub fn use_packet_scanning(mut self) -> Self {
+        self.options |= 0x00000040;
+        self
+    }
 
-        /// Only packet scan files "known" to need scanning.
-        const OPEN_LIMITED_SCANNING = 0x00000080;
+    /// Only packet scan files "known" to need scanning.
+    ///
+    /// See `kXMPFiles_OpenLimitedScanning` constant in C++ SDK.
+    pub fn limited_scanning(mut self) -> Self {
+        self.options |= 0x00000080;
+        self
+    }
 
-        /// Attempt to repair a file opened for update, default is to not open (throw an exception).
-        const OPEN_REPAIR_FILE = 0x00000100;
+    /// Attempt to repair a file opened for update.
+    ///
+    /// Default is to not open (throw an exception).
+    ///
+    /// See `kXMPFiles_OpenRepairFile` constant in C++ SDK.
+    pub fn repair_file(mut self) -> Self {
+        self.options |= 0x00000100;
+        self
+    }
 
-        /// When updating a file, spend the effort necessary to optimize file layout.
-        const OPTIMIZE_FILE_LAYOUT = 0x00000200;
+    /// When updating a file, spend the effort necessary to optimize file layout.
+    ///
+    /// See `kXMPFiles_OptimizeFileLayout` constant in C++ SDK.
+    pub fn optimize_file_layout(mut self) -> Self {
+        self.options |= 0x00000200;
+        self
     }
 }
 
@@ -263,7 +331,7 @@ mod tests {
             assert!(f
                 .open_file(
                     &purple_square,
-                    OpenFileOptions::OPEN_FOR_UPDATE | OpenFileOptions::OPEN_USE_SMART_HANDLER
+                    OpenFileOptions::default().for_update().use_smart_handler()
                 )
                 .is_ok());
 
@@ -296,7 +364,7 @@ mod tests {
             assert!(f
                 .open_file(
                     &purple_square,
-                    OpenFileOptions::OPEN_FOR_UPDATE | OpenFileOptions::OPEN_USE_SMART_HANDLER
+                    OpenFileOptions::default().for_update().use_smart_handler()
                 )
                 .is_ok());
 
@@ -321,7 +389,7 @@ mod tests {
             assert!(f
                 .open_file(
                     &bad_path,
-                    OpenFileOptions::OPEN_FOR_UPDATE | OpenFileOptions::OPEN_USE_SMART_HANDLER
+                    OpenFileOptions::default().for_update().use_smart_handler()
                 )
                 .is_err());
         }
