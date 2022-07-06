@@ -21,7 +21,7 @@ use crate::{ffi, OpenFileOptions, XmpDateTime, XmpFile, XmpFileError};
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
 /// You can create `XmpMeta` structs from metadata that you construct,
-/// or that you obtain from files using the XMP Toolkit's `XmpFile` struct.
+/// or that you obtain from files using the [`XmpFile`] struct.
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
     // pub(crate) is used because XmpFile::xmp
@@ -53,8 +53,8 @@ impl XmpMeta {
     ///
     /// This is a convenience function for read-only workflows.
     ///
-    /// If no XMP is found in the file, will return an empty `XmpMeta`
-    /// struct (i.e. same as `XmpMeta::new()`).
+    /// If no XMP is found in the file, will return an empty [`XmpMeta`]
+    /// struct (i.e. same as [`XmpMeta::new()`]).
     ///
     /// ## Arguments
     ///
@@ -77,10 +77,10 @@ impl XmpMeta {
     /// ## Arguments
     ///
     /// * `namespace_uri`: The URI for the namespace. Must be a
-    /// valid XML URI.
+    ///   valid XML URI.
     ///
     /// * `suggested_prefix`: The suggested prefix to be used if
-    /// the URI is not yet registered. Must be a valid XML name.
+    ///   the URI is not yet registered. Must be a valid XML name.
     ///
     /// Returns the prefix actually registered for this URI.
     ///
@@ -103,20 +103,20 @@ impl XmpMeta {
     /// When specifying a namespace and path (in this and all other accessors):
     /// * If a namespace URI is specified, it must be for a registered namespace.
     /// * If the namespace is specified only by a prefix in the property name path,
-    /// it must be a registered prefix.
+    ///   it must be a registered prefix.
     /// * If both a URI and path prefix are present, they must be corresponding
-    /// parts of a registered namespace.
+    ///   parts of a registered namespace.
     ///
     /// ## Arguments
     ///
     /// * `schema_ns`: The namespace URI for the property. The URI must be for
-    /// a registered namespace. Must not be an empty string.
+    ///   a registered namespace. Must not be an empty string.
     ///
     /// * `prop_name`: The name of the property. Can be a general path expression.
-    /// Must not be an empty string. The first component can be a namespace prefix;
-    /// if present without a `schema_ns` value, the prefix specifies the namespace.
-    /// The prefix must be for a registered namespace, and if a namespace URI is
-    /// specified, must match the registered prefix for that namespace.
+    ///   Must not be an empty string. The first component can be a namespace prefix;
+    ///   if present without a `schema_ns` value, the prefix specifies the namespace.
+    ///   The prefix must be for a registered namespace, and if a namespace URI is
+    ///   specified, must match the registered prefix for that namespace.
     pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
         let c_ns = CString::new(schema_ns).unwrap();
         let c_name = CString::new(prop_name).unwrap();
@@ -139,11 +139,11 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see `property()`.
+    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
     /// * `prop_name`: The name of the property. Can be a general
-    /// path expression. Must not be an empty string. See `property`
-    /// for namespace prefix usage.
+    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
     pub fn set_property(&mut self, schema_ns: &str, prop_name: &str, prop_value: &str) {
@@ -156,18 +156,18 @@ impl XmpMeta {
         }
     }
 
-    /// Creates or sets a property value using an `XmpDateTime` structure.
+    /// Creates or sets a property value using an [`XmpDateTime`] structure.
     ///
     /// This is the simplest property setter. Use it for top-level
     /// simple properties.
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see `property()`.
+    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
     /// * `prop_name`: The name of the property. Can be a general
-    /// path expression. Must not be an empty string. See `property`
-    /// for namespace prefix usage.
+    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
     pub fn set_property_date(
@@ -188,11 +188,11 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see `property()`.
+    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
     /// * `prop_name`: The name of the property. Can be a general
-    /// path expression. Must not be an empty string. See `property`
-    /// for namespace prefix usage.
+    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    ///   for namespace prefix usage.
     pub fn does_property_exist(&self, schema_ns: &str, prop_name: &str) -> bool {
         let c_ns = CString::new(schema_ns).unwrap();
         let c_name = CString::new(prop_name).unwrap();

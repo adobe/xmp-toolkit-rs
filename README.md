@@ -15,7 +15,7 @@ Contributions that ...
 
 ## Rust language support
 
-As of this writing, this crate requires **Rust version 1.46** or newer. (The CI builds use this version of Rust.) This may be increased to a newer version at any time, but will be noted in the changelog.
+As of this writing, this crate requires **Rust version 1.54** or newer. (The CI builds use this version of Rust.) This may be increased to a newer version at any time, but will be noted in the changelog.
 
 This crate follows all of the typical Rust conventions (`cargo build`, `cargo test`, etc.). There is a `build.rs` script which will ensure that the C++ portions of the library are built as needed. It may need to be updated for platforms that haven't already been tested.
 
@@ -27,6 +27,12 @@ Add this to your `Cargo.toml`:
 [dependencies]
 xmp_toolkit = "0.3.8"
 ```
+
+## Breaking changes in 0.x series
+
+### Upgrading to 0.4 from earlier releases
+
+The `xmp_const` module has been removed and a new `xmp_ns` module has been added, containing constants for many common XMP namespaces. Replace `xmp_const::XMP_NS_XMP` with `xmp_ns::XMP`.
 
 ## License
 
