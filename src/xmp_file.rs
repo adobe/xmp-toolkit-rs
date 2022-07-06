@@ -157,15 +157,9 @@ impl XmpFile {
 ///
 /// Invoke by calling [`OpenFileOptions::default()`] and then calling methods
 /// on this struct to add options as needed.
-
+#[derive(Default)]
 pub struct OpenFileOptions {
     pub(crate) options: u32,
-}
-
-impl Default for OpenFileOptions {
-    fn default() -> Self {
-        Self { options: 0 }
-    }
 }
 
 impl OpenFileOptions {
