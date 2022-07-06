@@ -47,14 +47,14 @@ fn read_xmp_from_file() -> Result<()> {
 
     f.open_file(
         &path,
-        OpenFileOptions::OPEN_ONLY_XMP | OpenFileOptions::OPEN_USE_SMART_HANDLER,
+        OpenFileOptions::default().only_xmp().use_smart_handler(),
     )
     .or_else(|_err| {
         eprintln!(
             "No smart handler available for file {}. Trying packet scanning.",
             path
         );
-        f.open_file(path, OpenFileOptions::OPEN_USE_PACKET_SCANNING)
+        f.open_file(path, OpenFileOptions::default().use_packet_scanning())
     })
     .with_context(|| format!("could not find XMP in file {}", path))?;
 
