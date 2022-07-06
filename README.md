@@ -28,6 +28,12 @@ Add this to your `Cargo.toml`:
 xmp_toolkit = "0.3.8"
 ```
 
+## Breaking changes in 0.x series
+
+### Upgrading to 0.4 from earlier releases
+
+The `xmp_const` module has been removed and a new `xmp_ns` module has been added, containing constants for many common XMP namespaces. Replace `xmp_const::XMP_NS_XMP` with `xmp_ns::XMP`.
+
 ## License
 
 The `xmp_toolkit` crate is distributed under the terms of both the MIT license and the Apache License (Version 2.0).

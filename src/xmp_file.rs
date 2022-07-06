@@ -232,7 +232,7 @@ mod tests {
 
     use tempfile::tempdir;
 
-    use crate::{xmp_const::*, XmpDateTime};
+    use crate::{xmp_ns, XmpDateTime};
 
     fn fixture_path(name: &str) -> String {
         let root_dir = &env::var("CARGO_MANIFEST_DIR").unwrap();
@@ -278,9 +278,9 @@ mod tests {
             assert!(m.does_property_exist("http://purl.org/dc/terms/", "provenance"),);
             assert!(!m.does_property_exist("http://purl.org/dc/terms/", "provenancx"),);
 
-            if m.does_property_exist(XMP_NS_XMP, "MetadataDate") {
+            if m.does_property_exist(xmp_ns::XMP, "MetadataDate") {
                 let updated_time = XmpDateTime::current();
-                m.set_property_date(XMP_NS_XMP, "MetadataDate", &updated_time);
+                m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time);
             }
 
             assert!(f.can_put_xmp(&m));
