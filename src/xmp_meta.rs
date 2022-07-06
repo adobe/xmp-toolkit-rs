@@ -62,7 +62,7 @@ impl XmpMeta {
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, XmpFileError> {
         let mut f = XmpFile::new();
 
-        f.open_file(path, OpenFileOptions::OPEN_ONLY_XMP)?;
+        f.open_file(path, OpenFileOptions::default().only_xmp())?;
 
         Ok(f.xmp().unwrap_or_else(Self::new))
     }

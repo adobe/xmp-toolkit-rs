@@ -34,6 +34,8 @@ xmp_toolkit = "0.3.8"
 
 The `xmp_const` module has been removed and a new `xmp_ns` module has been added, containing constants for many common XMP namespaces. Replace `xmp_const::XMP_NS_XMP` with `xmp_ns::XMP`.
 
+The `OpenFileOptions` mod has been reworked as an opaque type, removing the need for the bitflags crate dependency. Create by using `OpenFileOptions::default()` and then calling methods on the struct to add options as needed.
+
 ## License
 
 The `xmp_toolkit` crate is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
