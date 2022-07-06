@@ -11,6 +11,8 @@
 // specific language governing permissions and limitations under
 // each license.
 
+// ------------------------------------------------------------
+
 // This application will accept a file path to a resource, open
 // the file as read-only, then read the XMP data from the file.
 // Once the XMP packet is available, it will access several
