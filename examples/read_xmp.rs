@@ -32,6 +32,8 @@ use xmp_toolkit::{OpenFileOptions, XmpFile};
 use std::env;
 
 fn read_xmp_from_file() -> Result<()> {
+    // Parse command-line arguments. There should be only one
+    // argument: a path to a file to be read.
     let args: Vec<String> = env::args().collect();
 
     let path = match args.len() {
@@ -43,6 +45,7 @@ fn read_xmp_from_file() -> Result<()> {
         )),
     }?;
 
+    // Open the file for read-only access and request to use a format-specific handler.
     let mut f = XmpFile::new();
 
     f.open_file(
@@ -50,6 +53,9 @@ fn read_xmp_from_file() -> Result<()> {
         OpenFileOptions::default().only_xmp().use_smart_handler(),
     )
     .or_else(|_err| {
+        // There might not be an appropriate handler available.
+        // Retry using packet scanning, providing a different set of
+        // open-file options.
         eprintln!(
             "No smart handler available for file {}. Trying packet scanning.",
             path
@@ -58,6 +64,7 @@ fn read_xmp_from_file() -> Result<()> {
     })
     .with_context(|| format!("could not find XMP in file {}", path))?;
 
+    // Retrieve the XMP from the file.
     let _xmp = f
         .xmp()
         .ok_or(anyhow!("unable to process XMP in file {}", path))?;
