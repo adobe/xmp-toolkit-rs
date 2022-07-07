@@ -54,8 +54,6 @@ static const char* copyForResult(const std::string& result) {
 }
 
 extern "C" {
-    // --- CXmpFile ---
-
     typedef struct CXmpFile {
         #ifdef NOOP_FFI
             int x;
@@ -63,6 +61,24 @@ extern "C" {
             SXMPFiles f;
         #endif
     } CXmpFile;
+
+    typedef struct CXmpMeta {
+        #ifdef NOOP_FFI
+            int x;
+        #else
+            SXMPMeta m;
+        #endif
+    } CXmpMeta;
+
+    typedef struct CXmpDateTime {
+        #ifdef NOOP_FFI
+            int x;
+        #else
+            XMP_DateTime dt;
+        #endif
+    } CXmpDateTime;
+
+    // --- CXmpFile ---
 
     CXmpFile* CXmpFileNew() {
         init_xmp();
@@ -139,14 +155,6 @@ extern "C" {
 
     // --- CXmpMeta ---
 
-    typedef struct CXmpMeta {
-        #ifdef NOOP_FFI
-            int x;
-        #else
-            SXMPMeta m;
-        #endif
-    } CXmpMeta;
-
     CXmpMeta* CXmpMetaNew() {
         return new CXmpMeta;
     }
@@ -221,14 +229,6 @@ extern "C" {
     }
 
     // --- CXmpDateTime ---
-
-    typedef struct CXmpDateTime {
-        #ifdef NOOP_FFI
-            int x;
-        #else
-            XMP_DateTime dt;
-        #endif
-    } CXmpDateTime;
 
     CXmpDateTime* CXmpDateTimeNew() {
         return new CXmpDateTime;
