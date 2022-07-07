@@ -16,7 +16,7 @@ use std::{
     path::Path,
 };
 
-use crate::{ffi, OpenFileOptions, XmpDateTime, XmpFile, XmpFileError};
+use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpFile, XmpFileError, XmpResult};
 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
@@ -146,14 +146,28 @@ impl XmpMeta {
     ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
-    pub fn set_property(&mut self, schema_ns: &str, prop_name: &str, prop_value: &str) {
+    pub fn set_property(
+        &mut self,
+        schema_ns: &str,
+        prop_name: &str,
+        prop_value: &str,
+    ) -> XmpResult<()> {
         let c_ns = CString::new(schema_ns).unwrap();
         let c_name = CString::new(prop_name).unwrap();
         let c_value = CString::new(prop_value).unwrap();
+        let mut err = ffi::CXmpError::default();
 
         unsafe {
-            ffi::CXmpMetaSetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr(), c_value.as_ptr());
+            ffi::CXmpMetaSetProperty(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                c_value.as_ptr(),
+            );
         }
+
+        XmpError::raise_from_c(&err)
     }
 
     /// Creates or sets a property value using an [`XmpDateTime`] structure.

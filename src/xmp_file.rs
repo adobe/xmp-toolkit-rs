@@ -335,7 +335,8 @@ mod tests {
             XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
 
             let mut m = opt_m.unwrap();
-            m.set_property("http://purl.org/dc/terms/", "provenance", "blah");
+            m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
+                .unwrap();
 
             assert!(m.does_property_exist("http://purl.org/dc/terms/", "provenance"),);
             assert!(!m.does_property_exist("http://purl.org/dc/terms/", "provenancx"),);

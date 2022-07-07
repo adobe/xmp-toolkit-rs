@@ -46,11 +46,26 @@ static void init_xmp() {
     std::call_once(xmp_init_flag, init_xmp_fn);
 }
 
-static const char* copyForResult(const std::string& result) {
+static const char* copyStringForResult(const std::string& result) {
     size_t size = result.size();
     void* cstr = malloc(size + 1);
     memcpy(cstr, result.c_str(), size + 1);
     return (const char*) cstr;
+}
+extern "C" {
+    typedef struct CXmpError {
+        AdobeXMPCommon::int32 hadError;
+        AdobeXMPCommon::int32 id;
+        const char* debugMessage;
+    } CXmpError;
+}
+
+static void copyErrorForResult(XMP_Error& e, CXmpError* outError) {
+    if (outError) {
+        outError->hadError = 1;
+        outError->id = e.GetID();
+        outError->debugMessage = copyStringForResult(e.GetErrMsg());
+    }
 }
 
 extern "C" {
@@ -174,7 +189,7 @@ extern "C" {
 
             SXMPMeta::RegisterNamespace(namespaceURI, suggestedPrefix, &registeredPrefix);
 
-            return copyForResult(registeredPrefix);
+            return copyStringForResult(registeredPrefix);
         #endif
     }
 
@@ -187,7 +202,7 @@ extern "C" {
             std::string propValue;
 
             if (m->m.GetProperty(schemaNS, propName, &propValue, NULL /* options */)) {
-                return copyForResult(propValue);
+                return copyStringForResult(propValue);
             } else {
                 return NULL;
             }
@@ -195,6 +210,7 @@ extern "C" {
     }
 
     void CXmpMetaSetProperty(CXmpMeta* m,
+                             CXmpError* outError,
                              const char* schemaNS,
                              const char* propName,
                              const char* propValue) {
@@ -202,7 +218,12 @@ extern "C" {
             // TO DO: Bridge options parameter.
             // For my purposes at the moment,
             // default value (0) always suffices.
-            m->m.SetProperty(schemaNS, propName, propValue);
+            try {
+                m->m.SetProperty(schemaNS, propName, propValue);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
         #endif
     }
 
