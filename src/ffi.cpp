@@ -46,7 +46,7 @@ static void init_xmp() {
     std::call_once(xmp_init_flag, init_xmp_fn);
 }
 
-static const char* copyForResult(const std::string& result) {
+static const char* copyStringForResult(const std::string& result) {
     size_t size = result.size();
     void* cstr = malloc(size + 1);
     memcpy(cstr, result.c_str(), size + 1);
@@ -174,7 +174,7 @@ extern "C" {
 
             SXMPMeta::RegisterNamespace(namespaceURI, suggestedPrefix, &registeredPrefix);
 
-            return copyForResult(registeredPrefix);
+            return copyStringForResult(registeredPrefix);
         #endif
     }
 
@@ -187,7 +187,7 @@ extern "C" {
             std::string propValue;
 
             if (m->m.GetProperty(schemaNS, propName, &propValue, NULL /* options */)) {
-                return copyForResult(propValue);
+                return copyStringForResult(propValue);
             } else {
                 return NULL;
             }
