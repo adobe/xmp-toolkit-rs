@@ -36,7 +36,7 @@ The following platforms are believed and intended to work, but are not officiall
 * MacOS latest (64-bit ARM)
 * Ubuntu latest (64-bit ARM)
 
-GitHub does not currently provide GitHub-hosted runners for these platforms and our team has not arranged for self-hosted runners as of this writing. Since we can not validate each pull request via validation, there is a risk of undetected breakage for any release.
+GitHub does not currently provide GitHub-hosted runners for these platforms and our team has not arranged for self-hosted runners at this time. Since we can not validate each pull request via validation, there is a risk of undetected breakage for any release.
 
 We welcome bug reports and PRs regarding build issues on these and other platforms and will address them to the best of our ability.
 
