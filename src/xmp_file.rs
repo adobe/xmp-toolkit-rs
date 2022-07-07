@@ -337,8 +337,8 @@ mod tests {
             let mut m = opt_m.unwrap();
             m.set_property("http://purl.org/dc/terms/", "provenance", "blah");
 
-            assert!(m.does_property_exist("http://purl.org/dc/terms/", "provenance"),);
-            assert!(!m.does_property_exist("http://purl.org/dc/terms/", "provenancx"),);
+            assert!(m.does_property_exist("http://purl.org/dc/terms/", "provenance"));
+            assert!(!m.does_property_exist("http://purl.org/dc/terms/", "provenancx"));
 
             if m.does_property_exist(xmp_ns::XMP, "MetadataDate") {
                 let updated_time = XmpDateTime::current();
