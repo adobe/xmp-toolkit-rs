@@ -23,8 +23,8 @@
 // schema.
 
 // Based on the example titled "Creating the MyReadXMP application"
-// from XMP TOolkit SDK Programmer's Guide (page 68 of the February
-// 2022 edition).
+// from XMP Toolkit SDK Programmer's Guide (pages 68-71 of the
+// February 2022 edition).
 
 use anyhow::{anyhow, Context, Result};
 use xmp_toolkit::{xmp_ns, OpenFileOptions, XmpFile};
