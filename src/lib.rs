@@ -23,4 +23,4 @@ pub mod xmp_ns;
 
 pub use xmp_date_time::XmpDateTime;
 pub use xmp_file::{OpenFileOptions, XmpFile, XmpFileError};
-pub use xmp_meta::XmpMeta;
+pub use xmp_meta::{ArrayProperty, XmpMeta, XmpValue};

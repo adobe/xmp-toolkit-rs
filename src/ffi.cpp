@@ -217,6 +217,26 @@ extern "C" {
         #endif
     }
 
+    const char* CXmpMetaGetArrayItem(CXmpMeta* m,
+                                     const char* schemaNS,
+                                     const char* propName,
+                                     AdobeXMPCommon::uint32 index,
+                                     AdobeXMPCommon::uint32* outOptions) {
+        #ifdef NOOP_FFI
+            *outOptions = 0;
+            return NULL;
+        #else
+            std::string propValue;
+
+            if (m->m.GetArrayItem(schemaNS, propName, &propValue, index, outOptions)) {
+                return copyForResult(propValue);
+            } else {
+                *outOptions = 0;
+                return NULL;
+            }
+        #endif
+    }
+
     int CXmpMetaDoesPropertyExist(CXmpMeta* m,
                                   const char* schemaNS,
                                   const char* propName) {

@@ -98,7 +98,7 @@ impl XmpMeta {
         }
     }
 
-    /// Gets a property value.
+    /// Gets a simple string property value.
     ///
     /// When specifying a namespace and path (in this and all other accessors):
     /// * If a namespace URI is specified, it must be for a registered namespace.
@@ -184,6 +184,24 @@ impl XmpMeta {
         }
     }
 
+    /// Creates an iterator for an array property value.
+    ///
+    /// ## Arguments
+    ///
+    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
+    ///
+    /// * `prop_name`: The name of the property. Can be a general
+    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    ///   for namespace prefix usage.
+    pub fn array_property(&self, schema_ns: &str, prop_name: &str) -> ArrayProperty {
+        ArrayProperty {
+            meta: &self,
+            ns: CString::new(schema_ns).unwrap(),
+            name: CString::new(prop_name).unwrap(),
+            index: 0,
+        }
+    }
+
     /// Reports whether a property currently exists.
     ///
     /// ## Arguments
@@ -200,6 +218,61 @@ impl XmpMeta {
         let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
         r != 0
     }
+}
+
+/// An iterator that provides access to items within a property array.
+///
+/// Create via [`XmpMeta::array_property`].
+pub struct ArrayProperty<'a> {
+    meta: &'a XmpMeta,
+    ns: CString,
+    name: CString,
+    index: u32,
+}
+
+impl<'a> Iterator for ArrayProperty<'a> {
+    type Item = XmpValue;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unsafe {
+            let mut options: u32 = 0;
+
+            let c_result = ffi::CXmpMetaGetArrayItem(
+                self.meta.m,
+                self.ns.as_ptr(),
+                self.name.as_ptr(),
+                self.index,
+                &mut options,
+            );
+
+            self.index += 1;
+
+            if c_result.is_null() {
+                None
+            } else {
+                Some(XmpValue {
+                    value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
+                    options: XmpOptions { options },
+                })
+            }
+        }
+    }
+}
+
+/// An XMP value consists describes a simple property or an item in an
+/// array property.
+#[non_exhaustive]
+pub struct XmpValue {
+    /// String value for this item.
+    pub value: String,
+
+    /// Flags that further describe this item. (NOT YET IMPLEMENTED)
+    pub options: XmpOptions,
+}
+
+pub struct XmpOptions {
+    #[allow(dead_code)] // TEMPORARY until we provide accessors for this
+    options: u32,
 }
 
 #[cfg(test)]
