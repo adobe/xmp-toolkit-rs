@@ -52,6 +52,7 @@ static const char* copyStringForResult(const std::string& result) {
     memcpy(cstr, result.c_str(), size + 1);
     return (const char*) cstr;
 }
+
 extern "C" {
     typedef struct CXmpError {
         AdobeXMPCommon::int32 hadError;

@@ -338,8 +338,8 @@ mod tests {
             m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
                 .unwrap();
 
-            assert!(m.does_property_exist("http://purl.org/dc/terms/", "provenance"),);
-            assert!(!m.does_property_exist("http://purl.org/dc/terms/", "provenancx"),);
+            assert!(m.does_property_exist("http://purl.org/dc/terms/", "provenance"));
+            assert!(!m.does_property_exist("http://purl.org/dc/terms/", "provenancx"));
 
             if m.does_property_exist(xmp_ns::XMP, "MetadataDate") {
                 let updated_time = XmpDateTime::current();
