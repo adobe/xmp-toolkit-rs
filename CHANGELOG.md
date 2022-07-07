@@ -6,6 +6,20 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.4.0
+_07 July 2022_
+
+* Fixed build failures on ARM Linux platforms ([#57](https://github.com/adobe/xmp-toolkit-rs/pull/57))
+* Silence C++ compiler warnings on Mac ([#55](https://github.com/adobe/xmp-toolkit-rs/pull/55))
+* Rework `OpenFileOptions` as an opaque type ([#54](https://github.com/adobe/xmp-toolkit-rs/pull/54))
+* (MINOR) New module for XMP namespace constants ([#53](https://github.com/adobe/xmp-toolkit-rs/pull/53))
+* Require API docs for all public API surfaces ([#51](https://github.com/adobe/xmp-toolkit-rs/pull/51))
+* (MINOR) Bump MSRV to 1.54 ([#52](https://github.com/adobe/xmp-toolkit-rs/pull/52))
+* Improve docs for `XmpMeta` ([#50](https://github.com/adobe/xmp-toolkit-rs/pull/50))
+* Improve docs for `XmpFile` ([#49](https://github.com/adobe/xmp-toolkit-rs/pull/49))
+* Configure dependabot to watch dependencies brought in via git submodules ([#48](https://github.com/adobe/xmp-toolkit-rs/pull/48))
+* Add `impl std::error::Error` for `XmpFileError` ([#47](https://github.com/adobe/xmp-toolkit-rs/pull/47))
+
 ## 0.3.8
 _22 June 2022_
 
