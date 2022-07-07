@@ -123,6 +123,7 @@ fn main() {
                 .include("external/xmp_toolkit/XMPFiles/resource/linux");
 
             xmp_config
+                .define("kBigEndianHost", if cfg!(target_endian = "little") {"0"} else {"1"})
                 .define("UNIX_ENV", "1")
                 .define("XMP_UNIXBuild", "1")
                 .define("_LARGEFILE64_SOURCE", None)
