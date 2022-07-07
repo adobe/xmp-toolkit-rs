@@ -46,7 +46,16 @@ static void init_xmp() {
     std::call_once(xmp_init_flag, init_xmp_fn);
 }
 
+static const char* copyForResult(const std::string& result) {
+    size_t size = result.size();
+    void* cstr = malloc(size + 1);
+    memcpy(cstr, result.c_str(), size + 1);
+    return (const char*) cstr;
+}
+
 extern "C" {
+    // --- CXmpFile ---
+
     typedef struct CXmpFile {
         #ifdef NOOP_FFI
             int x;
@@ -88,52 +97,13 @@ extern "C" {
         #endif
     }
 
-    typedef struct CXmpDateTime {
-        #ifdef NOOP_FFI
-            int x;
-        #else
-            XMP_DateTime dt;
-        #endif
-    } CXmpDateTime;
-
-    CXmpDateTime* CXmpDateTimeNew() {
-        return new CXmpDateTime;
-    }
-
-    void CXmpDateTimeDrop(CXmpDateTime* dt) {
+    void CXmpFileClose(CXmpFile* f) {
         #ifndef NOOP_FFI
-            try {
-                delete dt;
-            }
-            catch (XMP_Error& e) {
-                fprintf(stderr, "CXMPDateTimeDrop: ERROR %s\n", e.GetErrMsg());
-            }
+            // TO DO: Bridge closeFlags parameter.
+            // For my purposes at the moment,
+            // default value (0) always suffices.
+            f->f.CloseFile();
         #endif
-    }
-
-    CXmpDateTime* CXmpDateTimeCurrent() {
-        CXmpDateTime* dt = new CXmpDateTime;
-        #ifndef NOOP_FFI
-            try {
-                SXMPUtils::CurrentDateTime(&dt->dt);
-            }
-            catch (XMP_Error& e) {
-                fprintf(stderr, "CXMPDateTimeCurrent: ERROR %s\n", e.GetErrMsg());
-            }
-        #endif
-        return dt;
-    }
-
-    typedef struct CXmpMeta {
-        #ifdef NOOP_FFI
-            int x;
-        #else
-            SXMPMeta m;
-        #endif
-    } CXmpMeta;
-
-    CXmpMeta* CXmpMetaNew() {
-        return new CXmpMeta;
     }
 
     CXmpMeta* CXmpFileGetXmp(CXmpFile* f) {
@@ -151,15 +121,38 @@ extern "C" {
         #endif
     }
 
-    void CXmpMetaDrop(CXmpMeta* m) {
-        delete m;
+    void CXmpFilePutXmp(CXmpFile* f,
+                        const CXmpMeta* m) {
+        #ifndef NOOP_FFI
+            f->f.PutXMP(m->m);
+        #endif
     }
 
-    static const char* copyForResult(const std::string& result) {
-        size_t size = result.size();
-        void* cstr = malloc(size + 1);
-        memcpy(cstr, result.c_str(), size + 1);
-        return (const char*) cstr;
+    int CXmpFileCanPutXmp(const CXmpFile* f,
+                          const CXmpMeta* m) {
+        #ifdef NOOP_FFI
+            return 0;
+        #else
+            return const_cast<SXMPFiles&>(f->f).CanPutXMP(m->m) ? 1 : 0;
+        #endif
+    }
+
+    // --- CXmpMeta ---
+
+    typedef struct CXmpMeta {
+        #ifdef NOOP_FFI
+            int x;
+        #else
+            SXMPMeta m;
+        #endif
+    } CXmpMeta;
+
+    CXmpMeta* CXmpMetaNew() {
+        return new CXmpMeta;
+    }
+
+    void CXmpMetaDrop(CXmpMeta* m) {
+        delete m;
     }
 
     const char* CXmpMetaRegisterNamespace(const char* namespaceURI,
@@ -205,6 +198,16 @@ extern "C" {
         #endif
     }
 
+    int CXmpMetaDoesPropertyExist(CXmpMeta* m,
+                                  const char* schemaNS,
+                                  const char* propName) {
+        #ifdef NOOP_FFI
+            return 0;
+        #else
+            return (m->m.DoesPropertyExist(schemaNS, propName)) ? 1 : 0;
+        #endif
+    }
+
     void CXmpMetaSetPropertyDate(CXmpMeta* m,
                                  const char* schemaNS,
                                  const char* propName,
@@ -217,38 +220,41 @@ extern "C" {
         #endif
     }
 
-    int CXmpMetaDoesPropertyExist(CXmpMeta* m,
-                                  const char* schemaNS,
-                                  const char* propName) {
+    // --- CXmpDateTime ---
+
+    typedef struct CXmpDateTime {
         #ifdef NOOP_FFI
-            return 0;
+            int x;
         #else
-            return (m->m.DoesPropertyExist(schemaNS, propName)) ? 1 : 0;
+            XMP_DateTime dt;
         #endif
+    } CXmpDateTime;
+
+    CXmpDateTime* CXmpDateTimeNew() {
+        return new CXmpDateTime;
     }
 
-    int CXmpFileCanPutXmp(const CXmpFile* f,
-                          const CXmpMeta* m) {
-        #ifdef NOOP_FFI
-            return 0;
-        #else
-            return const_cast<SXMPFiles&>(f->f).CanPutXMP(m->m) ? 1 : 0;
-        #endif
-    }
-
-    void CXmpFilePutXmp(CXmpFile* f,
-                        const CXmpMeta* m) {
+    void CXmpDateTimeDrop(CXmpDateTime* dt) {
         #ifndef NOOP_FFI
-            f->f.PutXMP(m->m);
+            try {
+                delete dt;
+            }
+            catch (XMP_Error& e) {
+                fprintf(stderr, "CXMPDateTimeDrop: ERROR %s\n", e.GetErrMsg());
+            }
         #endif
     }
 
-    void CXmpFileClose(CXmpFile* f) {
+    CXmpDateTime* CXmpDateTimeCurrent() {
+        CXmpDateTime* dt = new CXmpDateTime;
         #ifndef NOOP_FFI
-            // TO DO: Bridge closeFlags parameter.
-            // For my purposes at the moment,
-            // default value (0) always suffices.
-            f->f.CloseFile();
+            try {
+                SXMPUtils::CurrentDateTime(&dt->dt);
+            }
+            catch (XMP_Error& e) {
+                fprintf(stderr, "CXMPDateTimeCurrent: ERROR %s\n", e.GetErrMsg());
+            }
         #endif
+        return dt;
     }
 }
