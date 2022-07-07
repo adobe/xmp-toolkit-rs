@@ -227,6 +227,15 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaParseFromBuffer(CXmpMeta* m,
+                                 const char* buffer,
+                                 AdobeXMPCommon::uint32 bufferSize,
+                                 AdobeXMPCommon::uint32 options) {
+        #ifndef NOOP_FFI
+            m->m.ParseFromBuffer(buffer, bufferSize, options);
+        #endif
+    }
+
     int CXmpFileCanPutXmp(const CXmpFile* f,
                           const CXmpMeta* m) {
         #ifdef NOOP_FFI

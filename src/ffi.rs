@@ -64,6 +64,13 @@ extern "C" {
         prop_name: *const c_char,
     ) -> c_int;
 
+    pub fn CXmpMetaParseFromBuffer(
+        meta: *const CXmpMeta,
+        buffer: *const c_char,
+        buffer_size: u32,
+        options: u32,
+    );
+
     // --- CXmpDateTime
 
     pub fn CXmpDateTimeNew() -> *mut CXmpDateTime;
