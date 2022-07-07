@@ -27,7 +27,7 @@
 // 2022 edition).
 
 use anyhow::{anyhow, Context, Result};
-use xmp_toolkit::{OpenFileOptions, XmpFile};
+use xmp_toolkit::{xmp_ns, OpenFileOptions, XmpFile};
 
 use std::env;
 
@@ -65,11 +65,17 @@ fn read_xmp_from_file() -> Result<()> {
     .with_context(|| format!("could not find XMP in file {}", path))?;
 
     // Retrieve the XMP from the file.
-    let _xmp = f
+    let xmp = f
         .xmp()
         .ok_or(anyhow!("unable to process XMP in file {}", path))?;
 
-    // TODO: Continue from step 10 of C++ example.
+    // Add the code to display the simple property "CreatorTool" by providing
+    // the namespace URI and the name of the property.
+    if let Some(creator_tool) = xmp.property(xmp_ns::XMP, "CreatorTool") {
+        println!("CreatorTool = {}", creator_tool);
+    }
+
+    // TODO: Continue from step 11 of C++ example.
 
     Ok(())
 }
