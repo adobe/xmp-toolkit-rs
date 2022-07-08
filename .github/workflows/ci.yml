@@ -36,6 +36,7 @@ jobs:
       - name: Generate code coverage
         env:
           RUST_BACKTRACE: "1"
+          FFI_COVERAGE: "1"
         run: cargo llvm-cov --all-features --lcov --output-path lcov.info
 
       - name: Upload code coverage results

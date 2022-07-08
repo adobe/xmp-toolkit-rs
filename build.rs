@@ -84,10 +84,7 @@ fn main() {
                 .flag("/wd4702")
                 .flag("/wd4996")
                 .include("external/xmp_toolkit/XMPCore/resource/win")
-                .include("external/xmp_toolkit/XMPFiles/resource/win")
-                .file("external/xmp_toolkit/XMPCore/source/WXMPIterator.cpp")
-                .file("external/xmp_toolkit/source/Host_IO-Win.cpp")
-                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_WIN.cpp");
+                .include("external/xmp_toolkit/XMPFiles/resource/win");
         }
 
         "macos" => {
@@ -108,9 +105,7 @@ fn main() {
                 .flag("-Wno-null-conversion")
                 .flag("-Wno-unused-but-set-variable")
                 .include("external/xmp_toolkit/XMPCore/resource/mac")
-                .include("external/xmp_toolkit/XMPFiles/resource/mac")
-                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
-                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp");
+                .include("external/xmp_toolkit/XMPFiles/resource/mac");
 
             println!("cargo:rustc-link-lib=framework=Carbon");
             println!("cargo:rustc-link-lib=framework=Security");
@@ -146,15 +141,61 @@ fn main() {
                 .flag("-Wno-type-limits")
                 .flag("-fpermissive")
                 .include("external/xmp_toolkit/XMPCore/resource/linux")
-                .include("external/xmp_toolkit/XMPFiles/resource/linux")
-                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
-                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
+                .include("external/xmp_toolkit/XMPFiles/resource/linux");
         }
 
         _ => {
             // See https://github.com/amethyst/rlua/blob/master/build.rs
             // for suggestions on how to handle other operating systems.
 
+            panic!("Not prepared to build for this OS ({:?}) yet.", target_os);
+        }
+    };
+
+    xmp_config
+        .cpp(true)
+        .define("TXMP_STRING_TYPE", "std::string")
+        .define("XML_STATIC", "1")
+        .define("XMP_StaticBuild", "1")
+        .define("HAVE_EXPAT_CONFIG_H", "1")
+        .flag_if_supported("-std=c++11")
+        .flag_if_supported("-Wno-deprecated")
+        .flag_if_supported("-Wno-deprecated-declarations")
+        .flag_if_supported("-Wno-missing-field-initializers")
+        .flag_if_supported("-Wno-reorder")
+        .flag_if_supported("-Wno-unused-function")
+        .flag_if_supported("-Wno-unused-parameter")
+        .flag_if_supported("-Wno-unused-variable")
+        .flag_if_supported("-Wnon-virtual-dtor")
+        .flag_if_supported("-Woverloaded-virtual")
+        .include("external/xmp_toolkit")
+        .include("external/xmp_toolkit/build")
+        .include("external/xmp_toolkit/public/include")
+        .include("external/xmp_toolkit/XMPFilesPlugins/api/source");
+
+    let mut ffi_config = xmp_config.clone();
+
+    match target_os.as_ref() {
+        "windows" => {
+            xmp_config
+                .file("external/xmp_toolkit/XMPCore/source/WXMPIterator.cpp")
+                .file("external/xmp_toolkit/source/Host_IO-Win.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_WIN.cpp");
+        }
+
+        "macos" => {
+            xmp_config
+                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp");
+        }
+
+        "linux" => {
+            xmp_config
+                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
+        }
+
+        _ => {
             panic!("Not prepared to build for this OS ({:?}) yet.", target_os);
         }
     };
@@ -195,25 +236,6 @@ fn main() {
     );
 
     xmp_config
-        .cpp(true)
-        .define("TXMP_STRING_TYPE", "std::string")
-        .define("XML_STATIC", "1")
-        .define("XMP_StaticBuild", "1")
-        .define("HAVE_EXPAT_CONFIG_H", "1")
-        .flag_if_supported("-std=c++11")
-        .flag_if_supported("-Wno-deprecated")
-        .flag_if_supported("-Wno-deprecated-declarations")
-        .flag_if_supported("-Wno-missing-field-initializers")
-        .flag_if_supported("-Wno-reorder")
-        .flag_if_supported("-Wno-unused-function")
-        .flag_if_supported("-Wno-unused-parameter")
-        .flag_if_supported("-Wno-unused-variable")
-        .flag_if_supported("-Wnon-virtual-dtor")
-        .flag_if_supported("-Woverloaded-virtual")
-        .include("external/xmp_toolkit")
-        .include("external/xmp_toolkit/build")
-        .include("external/xmp_toolkit/public/include")
-        .include("external/xmp_toolkit/XMPFilesPlugins/api/source")
         .file("external/xmp_toolkit/source/IOUtils.cpp")
         .file("external/xmp_toolkit/source/PerfUtils.cpp")
         .file("external/xmp_toolkit/source/UnicodeConversions.cpp")
@@ -328,9 +350,26 @@ fn main() {
         .file("external/xmp_toolkit/third-party/zlib/trees.c")
         .file("external/xmp_toolkit/third-party/zlib/uncompr.c")
         .file("external/xmp_toolkit/third-party/zlib/zutil.c")
-        .file("src/ffi.cpp")
         .file("external/xmp_toolkit/third-party/zuid/interfaces/MD5.cpp")
         .compile("libxmp.a");
+
+    let ffi_coverage = env::var("FFI_COVERAGE");
+    if ffi_coverage == Ok("1".to_string()) {
+        match target_os.as_ref() {
+            "macos" | "linux" => {
+                ffi_config
+                    .flag_if_supported("-ftest-coverage")
+                    .flag_if_supported("-fprofile-arcs")
+                    .flag_if_supported("-O0");
+            }
+
+            _ => {
+                // No-op for now. Will need to research how to generate FFI coverage on Windows.
+            }
+        };
+    }
+
+    ffi_config.file("src/ffi.cpp").compile("libxmp_ffi.a");
 }
 
 fn copy_external_to_third_party(from_path: &str, to_path: &str) {
