@@ -69,6 +69,13 @@ static void copyErrorForResult(XMP_Error& e, CXmpError* outError) {
     }
 }
 
+static void signalUnknownError(CXmpError* outError) {
+    if (outError) {
+        outError->hadError = 1;
+        outError->id = kXMPErr_Unknown;
+    }
+}
+
 extern "C" {
     typedef struct CXmpFile {
         #ifdef NOOP_FFI
@@ -224,6 +231,9 @@ extern "C" {
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
             }
         #endif
     }
