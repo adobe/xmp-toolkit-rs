@@ -263,4 +263,40 @@ mod tests {
             "dcterms:"
         );
     }
+
+    mod set_property {
+        use super::*;
+
+        use crate::{XmpErrorType, XmpMeta};
+
+        #[test]
+        fn happy_path() {
+            let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+            XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
+
+            m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
+                .unwrap();
+
+            assert_eq!(
+                m.property("http://purl.org/dc/terms/", "provenance")
+                    .unwrap(),
+                "blah"
+            );
+        }
+
+        #[test]
+        fn error_empty_name() {
+            let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+            XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
+
+            let err = m
+                .set_property("http://purl.org/dc/terms/", "", "blah")
+                .unwrap_err();
+
+            assert_eq!(err.error_type, XmpErrorType::BadXPath);
+            assert_eq!(err.debug_message, "Empty property name");
+        }
+    }
 }

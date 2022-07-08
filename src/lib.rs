@@ -23,6 +23,6 @@ mod xmp_meta;
 pub mod xmp_ns;
 
 pub use xmp_date_time::XmpDateTime;
-pub use xmp_error::{XmpError, XmpResult};
+pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
 pub use xmp_file::{OpenFileOptions, XmpFile, XmpFileError};
 pub use xmp_meta::XmpMeta;

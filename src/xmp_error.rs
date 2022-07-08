@@ -64,7 +64,7 @@ impl fmt::Display for XmpError {
 impl std::error::Error for XmpError {}
 
 /// Describes which error type occurred.
-#[derive(Debug, Error, FromPrimitive)]
+#[derive(Debug, Error, FromPrimitive, PartialEq)]
 #[non_exhaustive]
 #[repr(i32)]
 pub enum XmpErrorType {
