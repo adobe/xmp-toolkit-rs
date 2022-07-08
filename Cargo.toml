@@ -27,4 +27,5 @@ cc = "1.0"
 fs_extra = "1.2"
 
 [dev-dependencies]
+coverage-helper = "0.1"
 tempfile = "3.2"

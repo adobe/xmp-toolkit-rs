@@ -11,6 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
+#![cfg_attr(coverage_nightly, feature(no_coverage))]
 #![deny(warnings)]
 #![deny(missing_docs)]
 #![doc = include_str!("../README.md")]

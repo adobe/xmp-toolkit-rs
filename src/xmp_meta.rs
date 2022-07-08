@@ -208,6 +208,8 @@ mod tests {
 
     use std::{env, path::PathBuf};
 
+    use coverage_helper::test;
+
     fn fixture_path(name: &str) -> PathBuf {
         let root_dir = &env::var("CARGO_MANIFEST_DIR").unwrap();
         let mut path = PathBuf::from(root_dir);

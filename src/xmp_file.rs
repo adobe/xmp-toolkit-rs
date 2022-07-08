@@ -292,6 +292,7 @@ mod tests {
         path::{Path, PathBuf},
     };
 
+    use coverage_helper::test;
     use tempfile::tempdir;
 
     use crate::{xmp_ns, XmpDateTime};

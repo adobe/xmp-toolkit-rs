@@ -55,6 +55,8 @@ impl XmpDateTime {
 mod tests {
     use super::*;
 
+    use coverage_helper::test;
+
     #[test]
     fn new_empty() {
         let mut _dt = XmpDateTime::new();
