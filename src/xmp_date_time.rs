@@ -50,18 +50,3 @@ impl XmpDateTime {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn new_empty() {
-        let mut _dt = XmpDateTime::new();
-    }
-
-    #[test]
-    fn current() {
-        let mut _dt = XmpDateTime::current();
-    }
-}
