@@ -53,11 +53,28 @@ static const char* copyStringForResult(const std::string& result) {
     return (const char*) cstr;
 }
 
+static const char* copyStringForResult(const char* result) {
+    size_t size = strlen(result);
+    void* cstr = malloc(size + 1);
+    memcpy(cstr, result, size + 1);
+    return (const char*) cstr;
+}
+
 extern "C" {
     typedef struct CXmpError {
         AdobeXMPCommon::int32 hadError;
         AdobeXMPCommon::int32 id;
         const char* debugMessage;
+
+        CXmpError() {
+            reset();
+        }
+
+        void reset() {
+            hadError = 0;
+            id = 0;
+            debugMessage = NULL;
+        }
     } CXmpError;
 }
 
@@ -76,13 +93,35 @@ static void signalUnknownError(CXmpError* outError) {
     }
 }
 
+static bool xmpFileErrorCallback(void* context,
+                                 XMP_StringPtr filePath,
+                                 XMP_ErrorSeverity severity,
+                                 XMP_Int32 cause,
+                                 XMP_StringPtr message) {
+    CXmpError* err = (CXmpError*) context;
+    if (err) {
+        err->hadError = 1;
+        err->id = cause;
+        err->debugMessage = copyStringForResult(message);
+    }
+
+    // False means don't attempt to proceed in face of an error.
+    return false;
+}
+
+
 extern "C" {
     typedef struct CXmpFile {
         #ifdef NOOP_FFI
             int x;
         #else
             SXMPFiles f;
+            CXmpError err;
         #endif
+
+        CXmpFile() {
+            f.SetErrorCallback(xmpFileErrorCallback, &err, 0xffffffff);
+        }
     } CXmpFile;
 
     typedef struct CXmpMeta {
@@ -134,8 +173,10 @@ extern "C" {
             // For my purposes at the moment,
             // kXMP_UnknownFile always suffices.
             try {
+                f->err.reset();
                 if (!f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags)) {
-                    signalUnknownError(outError);
+                    *outError = f->err;
+                    f->err.reset();
                 }
             }
             catch (XMP_Error& e) {

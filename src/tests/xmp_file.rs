@@ -11,8 +11,6 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::path::PathBuf;
-
 use tempfile::tempdir;
 
 use crate::{tests::fixtures::*, xmp_ns, OpenFileOptions, XmpDateTime, XmpFile, XmpMeta};
@@ -77,18 +75,23 @@ fn open_and_edit_file() {
     }
 }
 
-#[test]
-fn open_fail() {
-    let bad_path = PathBuf::from("doesnotexist.jpg");
+mod open_file {
+    use std::path::PathBuf;
 
-    {
+    use crate::{OpenFileOptions, XmpErrorType, XmpFile};
+
+    #[test]
+    fn file_not_found() {
         let mut f = XmpFile::new().unwrap();
+        let bad_path = PathBuf::from("doesnotexist.jpg");
 
-        assert!(f
+        let err = f
             .open_file(
                 &bad_path,
-                OpenFileOptions::default().for_update().use_smart_handler()
+                OpenFileOptions::default().for_update().use_smart_handler(),
             )
-            .is_err());
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoFile);
     }
 }
