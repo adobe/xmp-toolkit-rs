@@ -198,17 +198,27 @@ extern "C" {
     }
 
     CXmpMeta* CXmpFileGetXmp(CXmpFile* f) {
-        CXmpMeta* r = new CXmpMeta;
         #ifdef NOOP_FFI
             return NULL;
         #else
-            if (f->f.GetXMP(&(r->m))) {
-                return r;
-            } else {
-                // No metadata. Signal this by returning NULL.
-                delete r;
-                return NULL;
+            try {
+                CXmpMeta* r = new CXmpMeta;
+                try {
+                    if (f->f.GetXMP(&(r->m))) {
+                        return r;
+                    }
+                }
+                catch (...) {
+                    delete r;
+                }
             }
+            catch (...) {
+                // Intentional no-op.
+            }
+
+            // No metadata or exception occurred.
+            // Signal this by returning NULL.
+            return NULL;
         #endif
     }
 
