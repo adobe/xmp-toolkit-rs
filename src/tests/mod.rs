@@ -16,6 +16,7 @@
 
 mod fixtures;
 mod xmp_date_time;
+mod xmp_error;
 mod xmp_error_type;
 mod xmp_file;
 mod xmp_meta;
