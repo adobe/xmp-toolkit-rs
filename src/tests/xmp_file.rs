@@ -88,7 +88,7 @@ mod open_file {
         let err = f
             .open_file(
                 &bad_path,
-                OpenFileOptions::default().for_update().use_smart_handler(),
+                OpenFileOptions::default(),
             )
             .unwrap_err();
 
