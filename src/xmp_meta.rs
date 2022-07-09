@@ -16,7 +16,7 @@ use std::{
     path::Path,
 };
 
-use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpFile, XmpFileError, XmpResult};
+use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpFile, XmpResult};
 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
@@ -59,7 +59,7 @@ impl XmpMeta {
     /// ## Arguments
     ///
     /// * `path`: Path to the file to be read
-    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, XmpFileError> {
+    pub fn from_file<P: AsRef<Path>>(path: P) -> XmpResult<Self> {
         let mut f = XmpFile::new().unwrap();
         // TO DO before merging this PR: Change result of this fn to
         // XmpResult and use ? operator on XmpFile::new().

@@ -123,9 +123,10 @@ extern "C" {
         #endif
     }
 
-    int CXmpFileOpen(CXmpFile* f,
-                     const char* filePath,
-                     AdobeXMPCommon::uint32 openFlags) {
+    void CXmpFileOpen(CXmpFile* f,
+                      CXmpError* outError,
+                      const char* filePath,
+                      AdobeXMPCommon::uint32 openFlags) {
         #ifdef NOOP_FFI
             return 1;
         #else
@@ -133,12 +134,15 @@ extern "C" {
             // For my purposes at the moment,
             // kXMP_UnknownFile always suffices.
             try {
-                //throw XMP_Error( kXMPErr_UserAbort, "User abort" ); // for testing this
-                return f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags) ? 1 : 0;
+                if (!f->f.OpenFile(filePath, kXMP_UnknownFile, openFlags)) {
+                    signalUnknownError(outError);
+                }
             }
             catch (XMP_Error& e) {
-                fprintf(stderr, "Failed to open File: %s, %s\n", filePath, e.GetErrMsg());
-                return 0;
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
             }
         #endif
     }

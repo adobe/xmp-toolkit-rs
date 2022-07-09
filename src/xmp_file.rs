@@ -11,9 +11,9 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{ffi::CString, fmt, path::Path};
+use std::{ffi::CString, path::Path};
 
-use crate::{ffi, XmpError, XmpMeta, XmpResult};
+use crate::{ffi, XmpError, XmpErrorType, XmpMeta, XmpResult};
 
 /// The `XmpFile` struct allows access to the main (document-level) metadata in a file.
 ///
@@ -81,18 +81,21 @@ impl XmpFile {
     /// ([`OpenFileOptions::default()`]), the file is opened for read-only access and the
     /// format handler decides on the level of reconciliation that will be performed.
     /// See [`OpenFileOptions`] for other options.
-    pub fn open_file<P: AsRef<Path>>(
-        &mut self,
-        path: P,
-        flags: OpenFileOptions,
-    ) -> Result<(), XmpFileError> {
+    pub fn open_file<P: AsRef<Path>>(&mut self, path: P, flags: OpenFileOptions) -> XmpResult<()> {
         if let Some(c_path) = path_to_cstr(path.as_ref()) {
-            if unsafe { ffi::CXmpFileOpen(self.f, c_path.as_ptr(), flags.options) } != 0 {
-                return Ok(());
-            }
-        }
+            let mut err = ffi::CXmpError::default();
 
-        Err(XmpFileError::CantOpenFile)
+            unsafe {
+                ffi::CXmpFileOpen(self.f, &mut err, c_path.as_ptr(), flags.options);
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(XmpError {
+                error_type: XmpErrorType::BadParam,
+                debug_message: "Could not convert path to C string".to_owned(),
+            })
+        }
     }
 
     /// Retrieves the XMP metadata from an open file.
@@ -253,25 +256,6 @@ impl OpenFileOptions {
         self
     }
 }
-
-/// Describes the potential error conditions that might arise from [`XmpFile`] operations.
-#[derive(Debug)]
-pub enum XmpFileError {
-    /// Returned if the XMP Toolkit could not open the file.
-    CantOpenFile,
-}
-
-impl fmt::Display for XmpFileError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            Self::CantOpenFile => {
-                write!(f, "could not open XMP content from this file")
-            }
-        }
-    }
-}
-
-impl std::error::Error for XmpFileError {}
 
 fn path_to_cstr(path: &Path) -> Option<CString> {
     match path.to_str() {

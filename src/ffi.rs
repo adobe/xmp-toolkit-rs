@@ -39,7 +39,14 @@ extern "C" {
 
     pub(crate) fn CXmpFileNew(out_error: *mut CXmpError) -> *mut CXmpFile;
     pub(crate) fn CXmpFileDrop(file: *mut CXmpFile);
-    pub(crate) fn CXmpFileOpen(file: *mut CXmpFile, path: *const c_char, flags: u32) -> c_int;
+
+    pub(crate) fn CXmpFileOpen(
+        file: *mut CXmpFile,
+        out_error: *mut CXmpError,
+        path: *const c_char,
+        flags: u32,
+    );
+
     pub(crate) fn CXmpFileClose(file: *mut CXmpFile);
     pub(crate) fn CXmpFileGetXmp(file: *mut CXmpFile) -> *mut CXmpMeta;
     pub(crate) fn CXmpFilePutXmp(file: *mut CXmpFile, meta: *const CXmpMeta);
