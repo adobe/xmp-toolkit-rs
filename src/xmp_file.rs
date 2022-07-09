@@ -258,11 +258,6 @@ impl OpenFileOptions {
 }
 
 fn path_to_cstr(path: &Path) -> Option<CString> {
-    match path.to_str() {
-        Some(path_str) => match CString::new(path_str) {
-            Ok(c_path) => Some(c_path),
-            Err(_) => None,
-        },
-        None => None,
-    }
+    path.to_str()
+        .and_then(|path_str| CString::new(path_str).ok())
 }
