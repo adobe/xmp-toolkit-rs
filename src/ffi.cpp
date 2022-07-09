@@ -103,15 +103,22 @@ extern "C" {
 
     // --- CXmpFile ---
 
-    CXmpFile* CXmpFileNew() {
+    CXmpFile* CXmpFileNew(CXmpError* outError) {
         init_xmp();
-        return new CXmpFile;
+        try {
+            return new CXmpFile;
+        }
+        catch (XMP_Error& e) {
+            copyErrorForResult(e, outError);
+        }
+        catch (...) {
+            signalUnknownError(outError);
+        }
+        return NULL;
     }
 
     void CXmpFileDrop(CXmpFile* f) {
-        #ifdef NOOP_FFI
-            int x;
-        #else
+        #ifndef NOOP_FFI
             delete f;
         #endif
     }

@@ -60,7 +60,9 @@ impl XmpMeta {
     ///
     /// * `path`: Path to the file to be read
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, XmpFileError> {
-        let mut f = XmpFile::new();
+        let mut f = XmpFile::new().unwrap();
+        // TO DO before merging this PR: Change result of this fn to
+        // XmpResult and use ? operator on XmpFile::new().
 
         f.open_file(path, OpenFileOptions::default().only_xmp())?;
 

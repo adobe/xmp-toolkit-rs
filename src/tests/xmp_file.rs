@@ -23,7 +23,7 @@ fn open_and_edit_file() {
     let purple_square = temp_copy_of_fixture(tempdir.path(), "Purple Square.psd");
 
     {
-        let mut f = XmpFile::new();
+        let mut f = XmpFile::new().unwrap();
 
         assert!(f
             .open_file(
@@ -57,7 +57,7 @@ fn open_and_edit_file() {
 
     // Let's make sure we actually wrote to the file.
     {
-        let mut f = XmpFile::new();
+        let mut f = XmpFile::new().unwrap();
 
         assert!(f
             .open_file(
@@ -82,7 +82,7 @@ fn open_fail() {
     let bad_path = PathBuf::from("doesnotexist.jpg");
 
     {
-        let mut f = XmpFile::new();
+        let mut f = XmpFile::new().unwrap();
 
         assert!(f
             .open_file(

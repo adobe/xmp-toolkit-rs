@@ -13,7 +13,7 @@
 
 use std::{ffi::CString, fmt, path::Path};
 
-use crate::{ffi, xmp_meta::XmpMeta};
+use crate::{ffi, XmpError, XmpMeta, XmpResult};
 
 /// The `XmpFile` struct allows access to the main (document-level) metadata in a file.
 ///
@@ -39,18 +39,18 @@ impl Drop for XmpFile {
     }
 }
 
-impl Default for XmpFile {
-    fn default() -> Self {
-        XmpFile::new()
-    }
-}
-
 impl XmpFile {
     /// Creates a new file struct that is associated with no file.
-    pub fn new() -> XmpFile {
-        XmpFile {
-            f: unsafe { ffi::CXmpFileNew() },
-        }
+    ///
+    /// An error result from this function is unlikely but possible
+    /// if, for example, the C++ XMP Toolkit fails to initialize or
+    /// reports an out-of-memory condition.
+    pub fn new() -> XmpResult<XmpFile> {
+        let mut err = ffi::CXmpError::default();
+        let f = unsafe { ffi::CXmpFileNew(&mut err) };
+        XmpError::raise_from_c(&err)?;
+
+        Ok(XmpFile { f })
     }
 
     /// Opens a file for the requested forms of metadata access.

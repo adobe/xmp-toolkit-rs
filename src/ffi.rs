@@ -37,7 +37,7 @@ pub(crate) enum CXmpMeta {}
 extern "C" {
     // --- CXmpFile ---
 
-    pub(crate) fn CXmpFileNew() -> *mut CXmpFile;
+    pub(crate) fn CXmpFileNew(out_error: *mut CXmpError) -> *mut CXmpFile;
     pub(crate) fn CXmpFileDrop(file: *mut CXmpFile);
     pub(crate) fn CXmpFileOpen(file: *mut CXmpFile, path: *const c_char, flags: u32) -> c_int;
     pub(crate) fn CXmpFileClose(file: *mut CXmpFile);
