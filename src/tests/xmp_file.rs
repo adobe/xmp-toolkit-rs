@@ -105,3 +105,18 @@ mod open_file {
         assert_eq!(err.debug_message, "Could not convert path to C string");
     }
 }
+
+mod get_xmp {
+    use crate::{tests::fixtures::*, OpenFileOptions, XmpFile};
+
+    #[test]
+    fn no_xmp_in_file() {
+        let mut f = XmpFile::new().unwrap();
+
+        let no_xmp = fixture_path("no_xmp.txt");
+        assert!(f.open_file(&no_xmp, OpenFileOptions::default()).is_ok());
+
+        let opt_m = f.xmp();
+        assert!(opt_m.is_none());
+    }
+}
