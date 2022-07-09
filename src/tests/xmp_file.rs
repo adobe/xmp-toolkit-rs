@@ -86,10 +86,7 @@ mod open_file {
         let bad_path = PathBuf::from("doesnotexist.jpg");
 
         let err = f
-            .open_file(
-                &bad_path,
-                OpenFileOptions::default(),
-            )
+            .open_file(&bad_path, OpenFileOptions::default())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NoFile);
@@ -101,10 +98,7 @@ mod open_file {
         let bad_path = PathBuf::from("doesn\0texist.jpg");
 
         let err = f
-            .open_file(
-                &bad_path,
-                OpenFileOptions::default(),
-            )
+            .open_file(&bad_path, OpenFileOptions::default())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::BadParam);
