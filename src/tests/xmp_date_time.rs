@@ -11,22 +11,14 @@
 // specific language governing permissions and limitations under
 // each license.
 
-#![deny(warnings)]
-#![deny(missing_docs)]
-#![doc = include_str!("../README.md")]
+use crate::XmpDateTime;
 
-mod ffi;
+#[test]
+fn new_empty() {
+    let mut _dt = XmpDateTime::new();
+}
 
-#[cfg(test)]
-mod tests;
-
-mod xmp_date_time;
-mod xmp_error;
-mod xmp_file;
-mod xmp_meta;
-pub mod xmp_ns;
-
-pub use xmp_date_time::XmpDateTime;
-pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
-pub use xmp_file::{OpenFileOptions, XmpFile, XmpFileError};
-pub use xmp_meta::XmpMeta;
+#[test]
+fn current() {
+    let mut _dt = XmpDateTime::current();
+}
