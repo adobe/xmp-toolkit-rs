@@ -94,4 +94,20 @@ mod open_file {
 
         assert_eq!(err.error_type, XmpErrorType::NoFile);
     }
+
+    #[test]
+    fn cant_convert_path() {
+        let mut f = XmpFile::new().unwrap();
+        let bad_path = PathBuf::from("doesn\0texist.jpg");
+
+        let err = f
+            .open_file(
+                &bad_path,
+                OpenFileOptions::default(),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadParam);
+        assert_eq!(err.debug_message, "Could not convert path to C string");
+    }
 }
