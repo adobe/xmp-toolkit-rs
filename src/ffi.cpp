@@ -234,7 +234,12 @@ extern "C" {
         #ifdef NOOP_FFI
             return 0;
         #else
-            return const_cast<SXMPFiles&>(f->f).CanPutXMP(m->m) ? 1 : 0;
+            try {
+                return const_cast<SXMPFiles&>(f->f).CanPutXMP(m->m) ? 1 : 0;
+            }
+            catch (...) {
+                return 0;
+            }
         #endif
     }
 
