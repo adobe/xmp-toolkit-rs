@@ -120,3 +120,26 @@ mod get_xmp {
         assert!(opt_m.is_none());
     }
 }
+
+mod can_put_xmp {
+    use tempfile::tempdir;
+
+    use crate::{tests::fixtures::*, OpenFileOptions, XmpFile, XmpMeta};
+
+    #[test]
+    fn no_xmp_in_file() {
+        let tempdir = tempdir().unwrap();
+        let no_xmp = temp_copy_of_fixture(tempdir.path(), "no_xmp.txt");
+
+        let mut f = XmpFile::new().unwrap();
+        assert!(f.open_file(&no_xmp, OpenFileOptions::default().for_update()).is_ok());
+
+        let mut m = XmpMeta::new();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
+        m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
+            .unwrap();
+
+        assert!(!f.can_put_xmp(&m));
+    }
+}
