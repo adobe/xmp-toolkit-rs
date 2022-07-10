@@ -142,3 +142,31 @@ mod set_property {
         assert_eq!(err.debug_message, "Empty property name");
     }
 }
+
+mod does_property_exist {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta};
+
+    #[test]
+    fn exists() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.does_property_exist(xmp_ns::XMP, "CreatorTool"), true);
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.does_property_exist(xmp_ns::XMP, "RandomProperty"), false);
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.does_property_exist("", "CreatorTool"), false);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.does_property_exist(xmp_ns::XMP, ""), false);
+    }
+}

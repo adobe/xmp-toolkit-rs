@@ -213,9 +213,14 @@ impl XmpMeta {
     /// * `prop_name`: The name of the property. Can be a general
     ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
+    /// 
+    /// ## Error handling
+    /// 
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `false` in such cases.
     pub fn does_property_exist(&self, schema_ns: &str, prop_name: &str) -> bool {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
+        let c_ns = CString::new(schema_ns).unwrap_or_default();
+        let c_name = CString::new(prop_name).unwrap_or_default();
 
         let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
         r != 0

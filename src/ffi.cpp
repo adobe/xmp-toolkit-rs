@@ -341,11 +341,16 @@ extern "C" {
     int CXmpMetaDoesPropertyExist(CXmpMeta* m,
                                   const char* schemaNS,
                                   const char* propName) {
-        #ifdef NOOP_FFI
-            return 0;
-        #else
-            return (m->m.DoesPropertyExist(schemaNS, propName)) ? 1 : 0;
+        #ifndef NOOP_FFI
+            try {
+                return (m->m.DoesPropertyExist(schemaNS, propName)) ? 1 : 0;
+            }
+            catch (...) {
+                // Intentional no-op.
+            }
         #endif
+
+        return 0;
     }
 
     void CXmpMetaSetPropertyDate(CXmpMeta* m,
