@@ -120,7 +120,7 @@ impl XmpMeta {
     ///   specified, must match the registered prefix for that namespace.
     ///
     /// ## Error handling
-    /// 
+    ///
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `None` in such cases.
     pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
@@ -213,9 +213,9 @@ impl XmpMeta {
     /// * `prop_name`: The name of the property. Can be a general
     ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
-    /// 
+    ///
     /// ## Error handling
-    /// 
+    ///
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `false` in such cases.
     pub fn does_property_exist(&self, schema_ns: &str, prop_name: &str) -> bool {
