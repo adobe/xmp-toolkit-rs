@@ -155,6 +155,7 @@ extern "C" {
                 signalUnknownError(outError);
             }
         #endif
+
         return NULL;
     }
 
@@ -168,9 +169,7 @@ extern "C" {
                       CXmpError* outError,
                       const char* filePath,
                       AdobeXMPCommon::uint32 openFlags) {
-        #ifdef NOOP_FFI
-            return 1;
-        #else
+        #ifndef NOOP_FFI
             // TO DO: Bridge file format parameter.
             // For my purposes at the moment,
             // kXMP_UnknownFile always suffices.
@@ -200,9 +199,7 @@ extern "C" {
     }
 
     CXmpMeta* CXmpFileGetXmp(CXmpFile* f) {
-        #ifdef NOOP_FFI
-            return NULL;
-        #else
+        #ifndef NOOP_FFI
             try {
                 CXmpMeta* r = new CXmpMeta;
                 try {
@@ -217,11 +214,11 @@ extern "C" {
             catch (...) {
                 // Intentional no-op.
             }
-
-            // No metadata or exception occurred.
-            // Signal this by returning NULL.
-            return NULL;
         #endif
+
+        // No metadata or exception occurred.
+        // Signal this by returning NULL.
+        return NULL;
     }
 
     void CXmpFilePutXmp(CXmpFile* f,
@@ -242,16 +239,16 @@ extern "C" {
 
     int CXmpFileCanPutXmp(const CXmpFile* f,
                           const CXmpMeta* m) {
-        #ifdef NOOP_FFI
-            return 0;
-        #else
+        #ifndef NOOP_FFI
             try {
                 return const_cast<SXMPFiles&>(f->f).CanPutXMP(m->m) ? 1 : 0;
             }
             catch (...) {
-                return 0;
+                // Intentional no-op.
             }
         #endif
+
+        return 0;
     }
 
     // --- CXmpMeta ---
@@ -269,6 +266,7 @@ extern "C" {
                 signalUnknownError(outError);
             }
         #endif
+
         return NULL;
     }
 
@@ -281,9 +279,7 @@ extern "C" {
     const char* CXmpMetaRegisterNamespace(CXmpError* outError,
                                           const char* namespaceURI,
                                           const char* suggestedPrefix) {
-        #ifdef NOOP_FFI
-            return NULL;
-        #else
+        #ifndef NOOP_FFI
             init_xmp();
 
             try {
@@ -298,17 +294,15 @@ extern "C" {
             catch (...) {
                 signalUnknownError(outError);
             }
-
-            return NULL;
         #endif
+
+        return NULL;
     }
 
     const char* CXmpMetaGetProperty(CXmpMeta* m,
                                     const char* schemaNS,
                                     const char* propName) {
-        #ifdef NOOP_FFI
-            return NULL;
-        #else
+        #ifndef NOOP_FFI
             try {
                 std::string propValue;
                 if (m->m.GetProperty(schemaNS, propName, &propValue, NULL /* options */)) {
@@ -318,9 +312,9 @@ extern "C" {
             catch (...) {
                 // Intentional no-op.
             }
-
-            return NULL;
         #endif
+
+        return NULL;
     }
 
     void CXmpMetaSetProperty(CXmpMeta* m,
@@ -385,6 +379,7 @@ extern "C" {
 
     CXmpDateTime* CXmpDateTimeCurrent() {
         CXmpDateTime* dt = new CXmpDateTime;
+
         #ifndef NOOP_FFI
             try {
                 SXMPUtils::CurrentDateTime(&dt->dt);
@@ -393,6 +388,7 @@ extern "C" {
                 fprintf(stderr, "CXMPDateTimeCurrent: ERROR %s\n", e.GetErrMsg());
             }
         #endif
+
         return dt;
     }
 }
