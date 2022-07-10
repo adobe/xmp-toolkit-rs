@@ -256,8 +256,20 @@ extern "C" {
 
     // --- CXmpMeta ---
 
-    CXmpMeta* CXmpMetaNew() {
-        return new CXmpMeta;
+    CXmpMeta* CXmpMetaNew(CXmpError* outError) {
+        #ifndef NOOP_FFI
+            init_xmp();
+            try {
+                return new CXmpMeta;
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+        return NULL;
     }
 
     void CXmpMetaDrop(CXmpMeta* m) {

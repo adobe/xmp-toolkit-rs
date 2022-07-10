@@ -16,7 +16,7 @@ use std::{
     path::Path,
 };
 
-use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpFile, XmpResult};
+use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult};
 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
@@ -24,8 +24,6 @@ use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpFile, XmpResult};
 /// or that you obtain from files using the [`XmpFile`] struct.
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
-    // pub(crate) is used because XmpFile::xmp
-    // can create this struct.
 }
 
 impl Drop for XmpMeta {
@@ -36,25 +34,23 @@ impl Drop for XmpMeta {
     }
 }
 
-impl Default for XmpMeta {
-    fn default() -> Self {
-        XmpMeta::new()
-    }
-}
-
 impl XmpMeta {
     /// Creates a new, empty metadata struct.
-    pub fn new() -> XmpMeta {
-        let m = unsafe { ffi::CXmpMetaNew() };
-        XmpMeta { m }
+    ///
+    /// An error result from this function is unlikely but possible
+    /// if, for example, the C++ XMP Toolkit fails to initialize or
+    /// reports an out-of-memory condition.
+    pub fn new() -> XmpResult<XmpMeta> {
+        let mut err = ffi::CXmpError::default();
+        let m = unsafe { ffi::CXmpMetaNew(&mut err) };
+        XmpError::raise_from_c(&err)?;
+
+        Ok(XmpMeta { m })
     }
 
     /// Reads the XMP from a file without keeping the file open.
     ///
     /// This is a convenience function for read-only workflows.
-    ///
-    /// If no XMP is found in the file, will return an empty [`XmpMeta`]
-    /// struct (i.e. same as [`XmpMeta::new()`]).
     ///
     /// ## Arguments
     ///
@@ -63,7 +59,10 @@ impl XmpMeta {
         let mut f = XmpFile::new()?;
         f.open_file(path, OpenFileOptions::default().only_xmp())?;
 
-        Ok(f.xmp().unwrap_or_else(Self::new))
+        f.xmp().ok_or_else(|| XmpError {
+            error_type: XmpErrorType::Unavailable,
+            debug_message: "No XMP in file".to_owned(),
+        })
     }
 
     /// Registers a namespace URI with a suggested prefix.

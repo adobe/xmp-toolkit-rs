@@ -60,7 +60,7 @@ extern "C" {
 
     // --- CXmpMeta ---
 
-    pub(crate) fn CXmpMetaNew() -> *mut CXmpMeta;
+    pub(crate) fn CXmpMetaNew(out_error: *mut CXmpError) -> *mut CXmpMeta;
     pub(crate) fn CXmpMetaDrop(meta: *mut CXmpMeta);
 
     pub(crate) fn CXmpMetaRegisterNamespace(

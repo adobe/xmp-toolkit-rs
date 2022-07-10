@@ -11,32 +11,60 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use crate::{tests::fixtures::*, XmpMeta};
+use crate::XmpMeta;
 
 #[test]
 fn new_empty() {
     let mut _m = XmpMeta::new();
+
+    // TODO: Add more tests when we can iterate.
 }
 
-#[test]
-fn from_file() {
-    let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+mod from_file {
+    use std::path::PathBuf;
 
-    assert_eq!(
-        m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
-            .unwrap(),
-        "Adobe Photoshop CS2 Windows"
-    );
+    use crate::{tests::fixtures::*, XmpErrorType, XmpMeta};
 
-    assert_eq!(
-        m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
-            .unwrap(),
-        "Dell 1905FP Color Profile"
-    );
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
 
-    assert!(m
-        .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
-        .is_none());
+        assert_eq!(
+            m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+                .unwrap(),
+            "Adobe Photoshop CS2 Windows"
+        );
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+                .unwrap(),
+            "Dell 1905FP Color Profile"
+        );
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+
+    #[test]
+    fn no_xmp() {
+        let err = XmpMeta::from_file(fixture_path("no_xmp.txt"))
+            .err()
+            .unwrap();
+        // NOTE: Can't use unwrap_err() because XmpMeta doesn't implement Debug trait.
+
+        assert_eq!(err.error_type, XmpErrorType::Unavailable);
+        assert_eq!(err.debug_message, "No XMP in file");
+    }
+
+    #[test]
+    fn file_not_found() {
+        let bad_path = PathBuf::from("doesnotexist.jpg");
+        let err = XmpMeta::from_file(&bad_path).err().unwrap();
+        // NOTE: Can't use unwrap_err() because XmpMeta doesn't implement Debug trait.
+
+        assert_eq!(err.error_type, XmpErrorType::NoFile);
+    }
 }
 
 #[test]

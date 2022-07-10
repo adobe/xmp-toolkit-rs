@@ -136,7 +136,7 @@ mod can_put_xmp {
             .open_file(&no_xmp, OpenFileOptions::default().for_update())
             .is_ok());
 
-        let mut m = XmpMeta::new();
+        let mut m = XmpMeta::new().unwrap();
 
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
         m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
@@ -161,7 +161,7 @@ mod put_xmp {
             .open_file(&no_xmp, OpenFileOptions::default().for_update())
             .is_ok());
 
-        let mut m = XmpMeta::new();
+        let mut m = XmpMeta::new().unwrap();
 
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
         m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
