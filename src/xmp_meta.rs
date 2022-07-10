@@ -195,13 +195,22 @@ impl XmpMeta {
         schema_ns: &str,
         prop_name: &str,
         prop_value: &XmpDateTime,
-    ) {
+    ) -> XmpResult<()> {
         let c_ns = CString::new(schema_ns).unwrap();
         let c_name = CString::new(prop_name).unwrap();
+        let mut err = ffi::CXmpError::default();
 
         unsafe {
-            ffi::CXmpMetaSetPropertyDate(self.m, c_ns.as_ptr(), c_name.as_ptr(), prop_value.dt);
+            ffi::CXmpMetaSetPropertyDate(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                prop_value.dt,
+            );
         }
+
+        XmpError::raise_from_c(&err)
     }
 
     /// Reports whether a property currently exists.

@@ -91,6 +91,7 @@ extern "C" {
 
     pub(crate) fn CXmpMetaSetPropertyDate(
         meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
         schema_ns: *const c_char,
         prop_name: *const c_char,
         prop_value: *const CXmpDateTime,

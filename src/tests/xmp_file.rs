@@ -41,7 +41,8 @@ fn open_and_edit_file() {
 
         if m.does_property_exist(xmp_ns::XMP, "MetadataDate") {
             let updated_time = XmpDateTime::current();
-            m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time);
+            m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time)
+                .unwrap();
         }
 
         assert!(f.can_put_xmp(&m));

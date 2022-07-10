@@ -354,6 +354,7 @@ extern "C" {
     }
 
     void CXmpMetaSetPropertyDate(CXmpMeta* m,
+                                 CXmpError* outError,
                                  const char* schemaNS,
                                  const char* propName,
                                  const CXmpDateTime* propValue) {
@@ -361,7 +362,15 @@ extern "C" {
             // TO DO: Bridge options parameter.
             // For my purposes at the moment,
             // default value (0) always suffices.
-            m->m.SetProperty_Date(schemaNS, propName, propValue->dt);
+            try {
+                m->m.SetProperty_Date(schemaNS, propName, propValue->dt);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
         #endif
     }
 

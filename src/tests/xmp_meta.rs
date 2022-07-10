@@ -173,3 +173,31 @@ mod does_property_exist {
         assert_eq!(m.does_property_exist(xmp_ns::XMP, ""), false);
     }
 }
+
+mod set_property_date {
+    use crate::{tests::fixtures::*, xmp_ns, XmpDateTime, XmpErrorType, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        let updated_time = XmpDateTime::current();
+
+        m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time)
+            .unwrap();
+
+        // TODO: Read date back when we can.
+    }
+
+    #[test]
+    fn error_empty_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        let updated_time = XmpDateTime::current();
+
+        let err = m
+            .set_property_date("", "MetadataDate", &updated_time)
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadSchema);
+        assert_eq!(err.debug_message, "Empty schema namespace URI");
+    }
+}
