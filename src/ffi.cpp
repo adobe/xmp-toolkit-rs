@@ -309,13 +309,17 @@ extern "C" {
         #ifdef NOOP_FFI
             return NULL;
         #else
-            std::string propValue;
-
-            if (m->m.GetProperty(schemaNS, propName, &propValue, NULL /* options */)) {
-                return copyStringForResult(propValue);
-            } else {
-                return NULL;
+            try {
+                std::string propValue;
+                if (m->m.GetProperty(schemaNS, propName, &propValue, NULL /* options */)) {
+                    return copyStringForResult(propValue);
+                }
             }
+            catch (...) {
+                // Intentional no-op.
+            }
+
+            return NULL;
         #endif
     }
 

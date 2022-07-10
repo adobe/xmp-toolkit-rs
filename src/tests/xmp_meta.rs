@@ -87,6 +87,28 @@ mod register_namespace {
     }
 }
 
+mod property {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property(xmp_ns::XMP, "CreatorTool"), Some("Adobe Photoshop CS2 Windows".to_owned()));
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property(xmp_ns::XMP, ""), None);
+    }
+}
+
 mod set_property {
     use crate::{tests::fixtures::*, XmpErrorType, XmpMeta};
 
