@@ -152,25 +152,25 @@ mod does_property_exist {
     #[test]
     fn exists() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert_eq!(m.does_property_exist(xmp_ns::XMP, "CreatorTool"), true);
+        assert!(m.does_property_exist(xmp_ns::XMP, "CreatorTool"));
     }
 
     #[test]
     fn doesnt_exist() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert_eq!(m.does_property_exist(xmp_ns::XMP, "RandomProperty"), false);
+        assert!(!m.does_property_exist(xmp_ns::XMP, "RandomProperty"));
     }
 
     #[test]
     fn empty_namespace() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert_eq!(m.does_property_exist("", "CreatorTool"), false);
+        assert!(!m.does_property_exist("", "CreatorTool"));
     }
 
     #[test]
     fn empty_prop_name() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert_eq!(m.does_property_exist(xmp_ns::XMP, ""), false);
+        assert!(!m.does_property_exist(xmp_ns::XMP, ""));
     }
 }
 
