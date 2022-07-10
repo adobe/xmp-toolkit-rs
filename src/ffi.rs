@@ -101,5 +101,5 @@ extern "C" {
 
     pub(crate) fn CXmpDateTimeNew() -> *mut CXmpDateTime;
     pub(crate) fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);
-    pub(crate) fn CXmpDateTimeCurrent() -> *mut CXmpDateTime;
+    pub(crate) fn CXmpDateTimeCurrent(out_error: *mut CXmpError) -> *mut CXmpDateTime;
 }

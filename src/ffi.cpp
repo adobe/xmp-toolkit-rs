@@ -391,18 +391,21 @@ extern "C" {
         delete dt;
     }
 
-    CXmpDateTime* CXmpDateTimeCurrent() {
-        CXmpDateTime* dt = new CXmpDateTime;
-
+    CXmpDateTime* CXmpDateTimeCurrent(CXmpError* outError) {
         #ifndef NOOP_FFI
             try {
+                CXmpDateTime* dt = new CXmpDateTime;
                 SXMPUtils::CurrentDateTime(&dt->dt);
+                return dt;
             }
             catch (XMP_Error& e) {
-                fprintf(stderr, "CXMPDateTimeCurrent: ERROR %s\n", e.GetErrMsg());
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
             }
         #endif
 
-        return dt;
+        return NULL;
     }
 }

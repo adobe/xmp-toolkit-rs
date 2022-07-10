@@ -180,7 +180,7 @@ mod set_property_date {
     #[test]
     fn happy_path() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        let updated_time = XmpDateTime::current();
+        let updated_time = XmpDateTime::current().unwrap();
 
         m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time)
             .unwrap();
@@ -191,7 +191,7 @@ mod set_property_date {
     #[test]
     fn error_empty_name() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        let updated_time = XmpDateTime::current();
+        let updated_time = XmpDateTime::current().unwrap();
 
         let err = m
             .set_property_date("", "MetadataDate", &updated_time)

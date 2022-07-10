@@ -25,5 +25,5 @@ fn default() {
 
 #[test]
 fn current() {
-    let mut _dt = XmpDateTime::current();
+    let mut _dt = XmpDateTime::current().unwrap();
 }

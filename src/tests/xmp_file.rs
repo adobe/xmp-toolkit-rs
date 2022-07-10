@@ -40,7 +40,7 @@ fn open_and_edit_file() {
         assert!(!m.does_property_exist("http://purl.org/dc/terms/", "provenancx"));
 
         if m.does_property_exist(xmp_ns::XMP, "MetadataDate") {
-            let updated_time = XmpDateTime::current();
+            let updated_time = XmpDateTime::current().unwrap();
             m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time)
                 .unwrap();
         }
