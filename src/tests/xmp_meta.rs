@@ -93,7 +93,10 @@ mod property {
     #[test]
     fn happy_path() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert_eq!(m.property(xmp_ns::XMP, "CreatorTool"), Some("Adobe Photoshop CS2 Windows".to_owned()));
+        assert_eq!(
+            m.property(xmp_ns::XMP, "CreatorTool"),
+            Some("Adobe Photoshop CS2 Windows".to_owned())
+        );
     }
 
     #[test]
