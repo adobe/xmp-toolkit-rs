@@ -143,16 +143,18 @@ extern "C" {
     // --- CXmpFile ---
 
     CXmpFile* CXmpFileNew(CXmpError* outError) {
-        init_xmp();
-        try {
-            return new CXmpFile;
-        }
-        catch (XMP_Error& e) {
-            copyErrorForResult(e, outError);
-        }
-        catch (...) {
-            signalUnknownError(outError);
-        }
+        #ifndef NOOP_FFI
+            init_xmp();
+            try {
+                return new CXmpFile;
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
         return NULL;
     }
 
