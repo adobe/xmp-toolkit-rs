@@ -130,8 +130,12 @@ impl XmpFile {
     /// This function supplies new XMP for the file. However, the disk file is not written until
     /// the struct is closed with [`XmpFile::close()`]. The options provided when the file was opened
     /// determine if reconciliation is done with other forms of metadata.
-    pub fn put_xmp(&mut self, meta: &XmpMeta) {
-        unsafe { ffi::CXmpFilePutXmp(self.f, meta.m) };
+    pub fn put_xmp(&mut self, meta: &XmpMeta) -> XmpResult<()> {
+        let mut err = ffi::CXmpError::default();
+
+        unsafe { ffi::CXmpFilePutXmp(self.f, &mut err, meta.m) };
+
+        XmpError::raise_from_c(&err)
     }
 
     /// Explicitly closes an opened file.

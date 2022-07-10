@@ -223,9 +223,18 @@ extern "C" {
     }
 
     void CXmpFilePutXmp(CXmpFile* f,
+                        CXmpError* outError,
                         const CXmpMeta* m) {
         #ifndef NOOP_FFI
-            f->f.PutXMP(m->m);
+            try {
+                f->f.PutXMP(m->m);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
         #endif
     }
 

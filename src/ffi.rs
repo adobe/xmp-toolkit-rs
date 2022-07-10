@@ -49,7 +49,13 @@ extern "C" {
 
     pub(crate) fn CXmpFileClose(file: *mut CXmpFile);
     pub(crate) fn CXmpFileGetXmp(file: *mut CXmpFile) -> *mut CXmpMeta;
-    pub(crate) fn CXmpFilePutXmp(file: *mut CXmpFile, meta: *const CXmpMeta);
+
+    pub(crate) fn CXmpFilePutXmp(
+        file: *mut CXmpFile,
+        out_error: *mut CXmpError,
+        meta: *const CXmpMeta,
+    );
+
     pub(crate) fn CXmpFileCanPutXmp(file: *const CXmpFile, meta: *const CXmpMeta) -> c_int;
 
     // --- CXmpMeta ---
