@@ -273,7 +273,9 @@ extern "C" {
     }
 
     void CXmpMetaDrop(CXmpMeta* m) {
-        delete m;
+        #ifndef NOOP_FFI
+            delete m;
+        #endif
     }
 
     const char* CXmpMetaRegisterNamespace(const char* namespaceURI,
