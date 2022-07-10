@@ -67,12 +67,24 @@ mod from_file {
     }
 }
 
-#[test]
-fn register_namespace() {
-    assert_eq!(
-        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms"),
-        "dcterms:"
-    );
+mod register_namespace {
+    use crate::{XmpErrorType, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        assert_eq!(
+            XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap(),
+            "dcterms:"
+        );
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let err = XmpMeta::register_namespace("", "dcterms").unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadSchema);
+        assert_eq!(err.debug_message, "Empty namespace URI");
+    }
 }
 
 mod set_property {
@@ -82,7 +94,7 @@ mod set_property {
     fn happy_path() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
 
-        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
         m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
             .unwrap();
@@ -98,7 +110,7 @@ mod set_property {
     fn error_empty_name() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
 
-        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
         let err = m
             .set_property("http://purl.org/dc/terms/", "", "blah")

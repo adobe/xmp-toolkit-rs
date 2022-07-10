@@ -83,16 +83,21 @@ impl XmpMeta {
     /// Returns the prefix actually registered for this URI.
     ///
     /// **NOTE:** No checking is done on either the URI or the prefix.
-    pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> String {
+    pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> XmpResult<String> {
         // These .unwrap() calls are deemed unlikely to panic as this
         // function is typically called with known, standardized strings
         // in the ASCII space.
-        let c_ns = CString::new(namespace_uri).unwrap();
-        let c_sp = CString::new(suggested_prefix).unwrap();
+        let c_ns = CString::new(namespace_uri).unwrap_or_default();
+        let c_sp = CString::new(suggested_prefix).unwrap_or_default();
 
         unsafe {
-            let c_result = ffi::CXmpMetaRegisterNamespace(c_ns.as_ptr(), c_sp.as_ptr());
-            CStr::from_ptr(c_result).to_string_lossy().into_owned()
+            let mut err = ffi::CXmpError::default();
+
+            let c_result = ffi::CXmpMetaRegisterNamespace(&mut err, c_ns.as_ptr(), c_sp.as_ptr());
+
+            XmpError::raise_from_c(&err)?;
+
+            Ok(CStr::from_ptr(c_result).to_string_lossy().into_owned())
         }
     }
 

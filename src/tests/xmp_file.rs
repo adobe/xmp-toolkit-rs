@@ -30,12 +30,9 @@ fn open_and_edit_file() {
             )
             .is_ok());
 
-        let opt_m = f.xmp();
-        assert!(opt_m.is_some());
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
-        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
-
-        let mut m = opt_m.unwrap();
+        let mut m = f.xmp().unwrap();
         m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
             .unwrap();
 
@@ -136,9 +133,9 @@ mod can_put_xmp {
             .open_file(&no_xmp, OpenFileOptions::default().for_update())
             .is_ok());
 
-        let mut m = XmpMeta::new().unwrap();
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
-        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
+        let mut m = XmpMeta::new().unwrap();
         m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
             .unwrap();
 
@@ -161,9 +158,9 @@ mod put_xmp {
             .open_file(&no_xmp, OpenFileOptions::default().for_update())
             .is_ok());
 
-        let mut m = XmpMeta::new().unwrap();
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
-        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms");
+        let mut m = XmpMeta::new().unwrap();
         m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
             .unwrap();
 

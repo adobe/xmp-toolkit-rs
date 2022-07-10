@@ -278,18 +278,28 @@ extern "C" {
         #endif
     }
 
-    const char* CXmpMetaRegisterNamespace(const char* namespaceURI,
+    const char* CXmpMetaRegisterNamespace(CXmpError* outError,
+                                          const char* namespaceURI,
                                           const char* suggestedPrefix) {
         #ifdef NOOP_FFI
             return NULL;
         #else
             init_xmp();
 
-            std::string registeredPrefix;
+            try {
+                std::string registeredPrefix;
+                SXMPMeta::RegisterNamespace(namespaceURI, suggestedPrefix, &registeredPrefix);
 
-            SXMPMeta::RegisterNamespace(namespaceURI, suggestedPrefix, &registeredPrefix);
+                return copyStringForResult(registeredPrefix);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
 
-            return copyStringForResult(registeredPrefix);
+            return NULL;
         #endif
     }
 

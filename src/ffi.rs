@@ -64,6 +64,7 @@ extern "C" {
     pub(crate) fn CXmpMetaDrop(meta: *mut CXmpMeta);
 
     pub(crate) fn CXmpMetaRegisterNamespace(
+        out_error: *mut CXmpError,
         namespace_uri: *const c_char,
         suggested_prefix: *const c_char,
     ) -> *mut c_char;
