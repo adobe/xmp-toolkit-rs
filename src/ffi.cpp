@@ -377,18 +377,18 @@ extern "C" {
     // --- CXmpDateTime ---
 
     CXmpDateTime* CXmpDateTimeNew() {
+        // As of this writing (2022-07-09,
+        // https://github.com/adobe/XMP-Toolkit-SDK/blob/337c052b059640e243dbd6646b9462edaf6038c1/public/include/XMP_Const.h#L230),
+        // XMP_DateTime does not throw on construction.
         return new CXmpDateTime;
     }
 
     void CXmpDateTimeDrop(CXmpDateTime* dt) {
-        #ifndef NOOP_FFI
-            try {
-                delete dt;
-            }
-            catch (XMP_Error& e) {
-                fprintf(stderr, "CXMPDateTimeDrop: ERROR %s\n", e.GetErrMsg());
-            }
-        #endif
+        // As of this writing (2022-07-09,
+        // https://github.com/adobe/XMP-Toolkit-SDK/blob/337c052b059640e243dbd6646b9462edaf6038c1/public/include/XMP_Const.h#L230),
+        // XMP_DateTime does not have a destructor and its member types are simple,
+        // so it does not throw on destruction.
+        delete dt;
     }
 
     CXmpDateTime* CXmpDateTimeCurrent() {
