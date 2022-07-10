@@ -81,8 +81,6 @@ impl XmpMeta {
     ///   the URI is not yet registered. Must be a valid XML name.
     ///
     /// Returns the prefix actually registered for this URI.
-    ///
-    /// **NOTE:** No checking is done on either the URI or the prefix.
     pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> XmpResult<String> {
         // These .unwrap() calls are deemed unlikely to panic as this
         // function is typically called with known, standardized strings
@@ -120,6 +118,11 @@ impl XmpMeta {
     ///   if present without a `schema_ns` value, the prefix specifies the namespace.
     ///   The prefix must be for a registered namespace, and if a namespace URI is
     ///   specified, must match the registered prefix for that namespace.
+    ///
+    /// ## Error handling
+    /// 
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `None` in such cases.
     pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
         let c_ns = CString::new(schema_ns).unwrap();
         let c_name = CString::new(prop_name).unwrap();
