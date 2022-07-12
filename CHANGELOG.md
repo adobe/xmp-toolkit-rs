@@ -6,6 +6,14 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.5.0
+_12 July 2022_
+
+* (MINOR) Pass XMP errors from C++ to Rust ([#60](https://github.com/adobe/xmp-toolkit-rs/pull/60))
+* Refactor test code so it can be excluded from code coverage ([#66](https://github.com/adobe/xmp-toolkit-rs/pull/66))
+* Require code coverage to upload on all supported platforms ([#63](https://github.com/adobe/xmp-toolkit-rs/pull/63))
+* (MINOR) Hide access to FFI functions ([#61](https://github.com/adobe/xmp-toolkit-rs/pull/61))
+
 ## 0.4.0
 _07 July 2022_
 
