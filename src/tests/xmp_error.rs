@@ -20,7 +20,7 @@ mod raise_from_c {
     fn no_error() {
         let c = CXmpError {
             had_error: 0,
-            id: 0,
+            id: 0, // See kXMPErr_* constants in XMPConst.h.
             debug_message: ptr::null(),
         };
 
