@@ -11,9 +11,9 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{ffi::CString, fmt, path::Path};
+use std::{ffi::CString, path::Path};
 
-use crate::{ffi, xmp_meta::XmpMeta};
+use crate::{ffi, XmpError, XmpErrorType, XmpMeta, XmpResult};
 
 /// The `XmpFile` struct allows access to the main (document-level) metadata in a file.
 ///
@@ -39,18 +39,18 @@ impl Drop for XmpFile {
     }
 }
 
-impl Default for XmpFile {
-    fn default() -> Self {
-        XmpFile::new()
-    }
-}
-
 impl XmpFile {
     /// Creates a new file struct that is associated with no file.
-    pub fn new() -> XmpFile {
-        XmpFile {
-            f: unsafe { ffi::CXmpFileNew() },
-        }
+    ///
+    /// An error result from this function is unlikely but possible
+    /// if, for example, the C++ XMP Toolkit fails to initialize or
+    /// reports an out-of-memory condition.
+    pub fn new() -> XmpResult<XmpFile> {
+        let mut err = ffi::CXmpError::default();
+        let f = unsafe { ffi::CXmpFileNew(&mut err) };
+        XmpError::raise_from_c(&err)?;
+
+        Ok(XmpFile { f })
     }
 
     /// Opens a file for the requested forms of metadata access.
@@ -81,18 +81,21 @@ impl XmpFile {
     /// ([`OpenFileOptions::default()`]), the file is opened for read-only access and the
     /// format handler decides on the level of reconciliation that will be performed.
     /// See [`OpenFileOptions`] for other options.
-    pub fn open_file<P: AsRef<Path>>(
-        &mut self,
-        path: P,
-        flags: OpenFileOptions,
-    ) -> Result<(), XmpFileError> {
+    pub fn open_file<P: AsRef<Path>>(&mut self, path: P, flags: OpenFileOptions) -> XmpResult<()> {
         if let Some(c_path) = path_to_cstr(path.as_ref()) {
-            if unsafe { ffi::CXmpFileOpen(self.f, c_path.as_ptr(), flags.options) } != 0 {
-                return Ok(());
-            }
-        }
+            let mut err = ffi::CXmpError::default();
 
-        Err(XmpFileError::CantOpenFile)
+            unsafe {
+                ffi::CXmpFileOpen(self.f, &mut err, c_path.as_ptr(), flags.options);
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(XmpError {
+                error_type: XmpErrorType::BadParam,
+                debug_message: "Could not convert path to C string".to_owned(),
+            })
+        }
     }
 
     /// Retrieves the XMP metadata from an open file.
@@ -127,8 +130,12 @@ impl XmpFile {
     /// This function supplies new XMP for the file. However, the disk file is not written until
     /// the struct is closed with [`XmpFile::close()`]. The options provided when the file was opened
     /// determine if reconciliation is done with other forms of metadata.
-    pub fn put_xmp(&mut self, meta: &XmpMeta) {
-        unsafe { ffi::CXmpFilePutXmp(self.f, meta.m) };
+    pub fn put_xmp(&mut self, meta: &XmpMeta) -> XmpResult<()> {
+        let mut err = ffi::CXmpError::default();
+
+        unsafe { ffi::CXmpFilePutXmp(self.f, &mut err, meta.m) };
+
+        XmpError::raise_from_c(&err)
     }
 
     /// Explicitly closes an opened file.
@@ -254,31 +261,7 @@ impl OpenFileOptions {
     }
 }
 
-/// Describes the potential error conditions that might arise from [`XmpFile`] operations.
-#[derive(Debug)]
-pub enum XmpFileError {
-    /// Returned if the XMP Toolkit could not open the file.
-    CantOpenFile,
-}
-
-impl fmt::Display for XmpFileError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            Self::CantOpenFile => {
-                write!(f, "could not open XMP content from this file")
-            }
-        }
-    }
-}
-
-impl std::error::Error for XmpFileError {}
-
 fn path_to_cstr(path: &Path) -> Option<CString> {
-    match path.to_str() {
-        Some(path_str) => match CString::new(path_str) {
-            Ok(c_path) => Some(c_path),
-            Err(_) => None,
-        },
-        None => None,
-    }
+    path.to_str()
+        .and_then(|path_str| CString::new(path_str).ok())
 }

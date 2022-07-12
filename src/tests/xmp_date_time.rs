@@ -19,6 +19,11 @@ fn new_empty() {
 }
 
 #[test]
+fn default() {
+    let mut _dt = XmpDateTime::default();
+}
+
+#[test]
 fn current() {
-    let mut _dt = XmpDateTime::current();
+    let mut _dt = XmpDateTime::current().unwrap();
 }

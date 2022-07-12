@@ -22,6 +22,10 @@ exclude = [
     "external/xmp_toolkit/XMPFilesPlugins/PDF_Handler",
 ]
 
+[dependencies]
+num_enum = "0.5.7"
+thiserror = "1.0"
+
 [build-dependencies]
 cc = "1.0"
 fs_extra = "1.2"

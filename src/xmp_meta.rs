@@ -16,7 +16,7 @@ use std::{
     path::Path,
 };
 
-use crate::{ffi, OpenFileOptions, XmpDateTime, XmpFile, XmpFileError};
+use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult};
 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
@@ -24,8 +24,6 @@ use crate::{ffi, OpenFileOptions, XmpDateTime, XmpFile, XmpFileError};
 /// or that you obtain from files using the [`XmpFile`] struct.
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
-    // pub(crate) is used because XmpFile::xmp
-    // can create this struct.
 }
 
 impl Drop for XmpMeta {
@@ -36,35 +34,35 @@ impl Drop for XmpMeta {
     }
 }
 
-impl Default for XmpMeta {
-    fn default() -> Self {
-        XmpMeta::new()
-    }
-}
-
 impl XmpMeta {
     /// Creates a new, empty metadata struct.
-    pub fn new() -> XmpMeta {
-        let m = unsafe { ffi::CXmpMetaNew() };
-        XmpMeta { m }
+    ///
+    /// An error result from this function is unlikely but possible
+    /// if, for example, the C++ XMP Toolkit fails to initialize or
+    /// reports an out-of-memory condition.
+    pub fn new() -> XmpResult<XmpMeta> {
+        let mut err = ffi::CXmpError::default();
+        let m = unsafe { ffi::CXmpMetaNew(&mut err) };
+        XmpError::raise_from_c(&err)?;
+
+        Ok(XmpMeta { m })
     }
 
     /// Reads the XMP from a file without keeping the file open.
     ///
     /// This is a convenience function for read-only workflows.
     ///
-    /// If no XMP is found in the file, will return an empty [`XmpMeta`]
-    /// struct (i.e. same as [`XmpMeta::new()`]).
-    ///
     /// ## Arguments
     ///
     /// * `path`: Path to the file to be read
-    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, XmpFileError> {
-        let mut f = XmpFile::new();
-
+    pub fn from_file<P: AsRef<Path>>(path: P) -> XmpResult<Self> {
+        let mut f = XmpFile::new()?;
         f.open_file(path, OpenFileOptions::default().only_xmp())?;
 
-        Ok(f.xmp().unwrap_or_else(Self::new))
+        f.xmp().ok_or_else(|| XmpError {
+            error_type: XmpErrorType::Unavailable,
+            debug_message: "No XMP in file".to_owned(),
+        })
     }
 
     /// Registers a namespace URI with a suggested prefix.
@@ -83,18 +81,21 @@ impl XmpMeta {
     ///   the URI is not yet registered. Must be a valid XML name.
     ///
     /// Returns the prefix actually registered for this URI.
-    ///
-    /// **NOTE:** No checking is done on either the URI or the prefix.
-    pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> String {
+    pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> XmpResult<String> {
         // These .unwrap() calls are deemed unlikely to panic as this
         // function is typically called with known, standardized strings
         // in the ASCII space.
-        let c_ns = CString::new(namespace_uri).unwrap();
-        let c_sp = CString::new(suggested_prefix).unwrap();
+        let c_ns = CString::new(namespace_uri).unwrap_or_default();
+        let c_sp = CString::new(suggested_prefix).unwrap_or_default();
 
         unsafe {
-            let c_result = ffi::CXmpMetaRegisterNamespace(c_ns.as_ptr(), c_sp.as_ptr());
-            CStr::from_ptr(c_result).to_string_lossy().into_owned()
+            let mut err = ffi::CXmpError::default();
+
+            let c_result = ffi::CXmpMetaRegisterNamespace(&mut err, c_ns.as_ptr(), c_sp.as_ptr());
+
+            XmpError::raise_from_c(&err)?;
+
+            Ok(CStr::from_ptr(c_result).to_string_lossy().into_owned())
         }
     }
 
@@ -117,6 +118,11 @@ impl XmpMeta {
     ///   if present without a `schema_ns` value, the prefix specifies the namespace.
     ///   The prefix must be for a registered namespace, and if a namespace URI is
     ///   specified, must match the registered prefix for that namespace.
+    ///
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `None` in such cases.
     pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
         let c_ns = CString::new(schema_ns).unwrap();
         let c_name = CString::new(prop_name).unwrap();
@@ -146,14 +152,28 @@ impl XmpMeta {
     ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
-    pub fn set_property(&mut self, schema_ns: &str, prop_name: &str, prop_value: &str) {
+    pub fn set_property(
+        &mut self,
+        schema_ns: &str,
+        prop_name: &str,
+        prop_value: &str,
+    ) -> XmpResult<()> {
         let c_ns = CString::new(schema_ns).unwrap();
         let c_name = CString::new(prop_name).unwrap();
         let c_value = CString::new(prop_value).unwrap();
+        let mut err = ffi::CXmpError::default();
 
         unsafe {
-            ffi::CXmpMetaSetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr(), c_value.as_ptr());
+            ffi::CXmpMetaSetProperty(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                c_value.as_ptr(),
+            );
         }
+
+        XmpError::raise_from_c(&err)
     }
 
     /// Creates or sets a property value using an [`XmpDateTime`] structure.
@@ -175,13 +195,22 @@ impl XmpMeta {
         schema_ns: &str,
         prop_name: &str,
         prop_value: &XmpDateTime,
-    ) {
+    ) -> XmpResult<()> {
         let c_ns = CString::new(schema_ns).unwrap();
         let c_name = CString::new(prop_name).unwrap();
+        let mut err = ffi::CXmpError::default();
 
         unsafe {
-            ffi::CXmpMetaSetPropertyDate(self.m, c_ns.as_ptr(), c_name.as_ptr(), prop_value.dt);
+            ffi::CXmpMetaSetPropertyDate(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                prop_value.dt,
+            );
         }
+
+        XmpError::raise_from_c(&err)
     }
 
     /// Reports whether a property currently exists.
@@ -193,9 +222,14 @@ impl XmpMeta {
     /// * `prop_name`: The name of the property. Can be a general
     ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
+    ///
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `false` in such cases.
     pub fn does_property_exist(&self, schema_ns: &str, prop_name: &str) -> bool {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
+        let c_ns = CString::new(schema_ns).unwrap_or_default();
+        let c_name = CString::new(prop_name).unwrap_or_default();
 
         let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
         r != 0
