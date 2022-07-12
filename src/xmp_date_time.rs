@@ -11,7 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use crate::ffi;
+use crate::{ffi, XmpError, XmpResult};
 
 /// The expanded type for a date and time.
 ///
@@ -31,37 +31,26 @@ impl Drop for XmpDateTime {
 
 impl Default for XmpDateTime {
     fn default() -> Self {
-        XmpDateTime::new()
+        Self::new()
     }
 }
 
 impl XmpDateTime {
     /// Creates a new date-time struct with zeros in all fields.
-    pub fn new() -> XmpDateTime {
-        XmpDateTime {
+    pub fn new() -> Self {
+        Self {
             dt: unsafe { ffi::CXmpDateTimeNew() },
         }
     }
 
     /// Creates a new date-time struct reflecting the current time.
-    pub fn current() -> XmpDateTime {
-        XmpDateTime {
-            dt: unsafe { ffi::CXmpDateTimeCurrent() },
-        }
-    }
-}
+    pub fn current() -> XmpResult<Self> {
+        let mut err = ffi::CXmpError::default();
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+        let dt = unsafe { ffi::CXmpDateTimeCurrent(&mut err) };
 
-    #[test]
-    fn new_empty() {
-        let mut _dt = XmpDateTime::new();
-    }
+        XmpError::raise_from_c(&err)?;
 
-    #[test]
-    fn current() {
-        let mut _dt = XmpDateTime::current();
+        Ok(XmpDateTime { dt })
     }
 }

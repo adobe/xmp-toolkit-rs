@@ -13,56 +13,89 @@
 
 use std::os::raw::{c_char, c_int};
 
-pub enum CXmpDateTime {}
-pub enum CXmpFile {}
-pub enum CXmpMeta {}
+#[repr(C)]
+pub(crate) struct CXmpError {
+    pub(crate) had_error: u32,
+    pub(crate) id: i32,
+    pub(crate) debug_message: *const c_char,
+}
+
+impl Default for CXmpError {
+    fn default() -> Self {
+        Self {
+            had_error: 0,
+            id: 0,
+            debug_message: std::ptr::null(),
+        }
+    }
+}
+
+pub(crate) enum CXmpDateTime {}
+pub(crate) enum CXmpFile {}
+pub(crate) enum CXmpMeta {}
 
 extern "C" {
-    // --- CXmpFile
+    // --- CXmpFile ---
 
-    pub fn CXmpFileNew() -> *mut CXmpFile;
-    pub fn CXmpFileDrop(file: *mut CXmpFile);
-    pub fn CXmpFileOpen(file: *mut CXmpFile, path: *const c_char, flags: u32) -> c_int;
-    pub fn CXmpFileGetXmp(file: *mut CXmpFile) -> *mut CXmpMeta;
-    pub fn CXmpFileCanPutXmp(file: *const CXmpFile, meta: *const CXmpMeta) -> c_int;
-    pub fn CXmpFilePutXmp(file: *mut CXmpFile, meta: *const CXmpMeta);
-    pub fn CXmpFileClose(file: *mut CXmpFile);
+    pub(crate) fn CXmpFileNew(out_error: *mut CXmpError) -> *mut CXmpFile;
+    pub(crate) fn CXmpFileDrop(file: *mut CXmpFile);
 
-    // --- CXmpMeta
+    pub(crate) fn CXmpFileOpen(
+        file: *mut CXmpFile,
+        out_error: *mut CXmpError,
+        path: *const c_char,
+        flags: u32,
+    );
 
-    pub fn CXmpMetaNew() -> *mut CXmpMeta;
-    pub fn CXmpMetaDrop(meta: *mut CXmpMeta);
+    pub(crate) fn CXmpFileClose(file: *mut CXmpFile);
+    pub(crate) fn CXmpFileGetXmp(file: *mut CXmpFile) -> *mut CXmpMeta;
 
-    pub fn CXmpMetaRegisterNamespace(
+    pub(crate) fn CXmpFilePutXmp(
+        file: *mut CXmpFile,
+        out_error: *mut CXmpError,
+        meta: *const CXmpMeta,
+    );
+
+    pub(crate) fn CXmpFileCanPutXmp(file: *const CXmpFile, meta: *const CXmpMeta) -> c_int;
+
+    // --- CXmpMeta ---
+
+    pub(crate) fn CXmpMetaNew(out_error: *mut CXmpError) -> *mut CXmpMeta;
+    pub(crate) fn CXmpMetaDrop(meta: *mut CXmpMeta);
+
+    pub(crate) fn CXmpMetaRegisterNamespace(
+        out_error: *mut CXmpError,
         namespace_uri: *const c_char,
         suggested_prefix: *const c_char,
     ) -> *mut c_char;
 
-    pub fn CXmpMetaGetProperty(
+    pub(crate) fn CXmpMetaGetProperty(
         meta: *mut CXmpMeta,
         schema_ns: *const c_char,
         prop_name: *const c_char,
     ) -> *mut c_char;
 
-    pub fn CXmpMetaSetProperty(
+    pub(crate) fn CXmpMetaSetProperty(
         meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
         schema_ns: *const c_char,
         prop_name: *const c_char,
         prop_value: *const c_char,
     );
 
-    pub fn CXmpMetaSetPropertyDate(
-        meta: *mut CXmpMeta,
-        schema_ns: *const c_char,
-        prop_name: *const c_char,
-        prop_value: *const CXmpDateTime,
-    );
-
-    pub fn CXmpMetaDoesPropertyExist(
+    pub(crate) fn CXmpMetaDoesPropertyExist(
         meta: *const CXmpMeta,
         schema_ns: *const c_char,
         prop_name: *const c_char,
     ) -> c_int;
+
+    pub(crate) fn CXmpMetaSetPropertyDate(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        prop_value: *const CXmpDateTime,
+    );
 
     pub fn CXmpMetaParseFromBuffer(
         meta: *const CXmpMeta,
@@ -71,9 +104,9 @@ extern "C" {
         options: u32,
     );
 
-    // --- CXmpDateTime
+    // --- CXmpDateTime ---
 
-    pub fn CXmpDateTimeNew() -> *mut CXmpDateTime;
-    pub fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);
-    pub fn CXmpDateTimeCurrent() -> *mut CXmpDateTime;
+    pub(crate) fn CXmpDateTimeNew() -> *mut CXmpDateTime;
+    pub(crate) fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);
+    pub(crate) fn CXmpDateTimeCurrent(out_error: *mut CXmpError) -> *mut CXmpDateTime;
 }

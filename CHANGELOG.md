@@ -6,6 +6,28 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.5.0
+_12 July 2022_
+
+* (MINOR) Pass XMP errors from C++ to Rust ([#60](https://github.com/adobe/xmp-toolkit-rs/pull/60))
+* Refactor test code so it can be excluded from code coverage ([#66](https://github.com/adobe/xmp-toolkit-rs/pull/66))
+* Require code coverage to upload on all supported platforms ([#63](https://github.com/adobe/xmp-toolkit-rs/pull/63))
+* (MINOR) Hide access to FFI functions ([#61](https://github.com/adobe/xmp-toolkit-rs/pull/61))
+
+## 0.4.0
+_07 July 2022_
+
+* Fixed build failures on ARM Linux platforms ([#57](https://github.com/adobe/xmp-toolkit-rs/pull/57))
+* Silence C++ compiler warnings on Mac ([#55](https://github.com/adobe/xmp-toolkit-rs/pull/55))
+* Rework `OpenFileOptions` as an opaque type ([#54](https://github.com/adobe/xmp-toolkit-rs/pull/54))
+* (MINOR) New module for XMP namespace constants ([#53](https://github.com/adobe/xmp-toolkit-rs/pull/53))
+* Require API docs for all public API surfaces ([#51](https://github.com/adobe/xmp-toolkit-rs/pull/51))
+* (MINOR) Bump MSRV to 1.54 ([#52](https://github.com/adobe/xmp-toolkit-rs/pull/52))
+* Improve docs for `XmpMeta` ([#50](https://github.com/adobe/xmp-toolkit-rs/pull/50))
+* Improve docs for `XmpFile` ([#49](https://github.com/adobe/xmp-toolkit-rs/pull/49))
+* Configure dependabot to watch dependencies brought in via git submodules ([#48](https://github.com/adobe/xmp-toolkit-rs/pull/48))
+* Add `impl std::error::Error` for `XmpFileError` ([#47](https://github.com/adobe/xmp-toolkit-rs/pull/47))
+
 ## 0.3.8
 _22 June 2022_
 
