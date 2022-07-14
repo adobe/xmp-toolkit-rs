@@ -21,8 +21,11 @@ fn main() {
     // so we do a specialized build that makes all the FFIs into no-ops.
     let docs_rs = env::var("DOCS_RS");
     if docs_rs == Ok("1".to_string()) {
+        eprintln!("INFO: building no-op FFI for docs.rs");
         compile_for_docs();
         return;
+    } else {
+        eprintln!("INFO: building standard FFI for crate");
     }
 
     println!("> git submodule init\n");

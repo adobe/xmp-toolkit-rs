@@ -124,7 +124,7 @@ jobs:
           command: fmt
           args: --all -- --check
 
-  doc_format:
+  docs_rs:
     name: Preflight docs.rs build
     runs-on: ubuntu-latest
     steps:
