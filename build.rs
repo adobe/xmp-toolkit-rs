@@ -16,6 +16,12 @@ use std::{env, ffi::OsStr, path::PathBuf};
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
 
+    println!("> git submodule init\n");
+    git_command(&["submodule", "init"]);
+
+    println!("> git submodule update\n");
+    git_command(&["submodule", "update"]);
+
     // docs.rs builds in an environment that doesn't allow us to modify
     // the underlying source. We don't actually need to fully compile,
     // so we do a specialized build that makes all the FFIs into no-ops.
@@ -27,12 +33,6 @@ fn main() {
     } else {
         eprintln!("INFO: building standard FFI for crate");
     }
-
-    println!("> git submodule init\n");
-    git_command(&["submodule", "init"]);
-
-    println!("> git submodule update\n");
-    git_command(&["submodule", "update"]);
 
     // Special note: Because of the post-processing we're doing here,
     // you must specify the `--no-verify` option when invoking `cargo publish`.
