@@ -120,7 +120,9 @@ extern "C" {
         #endif
 
         CXmpFile() {
-            f.SetErrorCallback(xmpFileErrorCallback, &err, 0xffffffff);
+            #ifndef NOOP_FFI
+                f.SetErrorCallback(xmpFileErrorCallback, &err, 0xffffffff);
+            #endif
         }
     } CXmpFile;
 
