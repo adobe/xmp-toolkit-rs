@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.5.1
+_14 July 2022_
+
+* Fix broken documentation build ([#67](https://github.com/adobe/xmp-toolkit-rs/pull/67))
+
 ## 0.5.0
 _12 July 2022_
 
