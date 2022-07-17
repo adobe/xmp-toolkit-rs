@@ -11,12 +11,15 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{ffi::CStr, fmt};
-
-use num_enum::FromPrimitive;
-use thiserror::Error;
-
-use crate::ffi::CXmpError;
+use {
+    crate::ffi::CXmpError,
+    num_enum::FromPrimitive,
+    std::{
+        ffi::{CStr, NulError},
+        fmt,
+    },
+    thiserror::Error,
+};
 
 /// Describes error conditions returned by most XMP Toolkit operations.
 #[derive(Debug)]
@@ -47,6 +50,15 @@ impl XmpError {
             })
         } else {
             Ok(())
+        }
+    }
+}
+
+impl From<NulError> for XmpError {
+    fn from(_: NulError) -> Self {
+        XmpError {
+            error_type: XmpErrorType::NulInRustString,
+            debug_message: "Unable to convert to C string because a NUL byte was found".to_owned(),
         }
     }
 }
@@ -263,6 +275,11 @@ pub enum XmpErrorType {
     /// PNG format error.
     #[error("PNG format error")]
     BadPng = 213,
+
+    // --- Rust-specific errors ---
+    /// Can not convert from Rust string to C string because a NUL byte was found.
+    #[error("Unable to convert to C string because a NUL byte was found")]
+    NulInRustString = -432,
 }
 
 /// A specialized `Result` type for XMP Toolkit operations.
