@@ -11,13 +11,12 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use {
-    crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult},
-    std::{
-        ffi::{CStr, CString},
-        path::Path,
-    },
+use std::{
+    ffi::{CStr, CString},
+    path::Path,
 };
+
+use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult};
 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
