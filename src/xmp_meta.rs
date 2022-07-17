@@ -159,9 +159,9 @@ impl XmpMeta {
         prop_name: &str,
         prop_value: &str,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
-        let c_value = CString::new(prop_value).unwrap();
+        let c_ns = CString::new(schema_ns)?;
+        let c_name = CString::new(prop_name)?;
+        let c_value = CString::new(prop_value)?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
@@ -197,8 +197,8 @@ impl XmpMeta {
         prop_name: &str,
         prop_value: &XmpDateTime,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
+        let c_ns = CString::new(schema_ns)?;
+        let c_name = CString::new(prop_name)?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
