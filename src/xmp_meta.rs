@@ -11,12 +11,13 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{
-    ffi::{CStr, CString},
-    path::Path,
+use {
+    crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult},
+    std::{
+        ffi::{CStr, CString},
+        path::Path,
+    },
 };
-
-use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult};
 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
@@ -125,8 +126,8 @@ impl XmpMeta {
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `None` in such cases.
     pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
+        let c_ns = CString::new(schema_ns).unwrap_or_default();
+        let c_name = CString::new(prop_name).unwrap_or_default();
 
         unsafe {
             let c_result = ffi::CXmpMetaGetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr());
