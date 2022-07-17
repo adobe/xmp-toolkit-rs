@@ -11,13 +11,12 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use {
-    crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult},
-    std::{
-        ffi::{CStr, CString},
-        path::Path,
-    },
+use std::{
+    ffi::{CStr, CString},
+    path::Path,
 };
+
+use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult};
 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
@@ -75,11 +74,10 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `namespace_uri`: The URI for the namespace. Must be a
-    ///   valid XML URI.
+    /// * `namespace_uri`: The URI for the namespace. Must be a valid XML URI.
     ///
-    /// * `suggested_prefix`: The suggested prefix to be used if
-    ///   the URI is not yet registered. Must be a valid XML name.
+    /// * `suggested_prefix`: The suggested prefix to be used if the URI is not
+    ///   yet registered. Must be a valid XML name.
     ///
     /// Returns the prefix actually registered for this URI.
     pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> XmpResult<String> {
@@ -103,22 +101,24 @@ impl XmpMeta {
     /// Gets a property value.
     ///
     /// When specifying a namespace and path (in this and all other accessors):
-    /// * If a namespace URI is specified, it must be for a registered namespace.
-    /// * If the namespace is specified only by a prefix in the property name path,
-    ///   it must be a registered prefix.
+    /// * If a namespace URI is specified, it must be for a registered
+    ///   namespace.
+    /// * If the namespace is specified only by a prefix in the property name
+    ///   path, it must be a registered prefix.
     /// * If both a URI and path prefix are present, they must be corresponding
     ///   parts of a registered namespace.
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI for the property. The URI must be for
-    ///   a registered namespace. Must not be an empty string.
+    /// * `schema_ns`: The namespace URI for the property. The URI must be for a
+    ///   registered namespace. Must not be an empty string.
     ///
-    /// * `prop_name`: The name of the property. Can be a general path expression.
-    ///   Must not be an empty string. The first component can be a namespace prefix;
-    ///   if present without a `schema_ns` value, the prefix specifies the namespace.
-    ///   The prefix must be for a registered namespace, and if a namespace URI is
-    ///   specified, must match the registered prefix for that namespace.
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. The first component can be a
+    ///   namespace prefix; if present without a `schema_ns` value, the prefix
+    ///   specifies the namespace. The prefix must be for a registered
+    ///   namespace, and if a namespace URI is specified, must match the
+    ///   registered prefix for that namespace.
     ///
     /// ## Error handling
     ///
@@ -148,8 +148,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
@@ -186,8 +186,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
@@ -220,8 +220,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     ///
     /// ## Error handling
