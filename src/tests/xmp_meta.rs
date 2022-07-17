@@ -110,6 +110,18 @@ mod property {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert_eq!(m.property(xmp_ns::XMP, ""), None);
     }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property(xmp_ns::XMP, "\0"), None);
+    }
 }
 
 mod set_property {
