@@ -144,6 +144,23 @@ mod set_property {
         assert_eq!(err.error_type, XmpErrorType::BadXPath);
         assert_eq!(err.debug_message, "Empty property name");
     }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        let err = m
+            .set_property("http://purl.org/dc/terms/", "x\0x", "blah")
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
+    }
 }
 
 mod does_property_exist {
@@ -199,5 +216,21 @@ mod set_property_date {
 
         assert_eq!(err.error_type, XmpErrorType::BadSchema);
         assert_eq!(err.debug_message, "Empty schema namespace URI");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        let updated_time = XmpDateTime::current().unwrap();
+
+        let err = m
+            .set_property_date("x\0x", "MetadataDate", &updated_time)
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
     }
 }
