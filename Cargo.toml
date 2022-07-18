@@ -28,7 +28,7 @@ normal = ["unicode-ident"] # remove when licnese has been reviewed
 [dependencies]
 num_enum = "0.5.7"
 thiserror = "1.0"
-unicode-ident = "=1.0.1" # need review of Unicode-DFS-2016 before updating to 1.0.2+
+unicode-ident = "=1.0.2" # need review of Unicode-DFS-2016 before updating to 1.0.2+
 
 [build-dependencies]
 cc = "1.0"
