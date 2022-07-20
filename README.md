@@ -46,7 +46,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-xmp_toolkit = "0.5.2"
+xmp_toolkit = "0.5.3"
 ```
 
 ## Breaking changes in 0.x series
