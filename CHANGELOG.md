@@ -6,6 +6,23 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.5.3
+_20 July 2022_
+
+* Remove restriction on Unicode license; allows unicode-ident version to float ([#73](https://github.com/adobe/xmp-toolkit-rs/pull/73))
+
+## 0.5.2
+_17 July 2022_
+
+* Deny panic in production code ([#70](https://github.com/adobe/xmp-toolkit-rs/pull/70))
+* Introduce new error type `XmpErrorType::NulInRustString` ([#68](https://github.com/adobe/xmp-toolkit-rs/pull/68))
+* Fix unicode-ident to 1.0.1 until review of additional license ([#69](https://github.com/adobe/xmp-toolkit-rs/pull/69))
+
+## 0.5.1
+_14 July 2022_
+
+* Fix broken documentation build ([#67](https://github.com/adobe/xmp-toolkit-rs/pull/67))
+
 ## 0.5.0
 _12 July 2022_
 

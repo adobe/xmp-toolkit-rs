@@ -74,11 +74,10 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `namespace_uri`: The URI for the namespace. Must be a
-    ///   valid XML URI.
+    /// * `namespace_uri`: The URI for the namespace. Must be a valid XML URI.
     ///
-    /// * `suggested_prefix`: The suggested prefix to be used if
-    ///   the URI is not yet registered. Must be a valid XML name.
+    /// * `suggested_prefix`: The suggested prefix to be used if the URI is not
+    ///   yet registered. Must be a valid XML name.
     ///
     /// Returns the prefix actually registered for this URI.
     pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> XmpResult<String> {
@@ -102,30 +101,32 @@ impl XmpMeta {
     /// Gets a property value.
     ///
     /// When specifying a namespace and path (in this and all other accessors):
-    /// * If a namespace URI is specified, it must be for a registered namespace.
-    /// * If the namespace is specified only by a prefix in the property name path,
-    ///   it must be a registered prefix.
+    /// * If a namespace URI is specified, it must be for a registered
+    ///   namespace.
+    /// * If the namespace is specified only by a prefix in the property name
+    ///   path, it must be a registered prefix.
     /// * If both a URI and path prefix are present, they must be corresponding
     ///   parts of a registered namespace.
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI for the property. The URI must be for
-    ///   a registered namespace. Must not be an empty string.
+    /// * `schema_ns`: The namespace URI for the property. The URI must be for a
+    ///   registered namespace. Must not be an empty string.
     ///
-    /// * `prop_name`: The name of the property. Can be a general path expression.
-    ///   Must not be an empty string. The first component can be a namespace prefix;
-    ///   if present without a `schema_ns` value, the prefix specifies the namespace.
-    ///   The prefix must be for a registered namespace, and if a namespace URI is
-    ///   specified, must match the registered prefix for that namespace.
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. The first component can be a
+    ///   namespace prefix; if present without a `schema_ns` value, the prefix
+    ///   specifies the namespace. The prefix must be for a registered
+    ///   namespace, and if a namespace URI is specified, must match the
+    ///   registered prefix for that namespace.
     ///
     /// ## Error handling
     ///
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `None` in such cases.
     pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
+        let c_ns = CString::new(schema_ns).unwrap_or_default();
+        let c_name = CString::new(prop_name).unwrap_or_default();
 
         unsafe {
             let c_result = ffi::CXmpMetaGetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr());
@@ -147,8 +148,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
@@ -158,9 +159,9 @@ impl XmpMeta {
         prop_name: &str,
         prop_value: &str,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
-        let c_value = CString::new(prop_value).unwrap();
+        let c_ns = CString::new(schema_ns)?;
+        let c_name = CString::new(prop_name)?;
+        let c_value = CString::new(prop_value)?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
@@ -185,8 +186,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
@@ -196,8 +197,8 @@ impl XmpMeta {
         prop_name: &str,
         prop_value: &XmpDateTime,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
+        let c_ns = CString::new(schema_ns)?;
+        let c_name = CString::new(prop_name)?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
@@ -219,8 +220,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     ///
     /// ## Error handling

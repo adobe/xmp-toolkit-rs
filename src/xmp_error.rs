@@ -11,7 +11,10 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{ffi::CStr, fmt};
+use std::{
+    ffi::{CStr, NulError},
+    fmt,
+};
 
 use num_enum::FromPrimitive;
 use thiserror::Error;
@@ -25,8 +28,9 @@ pub struct XmpError {
     /// A selector for the specific error type.
     pub error_type: XmpErrorType,
 
-    /// Descriptive string, for debugging use only. It must not be shown to users in a final
-    /// product. It is written for developers, not users, and never localized.
+    /// Descriptive string, for debugging use only. It must not be shown to
+    /// users in a final product. It is written for developers, not users,
+    /// and never localized.
     pub debug_message: String,
 }
 
@@ -47,6 +51,15 @@ impl XmpError {
             })
         } else {
             Ok(())
+        }
+    }
+}
+
+impl From<NulError> for XmpError {
+    fn from(_: NulError) -> Self {
+        XmpError {
+            error_type: XmpErrorType::NulInRustString,
+            debug_message: "Unable to convert to C string because a NUL byte was found".to_owned(),
         }
     }
 }
@@ -256,13 +269,20 @@ pub enum XmpErrorType {
     #[error("MPEG format error")]
     BadMpeg = 211,
 
-    /// HEIF format: Modify Operation is not supported for Construction Method 1 or 2.
+    /// HEIF format: Modify Operation is not supported for Construction Method 1
+    /// or 2.
     #[error("HEIF construction method not supported")]
     HeifConstructionMethodNotSupported = 212,
 
     /// PNG format error.
     #[error("PNG format error")]
     BadPng = 213,
+
+    // --- Rust-specific errors ---
+    /// Can not convert from Rust string to C string because a NUL byte was
+    /// found.
+    #[error("Unable to convert to C string because a NUL byte was found")]
+    NulInRustString = -432,
 }
 
 /// A specialized `Result` type for XMP Toolkit operations.

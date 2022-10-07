@@ -11,15 +11,14 @@
 // specific language governing permissions and limitations under
 // each license.
 
-#![deny(warnings)]
+#![deny(clippy::expect_used)]
+#![deny(clippy::panic)]
+#![deny(clippy::unwrap_used)]
 #![deny(missing_docs)]
+#![deny(warnings)]
 #![doc = include_str!("../README.md")]
 
 mod ffi;
-
-#[cfg(test)]
-mod tests;
-
 mod xmp_date_time;
 mod xmp_error;
 mod xmp_file;
@@ -30,3 +29,6 @@ pub use xmp_date_time::XmpDateTime;
 pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
 pub use xmp_file::{OpenFileOptions, XmpFile};
 pub use xmp_meta::XmpMeta;
+
+#[cfg(test)]
+mod tests;
