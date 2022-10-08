@@ -21,6 +21,7 @@ use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
 /// You can create `XmpMeta` structs from metadata that you construct,
+/// that you parse from a string buffer (see [`XmpMeta::from_str`] method),
 /// or that you obtain from files using the [`XmpFile`] struct.
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
@@ -63,6 +64,23 @@ impl XmpMeta {
             error_type: XmpErrorType::Unavailable,
             debug_message: "No XMP in file".to_owned(),
         })
+    }
+
+    /// Creates a new `XmpMeta` struct and populates it with metadata from a
+    /// string containing serialized RDF. This string must be a complete RDF
+    /// parse stream.
+    ///
+    /// ## Arguments
+    ///
+    /// * `xmp`: XMP string to be read
+    pub fn from_str(xmp: &str) -> XmpResult<Self> {
+        let mut err = ffi::CXmpError::default();
+        let bytes = xmp.as_bytes();
+        let m =
+            unsafe { ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32) };
+        XmpError::raise_from_c(&err)?;
+
+        Ok(XmpMeta { m })
     }
 
     /// Registers a namespace URI with a suggested prefix.

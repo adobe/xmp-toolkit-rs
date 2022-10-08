@@ -67,6 +67,71 @@ mod from_file {
     }
 }
 
+mod from_str {
+    use crate::{tests::fixtures::*, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+                .unwrap(),
+            "Adobe Photoshop CS2 Windows"
+        );
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+                .unwrap(),
+            "Dell 1905FP Color Profile"
+        );
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+
+    #[test]
+    fn bad_xmp() {
+        // TXMPMeta::ParseFromBuffer doesn't seem to throw exceptions,
+        // regardless of how badly-formed the XMP is. This test merely
+        // confirms that we pass that behavior through.
+        let m = XmpMeta::from_str("this is not XMP").unwrap();
+
+        assert!(m
+            .property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+
+    #[test]
+    fn empty_string() {
+        // TXMPMeta::ParseFromBuffer doesn't seem to throw exceptions,
+        // regardless of how badly-formed the XMP is. This test merely
+        // confirms that we pass that behavior through.
+        let m = XmpMeta::from_str("").unwrap();
+
+        assert!(m
+            .property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+}
+
 mod register_namespace {
     use crate::{XmpErrorType, XmpMeta};
 

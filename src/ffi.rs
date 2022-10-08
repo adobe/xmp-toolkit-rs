@@ -63,6 +63,12 @@ extern "C" {
     pub(crate) fn CXmpMetaNew(out_error: *mut CXmpError) -> *mut CXmpMeta;
     pub(crate) fn CXmpMetaDrop(meta: *mut CXmpMeta);
 
+    pub(crate) fn CXmpMetaParseFromBuffer(
+        out_error: *mut CXmpError,
+        buffer: *const u8,
+        buffer_size: u32,
+    ) -> *mut CXmpMeta;
+
     pub(crate) fn CXmpMetaRegisterNamespace(
         out_error: *mut CXmpError,
         namespace_uri: *const c_char,
@@ -95,13 +101,6 @@ extern "C" {
         schema_ns: *const c_char,
         prop_name: *const c_char,
         prop_value: *const CXmpDateTime,
-    );
-
-    pub fn CXmpMetaParseFromBuffer(
-        meta: *const CXmpMeta,
-        buffer: *const c_char,
-        buffer_size: u32,
-        options: u32,
     );
 
     // --- CXmpDateTime ---
