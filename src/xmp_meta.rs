@@ -14,6 +14,7 @@
 use std::{
     ffi::{CStr, CString},
     path::Path,
+    str::FromStr,
 };
 
 use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult};
@@ -21,8 +22,10 @@ use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
 /// You can create `XmpMeta` structs from metadata that you construct,
-/// that you parse from a string buffer (see [`XmpMeta::from_str`] method),
 /// or that you obtain from files using the [`XmpFile`] struct.
+///
+/// `XmpMeta` implements `std::str::FromStr`, so you can create an `XmpMeta`
+/// struct from a string that contains XMP as well.
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
 }
@@ -64,23 +67,6 @@ impl XmpMeta {
             error_type: XmpErrorType::Unavailable,
             debug_message: "No XMP in file".to_owned(),
         })
-    }
-
-    /// Creates a new `XmpMeta` struct and populates it with metadata from a
-    /// string containing serialized RDF. This string must be a complete RDF
-    /// parse stream.
-    ///
-    /// ## Arguments
-    ///
-    /// * `xmp`: XMP string to be read
-    pub fn from_str(xmp: &str) -> XmpResult<Self> {
-        let mut err = ffi::CXmpError::default();
-        let bytes = xmp.as_bytes();
-        let m =
-            unsafe { ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32) };
-        XmpError::raise_from_c(&err)?;
-
-        Ok(XmpMeta { m })
     }
 
     /// Registers a namespace URI with a suggested prefix.
@@ -252,5 +238,26 @@ impl XmpMeta {
 
         let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
         r != 0
+    }
+}
+
+impl FromStr for XmpMeta {
+    type Err = XmpError;
+
+    /// Creates a new `XmpMeta` struct and populates it with metadata from a
+    /// string containing serialized RDF. This string must be a complete RDF
+    /// parse stream.
+    ///
+    /// ## Arguments
+    ///
+    /// * `xmp`: XMP string to be read
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut err = ffi::CXmpError::default();
+        let bytes = s.as_bytes();
+        let m =
+            unsafe { ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32) };
+        XmpError::raise_from_c(&err)?;
+
+        Ok(XmpMeta { m })
     }
 }

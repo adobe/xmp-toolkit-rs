@@ -68,6 +68,8 @@ mod from_file {
 }
 
 mod from_str {
+    use std::str::FromStr;
+
     use crate::{tests::fixtures::*, XmpMeta};
 
     #[test]
