@@ -14,6 +14,7 @@
 use std::{
     ffi::{CStr, CString},
     path::Path,
+    str::FromStr,
 };
 
 use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult};
@@ -22,6 +23,9 @@ use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, 
 ///
 /// You can create `XmpMeta` structs from metadata that you construct,
 /// or that you obtain from files using the [`XmpFile`] struct.
+///
+/// `XmpMeta` implements `std::str::FromStr`, so you can create an `XmpMeta`
+/// struct from a string that contains XMP as well.
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
 }
@@ -234,5 +238,26 @@ impl XmpMeta {
 
         let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
         r != 0
+    }
+}
+
+impl FromStr for XmpMeta {
+    type Err = XmpError;
+
+    /// Creates a new `XmpMeta` struct and populates it with metadata from a
+    /// string containing serialized RDF. This string must be a complete RDF
+    /// parse stream.
+    ///
+    /// ## Arguments
+    ///
+    /// * `xmp`: XMP string to be read
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut err = ffi::CXmpError::default();
+        let bytes = s.as_bytes();
+        let m =
+            unsafe { ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32) };
+        XmpError::raise_from_c(&err)?;
+
+        Ok(XmpMeta { m })
     }
 }

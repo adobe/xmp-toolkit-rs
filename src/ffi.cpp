@@ -278,6 +278,31 @@ extern "C" {
         #endif
     }
 
+    CXmpMeta* CXmpMetaParseFromBuffer(CXmpError* outError,
+                                      const char* buffer,
+                                      AdobeXMPCommon::uint32 buffer_size) {
+        #ifndef NOOP_FFI
+            init_xmp();
+            CXmpMeta* result = new CXmpMeta;
+
+            try {
+                result->m.ParseFromBuffer(buffer, buffer_size);
+                return result;
+            }
+            catch (XMP_Error& e) {
+                delete result;
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                delete result;
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
+
     const char* CXmpMetaRegisterNamespace(CXmpError* outError,
                                           const char* namespaceURI,
                                           const char* suggestedPrefix) {
