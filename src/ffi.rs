@@ -18,17 +18,17 @@ pub enum CXmpFile {}
 pub enum CXmpMeta {}
 
 extern "C" {
-    // --- CXmpFile
+    // --- CXmpFile ---
 
     pub fn CXmpFileNew() -> *mut CXmpFile;
     pub fn CXmpFileDrop(file: *mut CXmpFile);
     pub fn CXmpFileOpen(file: *mut CXmpFile, path: *const c_char, flags: u32) -> c_int;
-    pub fn CXmpFileGetXmp(file: *mut CXmpFile) -> *mut CXmpMeta;
-    pub fn CXmpFileCanPutXmp(file: *const CXmpFile, meta: *const CXmpMeta) -> c_int;
-    pub fn CXmpFilePutXmp(file: *mut CXmpFile, meta: *const CXmpMeta);
     pub fn CXmpFileClose(file: *mut CXmpFile);
+    pub fn CXmpFileGetXmp(file: *mut CXmpFile) -> *mut CXmpMeta;
+    pub fn CXmpFilePutXmp(file: *mut CXmpFile, meta: *const CXmpMeta);
+    pub fn CXmpFileCanPutXmp(file: *const CXmpFile, meta: *const CXmpMeta) -> c_int;
 
-    // --- CXmpMeta
+    // --- CXmpMeta ---
 
     pub fn CXmpMetaNew() -> *mut CXmpMeta;
     pub fn CXmpMetaDrop(meta: *mut CXmpMeta);
@@ -51,6 +51,12 @@ extern "C" {
         prop_value: *const c_char,
     );
 
+    pub fn CXmpMetaDoesPropertyExist(
+        meta: *const CXmpMeta,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+    ) -> c_int;
+
     pub fn CXmpMetaSetPropertyDate(
         meta: *mut CXmpMeta,
         schema_ns: *const c_char,
@@ -66,13 +72,7 @@ extern "C" {
         out_options: *mut u32,
     ) -> *mut c_char;
 
-    pub fn CXmpMetaDoesPropertyExist(
-        meta: *const CXmpMeta,
-        schema_ns: *const c_char,
-        prop_name: *const c_char,
-    ) -> c_int;
-
-    // --- CXmpDateTime
+    // --- CXmpDateTime ---
 
     pub fn CXmpDateTimeNew() -> *mut CXmpDateTime;
     pub fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);
