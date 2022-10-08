@@ -46,10 +46,16 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-xmp_toolkit = "0.4.0"
+xmp_toolkit = "0.5.0"
 ```
 
 ## Breaking changes in 0.x series
+
+### Upgrading to 0.5 from earlier releases
+
+Prior versions of the Rust XMP Toolkit mostly ignored the possibility that the C++ XMP Toolkit could throw exceptions. Among other things, this created the possibility of unexpected behavior if the C++ runtime attempted to unwind the stack through Rust code.
+
+This version introduces `XmpError` and `XmpResult` types which mirror the information from the underlying C++ `XMP_Error` type and retrofits existing APIs to use them appropriately. (A few APIs which returned `Option<...>` were left unchanged; those APIs now map error conditions to a `None` response.)
 
 ### Upgrading to 0.4 from earlier releases
 
