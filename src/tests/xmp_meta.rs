@@ -67,6 +67,73 @@ mod from_file {
     }
 }
 
+mod from_str {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::*, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+                .unwrap(),
+            "Adobe Photoshop CS2 Windows"
+        );
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+                .unwrap(),
+            "Dell 1905FP Color Profile"
+        );
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+
+    #[test]
+    fn bad_xmp() {
+        // TXMPMeta::ParseFromBuffer doesn't seem to throw exceptions,
+        // regardless of how badly-formed the XMP is. This test merely
+        // confirms that we pass that behavior through.
+        let m = XmpMeta::from_str("this is not XMP").unwrap();
+
+        assert!(m
+            .property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+
+    #[test]
+    fn empty_string() {
+        // TXMPMeta::ParseFromBuffer doesn't seem to throw exceptions,
+        // regardless of how badly-formed the XMP is. This test merely
+        // confirms that we pass that behavior through.
+        let m = XmpMeta::from_str("").unwrap();
+
+        assert!(m
+            .property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+}
+
 mod register_namespace {
     use crate::{XmpErrorType, XmpMeta};
 
@@ -110,6 +177,18 @@ mod property {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert_eq!(m.property(xmp_ns::XMP, ""), None);
     }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property(xmp_ns::XMP, "\0"), None);
+    }
 }
 
 mod set_property {
@@ -143,6 +222,23 @@ mod set_property {
 
         assert_eq!(err.error_type, XmpErrorType::BadXPath);
         assert_eq!(err.debug_message, "Empty property name");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        let err = m
+            .set_property("http://purl.org/dc/terms/", "x\0x", "blah")
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
     }
 }
 
@@ -199,5 +295,21 @@ mod set_property_date {
 
         assert_eq!(err.error_type, XmpErrorType::BadSchema);
         assert_eq!(err.debug_message, "Empty schema namespace URI");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        let updated_time = XmpDateTime::current().unwrap();
+
+        let err = m
+            .set_property_date("x\0x", "MetadataDate", &updated_time)
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
     }
 }

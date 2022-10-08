@@ -14,6 +14,7 @@
 use std::{
     ffi::{CStr, CString},
     path::Path,
+    str::FromStr,
 };
 
 use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult};
@@ -22,6 +23,9 @@ use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, 
 ///
 /// You can create `XmpMeta` structs from metadata that you construct,
 /// or that you obtain from files using the [`XmpFile`] struct.
+///
+/// `XmpMeta` implements `std::str::FromStr`, so you can create an `XmpMeta`
+/// struct from a string that contains XMP as well.
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
 }
@@ -74,11 +78,10 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `namespace_uri`: The URI for the namespace. Must be a
-    ///   valid XML URI.
+    /// * `namespace_uri`: The URI for the namespace. Must be a valid XML URI.
     ///
-    /// * `suggested_prefix`: The suggested prefix to be used if
-    ///   the URI is not yet registered. Must be a valid XML name.
+    /// * `suggested_prefix`: The suggested prefix to be used if the URI is not
+    ///   yet registered. Must be a valid XML name.
     ///
     /// Returns the prefix actually registered for this URI.
     pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> XmpResult<String> {
@@ -102,30 +105,32 @@ impl XmpMeta {
     /// Gets a simple string property value.
     ///
     /// When specifying a namespace and path (in this and all other accessors):
-    /// * If a namespace URI is specified, it must be for a registered namespace.
-    /// * If the namespace is specified only by a prefix in the property name path,
-    ///   it must be a registered prefix.
+    /// * If a namespace URI is specified, it must be for a registered
+    ///   namespace.
+    /// * If the namespace is specified only by a prefix in the property name
+    ///   path, it must be a registered prefix.
     /// * If both a URI and path prefix are present, they must be corresponding
     ///   parts of a registered namespace.
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI for the property. The URI must be for
-    ///   a registered namespace. Must not be an empty string.
+    /// * `schema_ns`: The namespace URI for the property. The URI must be for a
+    ///   registered namespace. Must not be an empty string.
     ///
-    /// * `prop_name`: The name of the property. Can be a general path expression.
-    ///   Must not be an empty string. The first component can be a namespace prefix;
-    ///   if present without a `schema_ns` value, the prefix specifies the namespace.
-    ///   The prefix must be for a registered namespace, and if a namespace URI is
-    ///   specified, must match the registered prefix for that namespace.
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. The first component can be a
+    ///   namespace prefix; if present without a `schema_ns` value, the prefix
+    ///   specifies the namespace. The prefix must be for a registered
+    ///   namespace, and if a namespace URI is specified, must match the
+    ///   registered prefix for that namespace.
     ///
     /// ## Error handling
     ///
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `None` in such cases.
     pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
+        let c_ns = CString::new(schema_ns).unwrap_or_default();
+        let c_name = CString::new(prop_name).unwrap_or_default();
 
         unsafe {
             let c_result = ffi::CXmpMetaGetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr());
@@ -147,8 +152,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
@@ -158,9 +163,9 @@ impl XmpMeta {
         prop_name: &str,
         prop_value: &str,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
-        let c_value = CString::new(prop_value).unwrap();
+        let c_ns = CString::new(schema_ns)?;
+        let c_name = CString::new(prop_name)?;
+        let c_value = CString::new(prop_value)?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
@@ -185,8 +190,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     ///
     /// * `prop_value`: The new value.
@@ -196,8 +201,8 @@ impl XmpMeta {
         prop_name: &str,
         prop_value: &XmpDateTime,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(schema_ns).unwrap();
-        let c_name = CString::new(prop_name).unwrap();
+        let c_ns = CString::new(schema_ns)?;
+        let c_name = CString::new(prop_name)?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
@@ -219,8 +224,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     pub fn array_property(&self, schema_ns: &str, prop_name: &str) -> ArrayProperty {
         ArrayProperty {
@@ -237,8 +242,8 @@ impl XmpMeta {
     ///
     /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
     ///
-    /// * `prop_name`: The name of the property. Can be a general
-    ///   path expression. Must not be an empty string. See [`XmpMeta::property()`]
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
     ///   for namespace prefix usage.
     ///
     /// ## Error handling
@@ -252,6 +257,46 @@ impl XmpMeta {
         let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
         r != 0
     }
+}
+
+impl FromStr for XmpMeta {
+    type Err = XmpError;
+
+    /// Creates a new `XmpMeta` struct and populates it with metadata from a
+    /// string containing serialized RDF. This string must be a complete RDF
+    /// parse stream.
+    ///
+    /// ## Arguments
+    ///
+    /// * `xmp`: XMP string to be read
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut err = ffi::CXmpError::default();
+        let bytes = s.as_bytes();
+        let m =
+            unsafe { ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32) };
+        XmpError::raise_from_c(&err)?;
+
+        Ok(XmpMeta { m })
+    }
+}
+
+/// An XMP value consists describes a simple property or an item in an
+/// array property.
+#[non_exhaustive]
+pub struct XmpValue {
+    /// String value for this item.
+    pub value: String,
+
+    /// Flags that further describe this item. (NOT YET IMPLEMENTED)
+    pub options: XmpOptions,
+}
+
+/// Flags that provide additional description for an [`XmpValue`].
+///
+/// Not currently implemented.
+pub struct XmpOptions {
+    #[allow(dead_code)] // TEMPORARY until we provide accessors for this
+    options: u32,
 }
 
 /// An iterator that provides access to items within a property array.
@@ -291,20 +336,4 @@ impl<'a> Iterator for ArrayProperty<'a> {
             }
         }
     }
-}
-
-/// An XMP value consists describes a simple property or an item in an
-/// array property.
-#[non_exhaustive]
-pub struct XmpValue {
-    /// String value for this item.
-    pub value: String,
-
-    /// Flags that further describe this item. (NOT YET IMPLEMENTED)
-    pub options: XmpOptions,
-}
-
-pub struct XmpOptions {
-    #[allow(dead_code)] // TEMPORARY until we provide accessors for this
-    options: u32,
 }

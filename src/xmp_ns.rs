@@ -45,7 +45,8 @@ pub const IDENTIFIER_QUAL: &str = "http://ns.adobe.com/xmp/Identifier/qual/1.0/"
 /// The XML namespace for fields of the `Dimensions` type.
 pub const DIMENSIONS: &str = "http://ns.adobe.com/xap/1.0/sType/Dimensions#";
 
-/// The XML namespace for fields of a graphical image. Used for the `Thumbnail` type.
+/// The XML namespace for fields of a graphical image. Used for the `Thumbnail`
+/// type.
 pub const IMAGE: &str = "http://ns.adobe.com/xap/1.0/g/img/";
 
 /// The XML namespace for fields of the `ResourceEvent` type.
