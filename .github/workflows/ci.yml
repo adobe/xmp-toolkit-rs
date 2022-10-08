@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        rust_version: [1.54.0]
+        rust_version: [1.56.0]
 
     steps:
       - name: Checkout repository
@@ -68,7 +68,7 @@ jobs:
         uses: Swatinem/rust-cache@v1
 
       # Note that we do not run code coverage because
-      # it was not stabilized as of 1.54.0.
+      # it was not stabilized as of 1.56.0.
 
       - name: Run self tests
         uses: actions-rs/cargo@v1
@@ -76,6 +76,33 @@ jobs:
           command: test
           # args: --all-targets --all-features (waiting on bug fix)
           args: --all-features
+
+  publish-preflight:
+    name: Preflight crate publish
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        rust_version: [stable]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust_version }}
+          components: llvm-tools-preview
+          override: true
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v1
+
+      - name: Dry-run of crate publish
+        run: cargo publish --no-verify -p xmp_toolkit --dry-run
 
   clippy_check:
     name: Clippy
