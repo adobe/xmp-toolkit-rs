@@ -230,8 +230,8 @@ impl XmpMeta {
     pub fn array_property(&self, schema_ns: &str, prop_name: &str) -> ArrayProperty {
         ArrayProperty {
             meta: self,
-            ns: CString::new(schema_ns).unwrap(),
-            name: CString::new(prop_name).unwrap(),
+            ns: CString::new(schema_ns).unwrap_or_default(),
+            name: CString::new(prop_name).unwrap_or_default(),
             index: 0,
         }
     }
