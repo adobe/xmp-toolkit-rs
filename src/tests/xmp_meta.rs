@@ -356,10 +356,10 @@ mod array_property {
     fn no_such_property() {
         let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
 
-        let creatorxs: Vec<XmpValue> = m
+        let first_creator = m
             .array_property("http://purl.org/dc/elements/1.1/", "creatorx")
-            .collect();
+            .next();
 
-        assert!(creatorxs.is_empty());
+        assert!(first_creator.is_none());
     }
 }
