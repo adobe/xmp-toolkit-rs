@@ -336,13 +336,30 @@ mod array_property {
     }
 
     #[test]
+    fn happy_path_creator_bag() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+
+        let mut subjects: Vec<String> = m
+            .array_property("http://purl.org/dc/elements/1.1/", "subject")
+            .map(|v| v.value)
+            .collect();
+
+        subjects.sort();
+
+        assert_eq!(
+            subjects,
+            vec!("Stefan", "XMP", "XMPFiles", "purple", "square", "test")
+        );
+    }
+
+    #[test]
     fn no_such_property() {
         let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
 
-        let creators: Vec<XmpValue> = m
+        let creatorxs: Vec<XmpValue> = m
             .array_property("http://purl.org/dc/elements/1.1/", "creatorx")
             .collect();
 
-        assert!(creators.is_empty());
+        assert!(creatorxs.is_empty());
     }
 }
