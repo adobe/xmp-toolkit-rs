@@ -332,5 +332,17 @@ mod array_property {
         let creator = creators.pop().unwrap();
         assert_eq!(creator.value, "Llywelyn");
         // assert_eq!(creator.options, 0);
+        // TO DO: Implement this test when options are exposed.
+    }
+
+    #[test]
+    fn no_such_property() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+
+        let creators: Vec<XmpValue> = m
+            .array_property("http://purl.org/dc/elements/1.1/", "creatorx")
+            .collect();
+
+        assert!(creators.is_empty());
     }
 }
