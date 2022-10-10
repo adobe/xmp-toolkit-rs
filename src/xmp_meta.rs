@@ -232,7 +232,7 @@ impl XmpMeta {
             meta: self,
             ns: CString::new(schema_ns).unwrap_or_default(),
             name: CString::new(prop_name).unwrap_or_default(),
-            index: 0,
+            index: 1,
         }
     }
 
@@ -315,9 +315,11 @@ impl<'a> Iterator for ArrayProperty<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
             let mut options: u32 = 0;
+            let mut err = ffi::CXmpError::default();
 
             let c_result = ffi::CXmpMetaGetArrayItem(
                 self.meta.m,
+                &mut err,
                 self.ns.as_ptr(),
                 self.name.as_ptr(),
                 self.index,
