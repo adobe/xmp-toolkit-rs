@@ -363,3 +363,13 @@ mod array_property {
         assert!(first_creator.is_none());
     }
 }
+
+mod xmp_options {
+    use crate::xmp_meta::XmpOptions;
+
+    #[test]
+    fn default() {
+        let o = XmpOptions::default();
+        assert_eq!(o.options, 0);
+    }
+}
