@@ -294,15 +294,10 @@ pub struct XmpValue {
 /// Flags that provide additional description for an [`XmpValue`].
 ///
 /// Not currently implemented.
+#[derive(Default)]
 pub struct XmpOptions {
     #[allow(dead_code)] // TEMPORARY until we provide accessors for this
     pub(crate) options: u32,
-}
-
-impl Default for XmpOptions {
-    fn default() -> Self {
-        Self { options: 0 }
-    }
 }
 
 /// An iterator that provides access to items within a property array.
