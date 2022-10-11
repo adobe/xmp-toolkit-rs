@@ -51,6 +51,10 @@ xmp_toolkit = "0.5.3"
 
 ## Breaking changes in 0.x series
 
+### Upgrading to 0.6 from earlier versions
+
+This version increases the minimum supported Rust version (MSRV) to 1.56.0.
+
 ### Upgrading to 0.5 from earlier releases
 
 Prior versions of the Rust XMP Toolkit mostly ignored the possibility that the C++ XMP Toolkit could throw exceptions. Among other things, this created the possibility of unexpected behavior if the C++ runtime attempted to unwind the stack through Rust code.
