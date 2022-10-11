@@ -313,3 +313,53 @@ mod set_property_date {
         );
     }
 }
+
+mod array_property {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::*, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path_creator_seq() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+
+        let mut creators: Vec<XmpValue> = m
+            .array_property("http://purl.org/dc/elements/1.1/", "creator")
+            .collect();
+
+        assert_eq!(creators.len(), 1);
+
+        let creator = creators.pop().unwrap();
+        assert_eq!(creator.value, "Llywelyn");
+        // assert_eq!(creator.options, 0);
+        // TO DO: Implement this test when options are exposed.
+    }
+
+    #[test]
+    fn happy_path_creator_bag() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+
+        let mut subjects: Vec<String> = m
+            .array_property("http://purl.org/dc/elements/1.1/", "subject")
+            .map(|v| v.value)
+            .collect();
+
+        subjects.sort();
+
+        assert_eq!(
+            subjects,
+            vec!("Stefan", "XMP", "XMPFiles", "purple", "square", "test")
+        );
+    }
+
+    #[test]
+    fn no_such_property() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+
+        let first_creator = m
+            .array_property("http://purl.org/dc/elements/1.1/", "creatorx")
+            .next();
+
+        assert!(first_creator.is_none());
+    }
+}

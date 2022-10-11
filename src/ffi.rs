@@ -103,6 +103,15 @@ extern "C" {
         prop_value: *const CXmpDateTime,
     );
 
+    pub(crate) fn CXmpMetaGetArrayItem(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        index: u32,
+        out_options: *mut u32,
+    ) -> *mut c_char;
+
     // --- CXmpDateTime ---
 
     pub(crate) fn CXmpDateTimeNew() -> *mut CXmpDateTime;

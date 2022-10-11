@@ -302,7 +302,6 @@ extern "C" {
         return NULL;
     }
 
-
     const char* CXmpMetaRegisterNamespace(CXmpError* outError,
                                           const char* namespaceURI,
                                           const char* suggestedPrefix) {
@@ -397,6 +396,37 @@ extern "C" {
             }
             catch (...) {
                 signalUnknownError(outError);
+            }
+        #endif
+    }
+
+    const char* CXmpMetaGetArrayItem(CXmpMeta* m,
+                                     CXmpError* outError,
+                                     const char* schemaNS,
+                                     const char* propName,
+                                     AdobeXMPCommon::uint32 index,
+                                     AdobeXMPCommon::uint32* outOptions) {
+        #ifdef NOOP_FFI
+            *outOptions = 0;
+            return NULL;
+        #else
+            std::string propValue;
+
+            try {
+                if (m->m.GetArrayItem(schemaNS, propName, index, &propValue, outOptions)) {
+                    return copyStringForResult(propValue);
+                } else {
+                    *outOptions = 0;
+                    return NULL;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+                return NULL;
+            }
+            catch (...) {
+                signalUnknownError(outError);
+                return NULL;
             }
         #endif
     }

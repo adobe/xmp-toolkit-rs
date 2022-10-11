@@ -28,7 +28,7 @@ pub mod xmp_ns;
 pub use xmp_date_time::XmpDateTime;
 pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
 pub use xmp_file::{OpenFileOptions, XmpFile};
-pub use xmp_meta::XmpMeta;
+pub use xmp_meta::{ArrayProperty, XmpMeta, XmpValue};
 
 #[cfg(test)]
 mod tests;
