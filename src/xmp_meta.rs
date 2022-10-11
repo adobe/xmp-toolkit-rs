@@ -294,9 +294,10 @@ pub struct XmpValue {
 /// Flags that provide additional description for an [`XmpValue`].
 ///
 /// Not currently implemented.
+#[derive(Default)]
 pub struct XmpOptions {
     #[allow(dead_code)] // TEMPORARY until we provide accessors for this
-    options: u32,
+    pub(crate) options: u32,
 }
 
 /// An iterator that provides access to items within a property array.
