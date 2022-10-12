@@ -323,7 +323,7 @@ mod array_property {
     fn happy_path_creator_seq() {
         let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
 
-        let mut creators: Vec<XmpValue> = m
+        let mut creators: Vec<XmpValue<String>> = m
             .array_property("http://purl.org/dc/elements/1.1/", "creator")
             .collect();
 
@@ -361,15 +361,5 @@ mod array_property {
             .next();
 
         assert!(first_creator.is_none());
-    }
-}
-
-mod xmp_options {
-    use crate::xmp_meta::XmpOptions;
-
-    #[test]
-    fn default() {
-        let o = XmpOptions::default();
-        assert_eq!(o.options, 0);
     }
 }
