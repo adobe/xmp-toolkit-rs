@@ -46,7 +46,7 @@ fn read_xmp_from_file() -> Result<()> {
     }?;
 
     // Open the file for read-only access and request to use a format-specific handler.
-    let mut f = XmpFile::new();
+    let mut f = XmpFile::new()?;
 
     f.open_file(
         &path,
@@ -72,7 +72,7 @@ fn read_xmp_from_file() -> Result<()> {
     // Add the code to display the simple property "CreatorTool" by providing
     // the namespace URI and the name of the property.
     if let Some(creator_tool) = xmp.property(xmp_ns::XMP, "CreatorTool") {
-        println!("CreatorTool = {}", creator_tool);
+        println!("CreatorTool = {}", creator_tool.value);
     }
 
     // TODO: Continue from step 11 of C++ example.
