@@ -23,7 +23,7 @@ fn new_empty() {
 mod from_file {
     use std::path::PathBuf;
 
-    use crate::{tests::fixtures::*, XmpErrorType, XmpMeta};
+    use crate::{tests::fixtures::*, XmpErrorType, XmpMeta, XmpValue};
 
     #[test]
     fn happy_path() {
@@ -32,13 +32,19 @@ mod from_file {
         assert_eq!(
             m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
                 .unwrap(),
-            "Adobe Photoshop CS2 Windows"
+            XmpValue {
+                value: "Adobe Photoshop CS2 Windows".to_owned(),
+                options: 0
+            }
         );
 
         assert_eq!(
             m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
                 .unwrap(),
-            "Dell 1905FP Color Profile"
+            XmpValue {
+                value: "Dell 1905FP Color Profile".to_owned(),
+                options: 0
+            }
         );
 
         assert!(m
@@ -70,7 +76,7 @@ mod from_file {
 mod from_str {
     use std::str::FromStr;
 
-    use crate::{tests::fixtures::*, XmpMeta};
+    use crate::{tests::fixtures::*, XmpMeta, XmpValue};
 
     #[test]
     fn happy_path() {
@@ -79,13 +85,19 @@ mod from_str {
         assert_eq!(
             m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
                 .unwrap(),
-            "Adobe Photoshop CS2 Windows"
+            XmpValue {
+                value: "Adobe Photoshop CS2 Windows".to_owned(),
+                options: 0
+            }
         );
 
         assert_eq!(
             m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
                 .unwrap(),
-            "Dell 1905FP Color Profile"
+            XmpValue {
+                value: "Dell 1905FP Color Profile".to_owned(),
+                options: 0
+            }
         );
 
         assert!(m
@@ -155,14 +167,17 @@ mod register_namespace {
 }
 
 mod property {
-    use crate::{tests::fixtures::*, xmp_ns, XmpMeta};
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
 
     #[test]
     fn happy_path() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert_eq!(
             m.property(xmp_ns::XMP, "CreatorTool"),
-            Some("Adobe Photoshop CS2 Windows".to_owned())
+            Some(XmpValue {
+                value: "Adobe Photoshop CS2 Windows".to_owned(),
+                options: 0
+            })
         );
     }
 
@@ -192,7 +207,7 @@ mod property {
 }
 
 mod set_property {
-    use crate::{tests::fixtures::*, XmpErrorType, XmpMeta};
+    use crate::{tests::fixtures::*, XmpErrorType, XmpMeta, XmpValue};
 
     #[test]
     fn happy_path() {
@@ -206,7 +221,10 @@ mod set_property {
         assert_eq!(
             m.property("http://purl.org/dc/terms/", "provenance")
                 .unwrap(),
-            "blah"
+            XmpValue {
+                value: "blah".to_owned(),
+                options: 0
+            }
         );
     }
 

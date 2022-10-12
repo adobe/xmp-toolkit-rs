@@ -130,17 +130,29 @@ impl XmpMeta {
     ///
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `None` in such cases.
-    pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
+    pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<XmpValue<String>> {
         let c_ns = CString::new(schema_ns).unwrap_or_default();
         let c_name = CString::new(prop_name).unwrap_or_default();
 
+        let mut options: u32 = 0;
+        let mut err = ffi::CXmpError::default();
+
         unsafe {
-            let c_result = ffi::CXmpMetaGetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr());
+            let c_result = ffi::CXmpMetaGetProperty(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                &mut options,
+            );
 
             if c_result.is_null() {
                 None
             } else {
-                Some(CStr::from_ptr(c_result).to_string_lossy().into_owned())
+                Some(XmpValue {
+                    value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
+                    options,
+                })
             }
         }
     }

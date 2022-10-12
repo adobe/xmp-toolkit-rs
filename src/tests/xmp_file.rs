@@ -13,7 +13,7 @@
 
 use tempfile::tempdir;
 
-use crate::{tests::fixtures::*, xmp_ns, OpenFileOptions, XmpDateTime, XmpFile, XmpMeta};
+use crate::{tests::fixtures::*, xmp_ns, OpenFileOptions, XmpDateTime, XmpFile, XmpMeta, XmpValue};
 
 #[test]
 fn open_and_edit_file() {
@@ -67,7 +67,10 @@ fn open_and_edit_file() {
         assert_eq!(
             m.property("http://purl.org/dc/terms/", "provenance")
                 .unwrap(),
-            "blah"
+            XmpValue {
+                value: "blah".to_owned(),
+                options: 0
+            }
         );
         assert_eq!(m.property("http://purl.org/dc/terms/", "provenancx"), None);
     }

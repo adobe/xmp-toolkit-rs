@@ -77,8 +77,10 @@ extern "C" {
 
     pub(crate) fn CXmpMetaGetProperty(
         meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
         schema_ns: *const c_char,
         prop_name: *const c_char,
+        out_options: *mut u32,
     ) -> *mut c_char;
 
     pub(crate) fn CXmpMetaSetProperty(
