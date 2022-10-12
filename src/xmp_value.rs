@@ -11,10 +11,12 @@
 // specific language governing permissions and limitations under
 // each license.
 
+use std::fmt::Debug;
+
 /// An XMP value consists describes a simple property or an item in an
 /// array property.
-#[derive(Clone, Default, Eq, PartialEq)]
-pub struct XmpValue<T: Clone + Default + Eq + PartialEq> {
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub struct XmpValue<T: Clone + Debug + Default + Eq + PartialEq> {
     /// Core value for this item (typically a `String` or scalar value).
     pub value: T,
 
@@ -41,7 +43,7 @@ pub(crate) mod xmp_prop {
     pub(crate) const IS_DERIVED: u32 = 0x00200000;
 }
 
-impl<T: Clone + Default + Eq + PartialEq> XmpValue<T> {
+impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     /// Returns `true` if none of the other `is...` or `has...` flags
     /// for this value are true.
     pub fn has_no_flags(&self) -> bool {
