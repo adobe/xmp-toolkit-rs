@@ -11,26 +11,19 @@
 // specific language governing permissions and limitations under
 // each license.
 
-#![deny(clippy::expect_used)]
-#![deny(clippy::panic)]
-#![deny(clippy::unwrap_used)]
-#![deny(missing_docs)]
-#![deny(warnings)]
-#![doc = include_str!("../README.md")]
+use crate::XmpDateTime;
 
-mod ffi;
-mod xmp_date_time;
-mod xmp_error;
-mod xmp_file;
-mod xmp_meta;
-pub mod xmp_ns;
-mod xmp_value;
+#[test]
+fn new_empty() {
+    let mut _dt = XmpDateTime::new();
+}
 
-pub use xmp_date_time::XmpDateTime;
-pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
-pub use xmp_file::{OpenFileOptions, XmpFile};
-pub use xmp_meta::{ArrayProperty, XmpMeta};
-pub use xmp_value::XmpValue;
+#[test]
+fn default() {
+    let mut _dt = XmpDateTime::default();
+}
 
-#[cfg(test)]
-mod tests;
+#[test]
+fn current() {
+    let mut _dt = XmpDateTime::current().unwrap();
+}

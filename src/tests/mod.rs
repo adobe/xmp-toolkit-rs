@@ -1,4 +1,4 @@
-// Copyright 2020 Adobe. All rights reserved.
+// Copyright 2022 Adobe. All rights reserved.
 // This file is licensed to you under the Apache License,
 // Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
 // or the MIT license (http://opensource.org/licenses/MIT),
@@ -11,26 +11,17 @@
 // specific language governing permissions and limitations under
 // each license.
 
-#![deny(clippy::expect_used)]
-#![deny(clippy::panic)]
-#![deny(clippy::unwrap_used)]
-#![deny(missing_docs)]
-#![deny(warnings)]
-#![doc = include_str!("../README.md")]
+// Tests are grouped under this module so as to avoid
+// having the test code itself included in coverage numbers.
 
-mod ffi;
+#![allow(clippy::expect_used)]
+#![allow(clippy::panic)]
+#![allow(clippy::unwrap_used)]
+
+mod fixtures;
 mod xmp_date_time;
 mod xmp_error;
+mod xmp_error_type;
 mod xmp_file;
 mod xmp_meta;
-pub mod xmp_ns;
 mod xmp_value;
-
-pub use xmp_date_time::XmpDateTime;
-pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
-pub use xmp_file::{OpenFileOptions, XmpFile};
-pub use xmp_meta::{ArrayProperty, XmpMeta};
-pub use xmp_value::XmpValue;
-
-#[cfg(test)]
-mod tests;

@@ -1,0 +1,104 @@
+// Copyright 2022 Adobe. All rights reserved.
+// This file is licensed to you under the Apache License,
+// Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+// or the MIT license (http://opensource.org/licenses/MIT),
+// at your option.
+
+// Unless required by applicable law or agreed to in writing,
+// this software is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR REPRESENTATIONS OF ANY KIND, either express or
+// implied. See the LICENSE-MIT and LICENSE-APACHE files for the
+// specific language governing permissions and limitations under
+// each license.
+
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
+
+pub(crate) fn fixture_path(name: &str) -> String {
+    let root_dir = &env::var("CARGO_MANIFEST_DIR").unwrap();
+
+    let mut path = PathBuf::from(root_dir);
+    path.push("src/tests/fixtures");
+    path.push(name);
+
+    assert!(path.exists());
+
+    path.to_str().unwrap().to_string()
+}
+
+pub(crate) fn temp_copy_of_fixture(tempdir: &Path, name: &str) -> String {
+    let fixture_src = fixture_path(name);
+    let fixture_path = Path::join(tempdir, name);
+    let fixture_copy = fixture_path.as_path();
+
+    fs::copy(fixture_src, fixture_copy).unwrap();
+    fixture_copy.display().to_string()
+}
+
+pub(crate) const PURPLE_SQUARE_XMP: &str = r#"<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 4.0-c003 (debug), build -num-, -date-">
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description rdf:about=""
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xap="http://ns.adobe.com/xap/1.0/"
+        xmlns:xapMM="http://ns.adobe.com/xap/1.0/mm/"
+        xmlns:tiff="http://ns.adobe.com/tiff/1.0/"
+        xmlns:exif="http://ns.adobe.com/exif/1.0/"
+        xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/"
+        xmlns:pdf="http://ns.adobe.com/pdf/1.3/"
+        xmlns:pdfx="http://ns.adobe.com/pdfx/1.3/"
+        xmlns:xapRights="http://ns.adobe.com/xap/1.0/rights/"
+        dc:format="application/vnd.adobe.photoshop"
+        xap:CreatorTool="Adobe Photoshop CS2 Windows"
+        xap:CreateDate="2006-04-25T15:32:01+02:00"
+        xap:ModifyDate="2006-04-27T15:38:36.655+02:00"
+        xap:MetadataDate="2006-04-26T16:47:10+02:00"
+        xapMM:DocumentID="uuid:FE607D9B5FD4DA118B7787757E22306B"
+        xapMM:InstanceID="uuid:BF664E7B33D5DA119129F691B53239AD"
+        tiff:Orientation="1"
+        tiff:XResolution="720000/10000"
+        tiff:YResolution="720000/10000"
+        tiff:ResolutionUnit="2"
+        tiff:NativeDigest="256,257,258,259,262,274,277,284,530,531,282,283,296,301,318,319,529,532,306,270,271,272,305,315,33432;6F0EC2A1D6ADFA4DF4BB00D7C83AFAC0"
+        exif:PixelXDimension="200"
+        exif:PixelYDimension="200"
+        exif:ColorSpace="-1"
+        exif:NativeDigest="36864,40960,40961,37121,37122,40962,40963,37510,40964,36867,36868,33434,33437,34850,34852,34855,34856,37377,37378,37379,37380,37381,37382,37383,37384,37385,37386,37396,41483,41484,41486,41487,41488,41492,41493,41495,41728,41729,41730,41985,41986,41987,41988,41989,41990,41991,41992,41993,41994,41995,41996,42016,0,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20,22,23,24,25,26,27,28,30;D891A8B493E755131A3267739F6277DB"
+        photoshop:ColorMode="3"
+        photoshop:ICCProfile="Dell 1905FP Color Profile"
+        photoshop:CaptionWriter="Stefan"
+        photoshop:History=""
+        pdf:Keywords="&quot;XMP  metadata  schema XML RDF&quot;"
+        pdf:Copyright="2005 Adobe Systems Inc."
+        pdfx:Copyright="2005 Adobe Systems Inc."
+        xapRights:Marked="False">
+        <dc:description>
+        <rdf:Alt>
+            <rdf:li xml:lang="x-default">a test file (öäüßÖÄÜ€中文)</rdf:li>
+        </rdf:Alt>
+        </dc:description>
+        <dc:title>
+        <rdf:Alt>
+            <rdf:li xml:lang="x-default">Purple Square</rdf:li>
+        </rdf:Alt>
+        </dc:title>
+        <dc:creator>
+        <rdf:Seq>
+            <rdf:li>Llywelyn</rdf:li>
+        </rdf:Seq>
+        </dc:creator>
+        <dc:subject>
+        <rdf:Bag>
+            <rdf:li>purple</rdf:li>
+            <rdf:li>square</rdf:li>
+            <rdf:li>Stefan</rdf:li>
+            <rdf:li>XMP</rdf:li>
+            <rdf:li>XMPFiles</rdf:li>
+            <rdf:li>test</rdf:li>
+        </rdf:Bag>
+        </dc:subject>
+        </rdf:Description>
+        </rdf:RDF>
+        </x:xmpmeta>
+        "#;
