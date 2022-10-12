@@ -26,10 +26,10 @@
 // from XMP Toolkit SDK Programmer's Guide (pages 68-71 of the
 // February 2022 edition).
 
+use std::env;
+
 use anyhow::{anyhow, Context, Result};
 use xmp_toolkit::{xmp_ns, OpenFileOptions, XmpFile};
-
-use std::env;
 
 fn read_xmp_from_file() -> Result<()> {
     // Parse command-line arguments. There should be only one
@@ -45,7 +45,8 @@ fn read_xmp_from_file() -> Result<()> {
         )),
     }?;
 
-    // Open the file for read-only access and request to use a format-specific handler.
+    // Open the file for read-only access and request to use a format-specific
+    // handler.
     let mut f = XmpFile::new()?;
 
     f.open_file(
@@ -82,7 +83,14 @@ fn read_xmp_from_file() -> Result<()> {
         println!("No creator found");
     }
 
-    // TODO: Continue from step 12 of C++ example.
+    // Display all elements in the `subject` property (which is an array).
+    // Note that the C++ XMP Toolkit's indices are 1-based. This example's output
+    // instead follows Rust's convention of being 0-based.
+    for (index, v) in xmp.array_property(xmp_ns::DC, "subject").enumerate() {
+        println!("dc::subject[{}] = {}", index, v.value);
+    }
+
+    // TODO: Continue from step 13 of C++ example.
 
     Ok(())
 }
