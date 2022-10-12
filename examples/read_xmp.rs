@@ -75,7 +75,14 @@ fn read_xmp_from_file() -> Result<()> {
         println!("CreatorTool = {}", creator_tool.value);
     }
 
-    // TODO: Continue from step 11 of C++ example.
+    // Display the first element of the `creator` array.
+    if let Some(first_creator) = xmp.array_property(xmp_ns::DC, "creator").next() {
+        println!("dc:creator = {}", first_creator.value);
+    } else {
+        println!("No creator found");
+    }
+
+    // TODO: Continue from step 12 of C++ example.
 
     Ok(())
 }
