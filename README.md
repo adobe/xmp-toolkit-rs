@@ -53,7 +53,13 @@ xmp_toolkit = "0.5.3"
 
 ### Upgrading to 0.6 from earlier versions
 
-This version increases the minimum supported Rust version (MSRV) to 1.56.0.
+The `XmpMeta::property` value has been changed to return `Option<XmpValue<String>>`
+instead of `Option<String>`. You may need to add a `.value` dereference to get the
+string value from existing calls to the `property` accessor. The XMP value flags
+(known as `XMP_OptionBits` in the C++ XMP Toolkit) are now available via accessors
+on the new `XmpValue` struct.
+
+This version also increases the minimum supported Rust version (MSRV) to 1.56.0.
 
 ### Upgrading to 0.5 from earlier releases
 

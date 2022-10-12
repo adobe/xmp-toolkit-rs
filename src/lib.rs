@@ -24,11 +24,13 @@ mod xmp_error;
 mod xmp_file;
 mod xmp_meta;
 pub mod xmp_ns;
+mod xmp_value;
 
 pub use xmp_date_time::XmpDateTime;
 pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
 pub use xmp_file::{OpenFileOptions, XmpFile};
-pub use xmp_meta::{ArrayProperty, XmpMeta, XmpValue};
+pub use xmp_meta::{ArrayProperty, XmpMeta};
+pub use xmp_value::XmpValue;
 
 #[cfg(test)]
 mod tests;

@@ -326,17 +326,24 @@ extern "C" {
     }
 
     const char* CXmpMetaGetProperty(CXmpMeta* m,
+                                    CXmpError* outError,
                                     const char* schemaNS,
-                                    const char* propName) {
+                                    const char* propName,
+                                    AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
         #ifndef NOOP_FFI
             try {
                 std::string propValue;
-                if (m->m.GetProperty(schemaNS, propName, &propValue, NULL /* options */)) {
+                if (m->m.GetProperty(schemaNS, propName, &propValue, outOptions)) {
                     return copyStringForResult(propValue);
                 }
             }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
             catch (...) {
-                // Intentional no-op.
+                signalUnknownError(outError);
             }
         #endif
 

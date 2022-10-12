@@ -17,7 +17,9 @@ use std::{
     str::FromStr,
 };
 
-use crate::{ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult};
+use crate::{
+    ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult, XmpValue,
+};
 
 /// The `XmpMeta` struct allows access to the XMP Toolkit core services.
 ///
@@ -128,17 +130,29 @@ impl XmpMeta {
     ///
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `None` in such cases.
-    pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<String> {
+    pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<XmpValue<String>> {
         let c_ns = CString::new(schema_ns).unwrap_or_default();
         let c_name = CString::new(prop_name).unwrap_or_default();
 
+        let mut options: u32 = 0;
+        let mut err = ffi::CXmpError::default();
+
         unsafe {
-            let c_result = ffi::CXmpMetaGetProperty(self.m, c_ns.as_ptr(), c_name.as_ptr());
+            let c_result = ffi::CXmpMetaGetProperty(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                &mut options,
+            );
 
             if c_result.is_null() {
                 None
             } else {
-                Some(CStr::from_ptr(c_result).to_string_lossy().into_owned())
+                Some(XmpValue {
+                    value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
+                    options,
+                })
             }
         }
     }
@@ -280,26 +294,6 @@ impl FromStr for XmpMeta {
     }
 }
 
-/// An XMP value consists describes a simple property or an item in an
-/// array property.
-#[non_exhaustive]
-pub struct XmpValue {
-    /// String value for this item.
-    pub value: String,
-
-    /// Flags that further describe this item. (NOT YET IMPLEMENTED)
-    pub options: XmpOptions,
-}
-
-/// Flags that provide additional description for an [`XmpValue`].
-///
-/// Not currently implemented.
-#[derive(Default)]
-pub struct XmpOptions {
-    #[allow(dead_code)] // TEMPORARY until we provide accessors for this
-    pub(crate) options: u32,
-}
-
 /// An iterator that provides access to items within a property array.
 ///
 /// Create via [`XmpMeta::array_property`].
@@ -311,7 +305,7 @@ pub struct ArrayProperty<'a> {
 }
 
 impl<'a> Iterator for ArrayProperty<'a> {
-    type Item = XmpValue;
+    type Item = XmpValue<String>;
 
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
@@ -334,7 +328,7 @@ impl<'a> Iterator for ArrayProperty<'a> {
             } else {
                 Some(XmpValue {
                     value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
-                    options: XmpOptions { options },
+                    options,
                 })
             }
         }
