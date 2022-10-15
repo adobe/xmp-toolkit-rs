@@ -255,7 +255,7 @@ jobs:
       - name: "Bump crate version (NOTE: Not pushed back to repo!)"
         if: ${{ !contains(github.event.pull_request.title, '(MINOR)') }}
         run: |
-          sed -i "s/^version = \"[^\"]*\"$/version = \"$VERSION\"/;" sdk/Cargo.toml
+          sed -i "s/^version = \"[^\"]*\"$/version = \"$VERSION\"/;" Cargo.toml
           git config user.email "nobody@example.com"
           git config --global user.name "PR validation bot"
           git add .
