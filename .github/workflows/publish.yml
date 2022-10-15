@@ -84,7 +84,12 @@ jobs:
       with:
         commit_message: Prepare ${{ steps.set-version.outputs.version }} release
         commit_user_name: Adobe CAI Team
-        commit_user_email: scouten@adobe.com
+        commit_user_email: noreply@adobe.com
+
+    - name: Ensure semantic versioning requirements are met
+      uses: obi1kenobi/cargo-semver-checks-action@v1
+      with:
+        crate-name: c2pa
 
     - name: Create release
       uses: ncipollo/release-action@v1
