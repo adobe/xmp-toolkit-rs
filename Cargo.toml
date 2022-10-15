@@ -22,6 +22,10 @@ exclude = [
     "external/xmp_toolkit/XMPFilesPlugins/PDF_Handler",
 ]
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [dependencies]
 num_enum = "0.5.7"
 thiserror = "1.0"
