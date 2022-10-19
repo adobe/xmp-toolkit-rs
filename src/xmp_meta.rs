@@ -225,7 +225,7 @@ impl XmpMeta {
                 &mut err,
                 c_ns.as_ptr(),
                 c_name.as_ptr(),
-                prop_value.dt,
+                &prop_value.as_ffi(),
             );
         }
 

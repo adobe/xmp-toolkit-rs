@@ -14,16 +14,20 @@
 use crate::XmpDateTime;
 
 #[test]
-fn new_empty() {
-    let mut _dt = XmpDateTime::new();
-}
-
-#[test]
 fn default() {
-    let mut _dt = XmpDateTime::default();
+    let dt = XmpDateTime::default();
+    assert!(dt.date.is_none());
+    assert!(dt.time.is_none());
 }
 
 #[test]
 fn current() {
-    let mut _dt = XmpDateTime::current().unwrap();
+    let dt = XmpDateTime::current().unwrap();
+
+    let date = dt.date.as_ref().unwrap();
+    assert!(date.year >= 2022);
+    assert!(date.month >= 1);
+    assert!(date.month <= 12);
+    assert!(date.day >= 1);
+    assert!(date.day <= 31);
 }
