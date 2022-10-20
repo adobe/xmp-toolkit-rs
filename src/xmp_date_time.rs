@@ -147,7 +147,7 @@ impl XmpDateTime {
 
             if let Some(tz) = &time.time_zone {
                 result.has_time_zone = true;
-                match result.tz_hour {
+                match tz.hour {
                     h if h < 0 => {
                         result.tz_sign = -1;
                         result.tz_hour = -h;
