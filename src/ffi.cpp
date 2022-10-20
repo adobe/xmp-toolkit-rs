@@ -346,13 +346,11 @@ extern "C" {
                              CXmpError* outError,
                              const char* schemaNS,
                              const char* propName,
-                             const char* propValue) {
+                             const char* propValue,
+                             AdobeXMPCommon::uint32 options) {
         #ifndef NOOP_FFI
-            // TO DO: Bridge options parameter.
-            // For my purposes at the moment,
-            // default value (0) always suffices.
             try {
-                m->m.SetProperty(schemaNS, propName, propValue);
+                m->m.SetProperty(schemaNS, propName, propValue, options);
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
@@ -382,13 +380,11 @@ extern "C" {
                                  CXmpError* outError,
                                  const char* schemaNS,
                                  const char* propName,
-                                 const XMP_DateTime* propValue) {
+                                 const XMP_DateTime* propValue,
+                                 AdobeXMPCommon::uint32 options) {
         #ifndef NOOP_FFI
-            // TO DO: Bridge options parameter.
-            // For my purposes at the moment,
-            // default value (0) always suffices.
             try {
-                m->m.SetProperty_Date(schemaNS, propName, *propValue);
+                m->m.SetProperty_Date(schemaNS, propName, *propValue, options);
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);

@@ -175,11 +175,11 @@ impl XmpMeta {
         &mut self,
         schema_ns: &str,
         prop_name: &str,
-        prop_value: &str,
+        prop_value: &XmpValue<String>,
     ) -> XmpResult<()> {
         let c_ns = CString::new(schema_ns)?;
         let c_name = CString::new(prop_name)?;
-        let c_value = CString::new(prop_value)?;
+        let c_value = CString::new(prop_value.value.as_bytes())?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
@@ -189,6 +189,7 @@ impl XmpMeta {
                 c_ns.as_ptr(),
                 c_name.as_ptr(),
                 c_value.as_ptr(),
+                prop_value.options,
             );
         }
 
@@ -197,8 +198,8 @@ impl XmpMeta {
 
     /// Creates or sets a property value using an [`XmpDateTime`] structure.
     ///
-    /// This is the simplest property setter. Use it for top-level
-    /// simple properties.
+    /// Since XMP only stores strings, the date/time will be converted to
+    /// ISO 8601 format as part of this operation.
     ///
     /// ## Arguments
     ///
@@ -213,7 +214,7 @@ impl XmpMeta {
         &mut self,
         schema_ns: &str,
         prop_name: &str,
-        prop_value: &XmpDateTime,
+        prop_value: &XmpValue<XmpDateTime>,
     ) -> XmpResult<()> {
         let c_ns = CString::new(schema_ns)?;
         let c_name = CString::new(prop_name)?;
@@ -225,7 +226,8 @@ impl XmpMeta {
                 &mut err,
                 c_ns.as_ptr(),
                 c_name.as_ptr(),
-                &prop_value.as_ffi(),
+                &prop_value.value.as_ffi(),
+                prop_value.options,
             );
         }
 
