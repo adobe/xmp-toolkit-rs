@@ -53,7 +53,11 @@ xmp_toolkit = "0.5.3"
 
 ### Upgrading to 0.6 from earlier versions
 
-The `XmpMeta::property` value has been changed to return `Option<XmpValue<String>>`
+The `XmpDateTime` struct has been meaningfully implemented, meaning it has changed
+from an opaque type to a struct containing the date, time, and time zone values as
+present in the C++ toolkit.
+
+The `XmpMeta::property` method has been changed to return `Option<XmpValue<String>>`
 instead of `Option<String>`. You may need to add a `.value` dereference to get the
 string value from existing calls to the `property` accessor. The XMP value flags
 (known as `XMP_OptionBits` in the C++ XMP Toolkit) are now available via accessors

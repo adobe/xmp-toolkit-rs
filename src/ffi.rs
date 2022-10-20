@@ -30,7 +30,24 @@ impl Default for CXmpError {
     }
 }
 
-pub(crate) enum CXmpDateTime {}
+#[derive(Debug, Default, Eq, PartialEq)]
+#[repr(C)]
+pub(crate) struct CXmpDateTime {
+    pub(crate) year: i32,
+    pub(crate) month: i32,
+    pub(crate) day: i32,
+    pub(crate) hour: i32,
+    pub(crate) minute: i32,
+    pub(crate) second: i32,
+    pub(crate) has_date: bool,
+    pub(crate) has_time: bool,
+    pub(crate) has_time_zone: bool,
+    pub(crate) tz_sign: i8,
+    pub(crate) tz_hour: i32,
+    pub(crate) tz_minute: i32,
+    pub(crate) nanosecond: i32,
+}
+
 pub(crate) enum CXmpFile {}
 pub(crate) enum CXmpMeta {}
 
@@ -116,7 +133,5 @@ extern "C" {
 
     // --- CXmpDateTime ---
 
-    pub(crate) fn CXmpDateTimeNew() -> *mut CXmpDateTime;
-    pub(crate) fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);
-    pub(crate) fn CXmpDateTimeCurrent(out_error: *mut CXmpError) -> *mut CXmpDateTime;
+    pub(crate) fn CXmpDateTimeCurrent(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
 }

@@ -134,14 +134,6 @@ extern "C" {
         #endif
     } CXmpMeta;
 
-    typedef struct CXmpDateTime {
-        #ifdef NOOP_FFI
-            int x;
-        #else
-            XMP_DateTime dt;
-        #endif
-    } CXmpDateTime;
-
     // --- CXmpFile ---
 
     CXmpFile* CXmpFileNew(CXmpError* outError) {
@@ -390,13 +382,13 @@ extern "C" {
                                  CXmpError* outError,
                                  const char* schemaNS,
                                  const char* propName,
-                                 const CXmpDateTime* propValue) {
+                                 const XMP_DateTime* propValue) {
         #ifndef NOOP_FFI
             // TO DO: Bridge options parameter.
             // For my purposes at the moment,
             // default value (0) always suffices.
             try {
-                m->m.SetProperty_Date(schemaNS, propName, propValue->dt);
+                m->m.SetProperty_Date(schemaNS, propName, *propValue);
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
@@ -440,27 +432,12 @@ extern "C" {
 
     // --- CXmpDateTime ---
 
-    CXmpDateTime* CXmpDateTimeNew() {
-        // As of this writing (2022-07-09,
-        // https://github.com/adobe/XMP-Toolkit-SDK/blob/337c052b059640e243dbd6646b9462edaf6038c1/public/include/XMP_Const.h#L230),
-        // XMP_DateTime does not throw on construction.
-        return new CXmpDateTime;
-    }
-
-    void CXmpDateTimeDrop(CXmpDateTime* dt) {
-        // As of this writing (2022-07-09,
-        // https://github.com/adobe/XMP-Toolkit-SDK/blob/337c052b059640e243dbd6646b9462edaf6038c1/public/include/XMP_Const.h#L230),
-        // XMP_DateTime does not have a destructor and its member types are simple,
-        // so it does not throw on destruction.
-        delete dt;
-    }
-
-    CXmpDateTime* CXmpDateTimeCurrent(CXmpError* outError) {
+    void CXmpDateTimeCurrent(XMP_DateTime* dt, CXmpError* outError) {
         #ifndef NOOP_FFI
             try {
-                CXmpDateTime* dt = new CXmpDateTime;
-                SXMPUtils::CurrentDateTime(&dt->dt);
-                return dt;
+                if (dt) {
+                    SXMPUtils::CurrentDateTime(dt);
+                }
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
@@ -469,7 +446,5 @@ extern "C" {
                 signalUnknownError(outError);
             }
         #endif
-
-        return NULL;
     }
 }
