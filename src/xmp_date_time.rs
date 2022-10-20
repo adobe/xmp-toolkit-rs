@@ -23,7 +23,7 @@ use crate::{ffi, XmpError, XmpResult};
 /// `XmpDateTime` values are occasionally used with only a date or only a time
 /// component. These possibilities are expressed using `Option`s.
 ///
-/// Note that the [`DateTime` struct in the `chrono` crate`](https://docs.rs/chrono/0.4.22/chrono/struct.DateTime.html)
+/// Note that the [`DateTime` struct in the `chrono` crate](https://docs.rs/chrono/0.4.22/chrono/struct.DateTime.html)
 /// is _similar_ to this struct. We chose not to use that in the
 /// Rust XMP Toolkit in order to provide a more precise mapping
 /// to the API provided by the underlying C++ XMP Toolkit.
