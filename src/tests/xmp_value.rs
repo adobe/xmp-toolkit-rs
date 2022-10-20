@@ -231,353 +231,353 @@ mod options {
 
     #[test]
     fn set_is_uri() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_uri(true);
 
-        v.set_is_uri(true);
         assert_eq!(v.options, xmp_prop::VALUE_IS_URI);
     }
 
     #[test]
     fn set_has_qualifiers() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_has_qualifiers(true);
 
-        v.set_has_qualifiers(true);
         assert_eq!(v.options, xmp_prop::HAS_QUALIFIERS);
     }
 
     #[test]
     fn set_is_qualifier() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_qualifier(true);
 
-        v.set_is_qualifier(true);
         assert_eq!(v.options, xmp_prop::IS_QUALIFIER);
     }
 
     #[test]
     fn set_has_lang() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_has_lang(true);
 
-        v.set_has_lang(true);
         assert_eq!(v.options, xmp_prop::HAS_LANG);
     }
 
     #[test]
     fn set_has_type() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_has_type(true);
 
-        v.set_has_type(true);
         assert_eq!(v.options, xmp_prop::HAS_TYPE);
     }
 
     #[test]
     fn set_is_struct() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_struct(true);
 
-        v.set_is_struct(true);
         assert_eq!(v.options, xmp_prop::VALUE_IS_STRUCT);
     }
 
     #[test]
     fn set_is_array() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_array(true);
 
-        v.set_is_array(true);
         assert_eq!(v.options, xmp_prop::VALUE_IS_ARRAY);
     }
 
     #[test]
     fn set_is_ordered() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_ordered(true);
 
-        v.set_is_ordered(true);
         assert_eq!(v.options, xmp_prop::ARRAY_IS_ORDERED);
     }
 
     #[test]
     fn set_is_alternate() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_alternate(true);
 
-        v.set_is_alternate(true);
         assert_eq!(v.options, xmp_prop::ARRAY_IS_ALTERNATE);
     }
 
     #[test]
     fn set_is_alt_text() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_alt_text(true);
 
-        v.set_is_alt_text(true);
         assert_eq!(v.options, xmp_prop::ARRAY_IS_ALT_TEXT);
     }
 
     #[test]
     fn set_is_alias() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_alias(true);
 
-        v.set_is_alias(true);
         assert_eq!(v.options, xmp_prop::IS_ALIAS);
     }
 
     #[test]
     fn set_has_aliases() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_has_aliases(true);
 
-        v.set_has_aliases(true);
         assert_eq!(v.options, xmp_prop::HAS_ALIASES);
     }
 
     #[test]
     fn set_is_internal() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_internal(true);
 
-        v.set_is_internal(true);
         assert_eq!(v.options, xmp_prop::IS_INTERNAL);
     }
 
     #[test]
     fn set_is_stable() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_stable(true);
 
-        v.set_is_stable(true);
         assert_eq!(v.options, xmp_prop::IS_STABLE);
     }
 
     #[test]
     fn set_is_derived() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: 0,
-        };
+        }
+        .set_is_derived(true);
 
-        v.set_is_derived(true);
         assert_eq!(v.options, xmp_prop::IS_DERIVED);
     }
 
     #[test]
     fn set_doesnt_affect_other_flags() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::VALUE_IS_URI,
-        };
+        }
+        .set_is_derived(true);
 
-        v.set_is_derived(true);
         assert_eq!(v.options, xmp_prop::VALUE_IS_URI | xmp_prop::IS_DERIVED);
     }
 
     #[test]
     fn clear_is_uri() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::VALUE_IS_URI,
-        };
+        }
+        .set_is_uri(false);
 
-        v.set_is_uri(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_has_qualifiers() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::HAS_QUALIFIERS,
-        };
+        }
+        .set_has_qualifiers(false);
 
-        v.set_has_qualifiers(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_qualifier() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::IS_QUALIFIER,
-        };
+        }
+        .set_is_qualifier(false);
 
-        v.set_is_qualifier(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_has_lang() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::HAS_LANG,
-        };
+        }
+        .set_has_lang(false);
 
-        v.set_has_lang(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_has_type() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::HAS_TYPE,
-        };
+        }
+        .set_has_type(false);
 
-        v.set_has_type(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_struct() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::VALUE_IS_STRUCT,
-        };
+        }
+        .set_is_struct(false);
 
-        v.set_is_struct(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_array() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::VALUE_IS_ARRAY,
-        };
+        }
+        .set_is_array(false);
 
-        v.set_is_array(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_ordered() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::ARRAY_IS_ORDERED,
-        };
+        }
+        .set_is_ordered(false);
 
-        v.set_is_ordered(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_alternate() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::ARRAY_IS_ALTERNATE,
-        };
+        }
+        .set_is_alternate(false);
 
-        v.set_is_alternate(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_alt_text() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::ARRAY_IS_ALT_TEXT,
-        };
+        }
+        .set_is_alt_text(false);
 
-        v.set_is_alt_text(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_alias() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::IS_ALIAS,
-        };
+        }
+        .set_is_alias(false);
 
-        v.set_is_alias(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_has_aliases() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::HAS_ALIASES,
-        };
+        }
+        .set_has_aliases(false);
 
-        v.set_has_aliases(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_internal() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::IS_INTERNAL,
-        };
+        }
+        .set_is_internal(false);
 
-        v.set_is_internal(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_stable() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::IS_STABLE,
-        };
+        }
+        .set_is_stable(false);
 
-        v.set_is_stable(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_is_derived() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::IS_DERIVED,
-        };
+        }
+        .set_is_derived(false);
 
-        v.set_is_derived(false);
         assert!(v.has_no_flags());
     }
 
     #[test]
     fn clear_doesnt_affect_other_flags() {
-        let mut v = XmpValue {
+        let v = XmpValue {
             value: "".to_owned(),
             options: xmp_prop::VALUE_IS_URI | xmp_prop::IS_DERIVED,
-        };
+        }
+        .set_is_derived(false);
 
-        v.set_is_derived(false);
         assert_eq!(v.options, xmp_prop::VALUE_IS_URI);
     }
 }

@@ -234,11 +234,12 @@ mod set_property {
 
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
-        let mut value = XmpValue::<String>::from("blah");
-        value.set_is_uri(true);
-
-        m.set_property("http://purl.org/dc/terms/", "provenance", &value)
-            .unwrap();
+        m.set_property(
+            "http://purl.org/dc/terms/",
+            "provenance",
+            &XmpValue::<String>::from("blah").set_is_uri(true),
+        )
+        .unwrap();
 
         assert_eq!(
             m.property("http://purl.org/dc/terms/", "provenance")
@@ -370,11 +371,12 @@ mod set_property_date {
             }),
         };
 
-        let mut value = XmpValue::from(updated_time);
-        value.set_is_uri(true);
-
-        m.set_property_date(xmp_ns::XMP, "MetadataDate", &value)
-            .unwrap();
+        m.set_property_date(
+            xmp_ns::XMP,
+            "MetadataDate",
+            &XmpValue::from(updated_time).set_is_uri(true),
+        )
+        .unwrap();
 
         assert_eq!(
             m.property(xmp_ns::XMP, "MetadataDate").unwrap(),

@@ -69,8 +69,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     ///
     /// This is flagged as "discouraged" in the C++ XMP Toolkit API
     /// documentation.
-    pub fn set_is_uri(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::VALUE_IS_URI);
+    pub fn set_is_uri(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::VALUE_IS_URI)
     }
 
     // --- options relating to qualifiers attached to a property ---
@@ -83,8 +83,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
 
     /// Set this flag if the property has qualifiers, such as `rdf:type`
     /// `xml:lang`.
-    pub fn set_has_qualifiers(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::HAS_QUALIFIERS);
+    pub fn set_has_qualifiers(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::HAS_QUALIFIERS)
     }
 
     /// Returns `true` if this property is a qualifier for some other property,
@@ -103,8 +103,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     /// Qualifiers can have arbitrary structure, and can themselves have
     /// qualifiers. If the qualifier itself has a structured value, this
     /// flag is only set for the top node of the qualifier's subtree.
-    pub fn set_is_qualifier(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::IS_QUALIFIER);
+    pub fn set_is_qualifier(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::IS_QUALIFIER)
     }
 
     /// Returns `true` if this property has an `xml:lang` qualifier.
@@ -117,8 +117,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     /// Set this flag if this property has an `xml:lang` qualifier.
     ///
     /// Implies `has_qualifiers` will also be true.
-    pub fn set_has_lang(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::HAS_LANG);
+    pub fn set_has_lang(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::HAS_LANG)
     }
 
     /// Returns `true` if this property has an `rdf:type` qualifier.
@@ -131,8 +131,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     /// Set this flag if this property has an `rdf:type` qualifier.
     ///
     /// Implies `has_qualifiers` will also be true.
-    pub fn set_has_type(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::HAS_TYPE);
+    pub fn set_has_type(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::HAS_TYPE)
     }
 
     // --- options relating to the data structure form ---
@@ -143,8 +143,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     }
 
     /// Set this flag if this value is a structure with nested fields.
-    pub fn set_is_struct(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::VALUE_IS_STRUCT);
+    pub fn set_is_struct(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::VALUE_IS_STRUCT)
     }
 
     /// Returns `true` if this value is an array (RDF alt/bag/seq).
@@ -159,8 +159,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     ///
     /// This may mean the array is ordered or unordered. Use the `is_ordered`
     /// query to discern between the two.
-    pub fn set_is_array(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::VALUE_IS_ARRAY);
+    pub fn set_is_array(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::VALUE_IS_ARRAY)
     }
 
     /// Returns `true` if the item order matters. In other words, this
@@ -175,8 +175,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     /// array has been serialized using an `rdf:Seq` container.
     ///
     /// Implies that `is_array` is also `true`.
-    pub fn set_is_ordered(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::ARRAY_IS_ORDERED);
+    pub fn set_is_ordered(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::ARRAY_IS_ORDERED)
     }
 
     /// Returns `true` if the items in this array are alternates. In other
@@ -191,8 +191,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     /// words, this array has been serialized using an `rdf:Alt` container.
     ///
     /// Implies that `is_array` and `is_ordered` are also `true`.
-    pub fn set_is_alternate(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::ARRAY_IS_ALTERNATE);
+    pub fn set_is_alternate(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::ARRAY_IS_ALTERNATE)
     }
 
     /// Returns `true` if items are localized text. Each array element will be
@@ -207,8 +207,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     /// a simple property with an `xml:lang` attribute.
     ///
     /// Implies `is_alternate` is also true.
-    pub fn set_is_alt_text(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::ARRAY_IS_ALT_TEXT);
+    pub fn set_is_alt_text(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::ARRAY_IS_ALT_TEXT)
     }
 
     // -- other miscellaneous options --
@@ -222,8 +222,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     }
 
     /// Set this flag if this property is an alias name for another property.
-    pub fn set_is_alias(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::IS_ALIAS);
+    pub fn set_is_alias(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::IS_ALIAS)
     }
 
     /// Returns `true` if this property is the base value (actual) for a set
@@ -237,8 +237,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
 
     /// Set this flag if this property is the base value (actual) for a set
     /// of aliases.
-    pub fn set_has_aliases(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::HAS_ALIASES);
+    pub fn set_has_aliases(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::HAS_ALIASES)
     }
 
     /// Returns `true` if this property is "owned" by the application,
@@ -249,8 +249,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
 
     /// Set this flag if this property is "owned" by the application,
     /// and should not generally be editable in a UI.
-    pub fn set_is_internal(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::IS_INTERNAL);
+    pub fn set_is_internal(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::IS_INTERNAL)
     }
 
     /// Returns `true` if the value of this property is not derived from
@@ -261,8 +261,8 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
 
     /// Set this flag if the value of this property is not derived from
     /// the document content.
-    pub fn set_is_stable(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::IS_STABLE);
+    pub fn set_is_stable(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::IS_STABLE)
     }
 
     /// Returns `true` if the value of this property is derived from the
@@ -273,16 +273,18 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
 
     /// Set this flag if the value of this property is derived from the
     /// document content.
-    pub fn set_is_derived(&mut self, value: bool) {
-        self.set_flag(value, xmp_prop::IS_DERIVED);
+    pub fn set_is_derived(self, value: bool) -> Self {
+        self.set_flag(value, xmp_prop::IS_DERIVED)
     }
 
-    fn set_flag(&mut self, value: bool, prop_constant: u32) {
+    fn set_flag(mut self, value: bool, prop_constant: u32) -> Self {
         if value {
             self.options |= prop_constant;
         } else {
             self.options &= !prop_constant;
         }
+
+        self
     }
 }
 
