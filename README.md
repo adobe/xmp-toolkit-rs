@@ -53,8 +53,8 @@ xmp_toolkit = "0.5.3"
 
 ### Upgrading to 0.6 from earlier versions
 
-The `XmpDateTime` struct has been meaningfully implemented, meaning is has changed
-from an opaque type to one containing the date, time, and time zone values as
+The `XmpDateTime` struct has been meaningfully implemented, meaning it has changed
+from an opaque type to a struct containing the date, time, and time zone values as
 present in the C++ toolkit.
 
 The `XmpMeta::property` method has been changed to return `Option<XmpValue<String>>`
