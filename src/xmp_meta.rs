@@ -197,7 +197,7 @@ impl XmpMeta {
     }
 
     /// Creates or sets a property value using an [`XmpDateTime`] structure.
-    /// 
+    ///
     /// Since XMP only stores strings, the date/time will be converted to
     /// ISO 8601 format as part of this operation.
     ///
