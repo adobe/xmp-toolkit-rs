@@ -214,7 +214,7 @@ impl XmpMeta {
         &mut self,
         schema_ns: &str,
         prop_name: &str,
-        prop_value: &XmpDateTime,
+        prop_value: &XmpValue<XmpDateTime>,
     ) -> XmpResult<()> {
         let c_ns = CString::new(schema_ns)?;
         let c_name = CString::new(prop_name)?;
@@ -226,7 +226,8 @@ impl XmpMeta {
                 &mut err,
                 c_ns.as_ptr(),
                 c_name.as_ptr(),
-                &prop_value.as_ffi(),
+                &prop_value.value.as_ffi(),
+                prop_value.options,
             );
         }
 

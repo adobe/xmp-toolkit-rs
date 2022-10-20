@@ -311,17 +311,78 @@ mod does_property_exist {
 }
 
 mod set_property_date {
-    use crate::{tests::fixtures::*, xmp_ns, XmpDateTime, XmpErrorType, XmpMeta};
+    use crate::{
+        tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, XmpDate, XmpDateTime, XmpErrorType,
+        XmpMeta, XmpTime, XmpTimeZone, XmpValue,
+    };
 
     #[test]
     fn happy_path() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        let updated_time = XmpDateTime::current().unwrap();
+        let updated_time = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: Some(XmpTime {
+                hour: 20,
+                minute: 48,
+                second: 4,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone {
+                    hour: -7,
+                    minute: 0,
+                }),
+            }),
+        };
 
-        m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time)
+        m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time.into())
             .unwrap();
 
-        // TODO: Read date back when we can.
+        assert_eq!(
+            m.property(xmp_ns::XMP, "MetadataDate").unwrap(),
+            XmpValue {
+                value: "2022-10-19T20:48:04.000000042-07:00".to_owned(),
+                options: 0
+            }
+        );
+    }
+
+    #[test]
+    fn options() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        let updated_time = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: Some(XmpTime {
+                hour: 20,
+                minute: 48,
+                second: 4,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone {
+                    hour: -7,
+                    minute: 0,
+                }),
+            }),
+        };
+
+        let mut value = XmpValue::from(updated_time);
+        value.set_is_uri(true);
+
+        m.set_property_date(xmp_ns::XMP, "MetadataDate", &value)
+            .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::XMP, "MetadataDate").unwrap(),
+            XmpValue {
+                value: "2022-10-19T20:48:04.000000042-07:00".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            }
+        );
     }
 
     #[test]
@@ -330,7 +391,7 @@ mod set_property_date {
         let updated_time = XmpDateTime::current().unwrap();
 
         let err = m
-            .set_property_date("", "MetadataDate", &updated_time)
+            .set_property_date("", "MetadataDate", &updated_time.into())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::BadSchema);
@@ -343,7 +404,7 @@ mod set_property_date {
         let updated_time = XmpDateTime::current().unwrap();
 
         let err = m
-            .set_property_date("x\0x", "MetadataDate", &updated_time)
+            .set_property_date("x\0x", "MetadataDate", &updated_time.into())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NulInRustString);

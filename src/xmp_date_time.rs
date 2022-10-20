@@ -27,7 +27,7 @@ use crate::{ffi, XmpError, XmpResult};
 /// is _similar_ to this struct. We chose not to use that in the
 /// Rust XMP Toolkit in order to provide a more precise mapping
 /// to the API provided by the underlying C++ XMP Toolkit.
-#[derive(Default, Debug, Eq, PartialEq)]
+#[derive(Clone, Default, Debug, Eq, PartialEq)]
 pub struct XmpDateTime {
     /// The date, if known.
     pub date: Option<XmpDate>,
@@ -37,7 +37,7 @@ pub struct XmpDateTime {
 }
 
 /// The date portion of [`XmpDateTime`].
-#[derive(Default, Debug, Eq, PartialEq)]
+#[derive(Clone, Default, Debug, Eq, PartialEq)]
 pub struct XmpDate {
     /// The year, can be negative.
     pub year: i32,
@@ -50,7 +50,7 @@ pub struct XmpDate {
 }
 
 /// The time portion of [`XmpDateTime`].
-#[derive(Default, Debug, Eq, PartialEq)]
+#[derive(Clone, Default, Debug, Eq, PartialEq)]
 pub struct XmpTime {
     /// The hour in the range 0..23.
     pub hour: i32,
@@ -69,7 +69,7 @@ pub struct XmpTime {
 }
 
 /// The time zone portion of [`XmpTime`].
-#[derive(Default, Debug, Eq, PartialEq)]
+#[derive(Clone, Default, Debug, Eq, PartialEq)]
 pub struct XmpTimeZone {
     /// The time zone hour in the range -23..+23.
     /// Negative numbers are west of UTC; positive numbers are east.
