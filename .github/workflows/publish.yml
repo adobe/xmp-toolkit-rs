@@ -89,7 +89,7 @@ jobs:
     - name: Ensure semantic versioning requirements are met
       uses: obi1kenobi/cargo-semver-checks-action@v1
       with:
-        crate-name: c2pa
+        crate-name: xmp_toolkit
 
     - name: Create release
       uses: ncipollo/release-action@v1
