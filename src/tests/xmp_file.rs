@@ -33,7 +33,7 @@ fn open_and_edit_file() {
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
         let mut m = f.xmp().unwrap();
-        m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
+        m.set_property("http://purl.org/dc/terms/", "provenance", &"blah".into())
             .unwrap();
 
         assert!(m.does_property_exist("http://purl.org/dc/terms/", "provenance"));
@@ -140,7 +140,7 @@ mod can_put_xmp {
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
         let mut m = XmpMeta::new().unwrap();
-        m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
+        m.set_property("http://purl.org/dc/terms/", "provenance", &"blah".into())
             .unwrap();
 
         assert!(!f.can_put_xmp(&m));
@@ -165,7 +165,7 @@ mod put_xmp {
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
         let mut m = XmpMeta::new().unwrap();
-        m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
+        m.set_property("http://purl.org/dc/terms/", "provenance", &"blah".into())
             .unwrap();
 
         let err = f.put_xmp(&m).unwrap_err();

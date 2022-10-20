@@ -106,6 +106,7 @@ extern "C" {
         schema_ns: *const c_char,
         prop_name: *const c_char,
         prop_value: *const c_char,
+        options: u32,
     );
 
     pub(crate) fn CXmpMetaDoesPropertyExist(

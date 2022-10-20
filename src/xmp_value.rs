@@ -291,3 +291,12 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> From<T> for XmpValue<T> {
         Self { value, options: 0 }
     }
 }
+
+impl From<&str> for XmpValue<String> {
+    fn from(value: &str) -> Self {
+        Self {
+            value: value.to_owned(),
+            options: 0,
+        }
+    }
+}

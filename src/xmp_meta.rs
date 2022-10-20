@@ -175,11 +175,11 @@ impl XmpMeta {
         &mut self,
         schema_ns: &str,
         prop_name: &str,
-        prop_value: &str,
+        prop_value: &XmpValue<String>,
     ) -> XmpResult<()> {
         let c_ns = CString::new(schema_ns)?;
         let c_name = CString::new(prop_name)?;
-        let c_value = CString::new(prop_value)?;
+        let c_value = CString::new(prop_value.value.as_bytes())?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
@@ -189,6 +189,7 @@ impl XmpMeta {
                 c_ns.as_ptr(),
                 c_name.as_ptr(),
                 c_value.as_ptr(),
+                prop_value.options,
             );
         }
 

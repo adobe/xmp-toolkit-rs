@@ -207,7 +207,7 @@ mod property {
 }
 
 mod set_property {
-    use crate::{tests::fixtures::*, XmpErrorType, XmpMeta, XmpValue};
+    use crate::{tests::fixtures::*, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
 
     #[test]
     fn happy_path() {
@@ -215,7 +215,7 @@ mod set_property {
 
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
-        m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
+        m.set_property("http://purl.org/dc/terms/", "provenance", &"blah".into())
             .unwrap();
 
         assert_eq!(
@@ -229,13 +229,35 @@ mod set_property {
     }
 
     #[test]
+    fn options() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        let mut value = XmpValue::<String>::from("blah");
+        value.set_is_uri(true);
+
+        m.set_property("http://purl.org/dc/terms/", "provenance", &value)
+            .unwrap();
+
+        assert_eq!(
+            m.property("http://purl.org/dc/terms/", "provenance")
+                .unwrap(),
+            XmpValue {
+                value: "blah".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            }
+        );
+    }
+
+    #[test]
     fn error_empty_name() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
 
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
         let err = m
-            .set_property("http://purl.org/dc/terms/", "", "blah")
+            .set_property("http://purl.org/dc/terms/", "", &"blah".into())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::BadXPath);
@@ -249,7 +271,7 @@ mod set_property {
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
         let err = m
-            .set_property("http://purl.org/dc/terms/", "x\0x", "blah")
+            .set_property("http://purl.org/dc/terms/", "x\0x", &"blah".into())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NulInRustString);
