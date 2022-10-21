@@ -1,6 +1,6 @@
 [package]
 name = "xmp_toolkit"
-version = "0.5.3"
+version = "0.6.0"
 description = "Rust-language bindings for Adobe's XMP Toolkit"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/adobe/xmp-toolkit-rs"
@@ -21,6 +21,10 @@ exclude = [
     "external/xmp_toolkit/third-party/expat/lib",    
     "external/xmp_toolkit/XMPFilesPlugins/PDF_Handler",
 ]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
 num_enum = "0.5.7"

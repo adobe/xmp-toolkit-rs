@@ -6,6 +6,17 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.6.0
+_20 October 2022_
+
+* (MINOR) `XmpMeta::set_property` can now pass `XmpValue` options ([#88](https://github.com/adobe/xmp-toolkit-rs/pull/88))
+* Add options for setting flags on `XmpValue` ([#87](https://github.com/adobe/xmp-toolkit-rs/pull/87))
+* (MINOR) Rework `XmpDateTime` as a non-opaque type ([#86](https://github.com/adobe/xmp-toolkit-rs/pull/86))
+* (MINOR) Refactor how property values are returned from accessor functions ([#81](https://github.com/adobe/xmp-toolkit-rs/pull/81))
+* Add new API `XmpIter::array_property` ([#78](https://github.com/adobe/xmp-toolkit-rs/pull/78))
+* Add new API function `XmpMeta::from_str` ([#77](https://github.com/adobe/xmp-toolkit-rs/pull/77))
+* (MINOR) Bump MSRV to 1.56 ([#75](https://github.com/adobe/xmp-toolkit-rs/pull/75))
+
 ## 0.5.3
 _20 July 2022_
 

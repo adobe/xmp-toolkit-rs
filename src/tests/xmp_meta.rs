@@ -206,8 +206,295 @@ mod property {
     }
 }
 
+mod property_bool {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_bool(xmp_ns::XMP_RIGHTS, "Marked"),
+            Some(XmpValue {
+                value: false,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn unrecognizable_as_bool() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn value_1_is_true() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_bool(xmp_ns::TIFF, "Orientation"),
+            Some(XmpValue {
+                value: true,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod property_i32 {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_i32(xmp_ns::EXIF, "PixelXDimension"),
+            Some(XmpValue {
+                value: 200,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn unrecognizable_as_int() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn bool_value() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32(xmp_ns::XMP_RIGHTS, "Marked"), None);
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod property_i64 {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_i64(xmp_ns::EXIF, "PixelXDimension"),
+            Some(XmpValue {
+                value: 200,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn unrecognizable_as_int() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn bool_value() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64(xmp_ns::XMP_RIGHTS, "Marked"), None);
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod property_f64 {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_f64(xmp_ns::EXIF, "PixelXDimension"),
+            Some(XmpValue {
+                value: 200.0,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn ratio() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::TIFF, "XResolution"), None);
+    }
+
+    #[test]
+    fn unrecognizable_as_float() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn bool_value() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::XMP_RIGHTS, "Marked"), None);
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod property_date {
+    use crate::{
+        tests::fixtures::*, xmp_ns, XmpDate, XmpDateTime, XmpMeta, XmpTime, XmpTimeZone, XmpValue,
+    };
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_date(xmp_ns::XMP, "ModifyDate"),
+            Some(XmpValue {
+                value: XmpDateTime {
+                    date: Some(XmpDate {
+                        year: 2006,
+                        month: 4,
+                        day: 27
+                    }),
+                    time: Some(XmpTime {
+                        hour: 15,
+                        minute: 38,
+                        second: 36,
+                        nanosecond: 655000000,
+                        time_zone: Some(XmpTimeZone { hour: 2, minute: 0 }),
+                    })
+                },
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn unrecognizable_as_date() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn bool_value() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date(xmp_ns::XMP_RIGHTS, "Marked"), None);
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date(xmp_ns::XMP, "\0"), None);
+    }
+}
+
 mod set_property {
-    use crate::{tests::fixtures::*, XmpErrorType, XmpMeta, XmpValue};
+    use crate::{tests::fixtures::*, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
 
     #[test]
     fn happy_path() {
@@ -215,7 +502,7 @@ mod set_property {
 
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
-        m.set_property("http://purl.org/dc/terms/", "provenance", "blah")
+        m.set_property("http://purl.org/dc/terms/", "provenance", &"blah".into())
             .unwrap();
 
         assert_eq!(
@@ -229,13 +516,36 @@ mod set_property {
     }
 
     #[test]
+    fn options() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        m.set_property(
+            "http://purl.org/dc/terms/",
+            "provenance",
+            &XmpValue::<String>::from("blah").set_is_uri(true),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.property("http://purl.org/dc/terms/", "provenance")
+                .unwrap(),
+            XmpValue {
+                value: "blah".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            }
+        );
+    }
+
+    #[test]
     fn error_empty_name() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
 
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
         let err = m
-            .set_property("http://purl.org/dc/terms/", "", "blah")
+            .set_property("http://purl.org/dc/terms/", "", &"blah".into())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::BadXPath);
@@ -249,7 +559,7 @@ mod set_property {
         XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
 
         let err = m
-            .set_property("http://purl.org/dc/terms/", "x\0x", "blah")
+            .set_property("http://purl.org/dc/terms/", "x\0x", &"blah".into())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NulInRustString);
@@ -289,17 +599,79 @@ mod does_property_exist {
 }
 
 mod set_property_date {
-    use crate::{tests::fixtures::*, xmp_ns, XmpDateTime, XmpErrorType, XmpMeta};
+    use crate::{
+        tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, XmpDate, XmpDateTime, XmpErrorType,
+        XmpMeta, XmpTime, XmpTimeZone, XmpValue,
+    };
 
     #[test]
     fn happy_path() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        let updated_time = XmpDateTime::current().unwrap();
+        let updated_time = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: Some(XmpTime {
+                hour: 20,
+                minute: 48,
+                second: 4,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone {
+                    hour: -7,
+                    minute: 0,
+                }),
+            }),
+        };
 
-        m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time)
+        m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time.into())
             .unwrap();
 
-        // TODO: Read date back when we can.
+        assert_eq!(
+            m.property(xmp_ns::XMP, "MetadataDate").unwrap(),
+            XmpValue {
+                value: "2022-10-19T20:48:04.000000042-07:00".to_owned(),
+                options: 0
+            }
+        );
+    }
+
+    #[test]
+    fn options() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        let updated_time = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: Some(XmpTime {
+                hour: 20,
+                minute: 48,
+                second: 4,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone {
+                    hour: -7,
+                    minute: 0,
+                }),
+            }),
+        };
+
+        m.set_property_date(
+            xmp_ns::XMP,
+            "MetadataDate",
+            &XmpValue::from(updated_time).set_is_uri(true),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::XMP, "MetadataDate").unwrap(),
+            XmpValue {
+                value: "2022-10-19T20:48:04.000000042-07:00".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            }
+        );
     }
 
     #[test]
@@ -308,7 +680,7 @@ mod set_property_date {
         let updated_time = XmpDateTime::current().unwrap();
 
         let err = m
-            .set_property_date("", "MetadataDate", &updated_time)
+            .set_property_date("", "MetadataDate", &updated_time.into())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::BadSchema);
@@ -321,7 +693,7 @@ mod set_property_date {
         let updated_time = XmpDateTime::current().unwrap();
 
         let err = m
-            .set_property_date("x\0x", "MetadataDate", &updated_time)
+            .set_property_date("x\0x", "MetadataDate", &updated_time.into())
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NulInRustString);

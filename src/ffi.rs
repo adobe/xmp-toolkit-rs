@@ -30,7 +30,24 @@ impl Default for CXmpError {
     }
 }
 
-pub(crate) enum CXmpDateTime {}
+#[derive(Debug, Default, Eq, PartialEq)]
+#[repr(C)]
+pub(crate) struct CXmpDateTime {
+    pub(crate) year: i32,
+    pub(crate) month: i32,
+    pub(crate) day: i32,
+    pub(crate) hour: i32,
+    pub(crate) minute: i32,
+    pub(crate) second: i32,
+    pub(crate) has_date: bool,
+    pub(crate) has_time: bool,
+    pub(crate) has_time_zone: bool,
+    pub(crate) tz_sign: i8,
+    pub(crate) tz_hour: i32,
+    pub(crate) tz_minute: i32,
+    pub(crate) nanosecond: i32,
+}
+
 pub(crate) enum CXmpFile {}
 pub(crate) enum CXmpMeta {}
 
@@ -83,12 +100,58 @@ extern "C" {
         out_options: *mut u32,
     ) -> *mut c_char;
 
+    pub(crate) fn CXmpMetaGetProperty_Bool(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut bool,
+        out_options: *mut u32,
+    ) -> bool;
+
+    pub(crate) fn CXmpMetaGetProperty_Int(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut i32,
+        out_options: *mut u32,
+    ) -> bool;
+
+    pub(crate) fn CXmpMetaGetProperty_Int64(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut i64,
+        out_options: *mut u32,
+    ) -> bool;
+
+    pub(crate) fn CXmpMetaGetProperty_Float(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut f64,
+        out_options: *mut u32,
+    ) -> bool;
+
+    pub(crate) fn CXmpMetaGetProperty_Date(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut CXmpDateTime,
+        out_options: *mut u32,
+    ) -> bool;
+
     pub(crate) fn CXmpMetaSetProperty(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,
         schema_ns: *const c_char,
         prop_name: *const c_char,
         prop_value: *const c_char,
+        options: u32,
     );
 
     pub(crate) fn CXmpMetaDoesPropertyExist(
@@ -103,6 +166,7 @@ extern "C" {
         schema_ns: *const c_char,
         prop_name: *const c_char,
         prop_value: *const CXmpDateTime,
+        options: u32,
     );
 
     pub(crate) fn CXmpMetaGetArrayItem(
@@ -116,7 +180,5 @@ extern "C" {
 
     // --- CXmpDateTime ---
 
-    pub(crate) fn CXmpDateTimeNew() -> *mut CXmpDateTime;
-    pub(crate) fn CXmpDateTimeDrop(dt: *mut CXmpDateTime);
-    pub(crate) fn CXmpDateTimeCurrent(out_error: *mut CXmpError) -> *mut CXmpDateTime;
+    pub(crate) fn CXmpDateTimeCurrent(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
 }

@@ -134,14 +134,6 @@ extern "C" {
         #endif
     } CXmpMeta;
 
-    typedef struct CXmpDateTime {
-        #ifdef NOOP_FFI
-            int x;
-        #else
-            XMP_DateTime dt;
-        #endif
-    } CXmpDateTime;
-
     // --- CXmpFile ---
 
     CXmpFile* CXmpFileNew(CXmpError* outError) {
@@ -350,17 +342,145 @@ extern "C" {
         return NULL;
     }
 
+    bool CXmpMetaGetProperty_Bool(CXmpMeta* m,
+                                  CXmpError* outError,
+                                  const char* schemaNS,
+                                  const char* propName,
+                                  bool* outValue,
+                                  AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Bool(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+    
+	bool CXmpMetaGetProperty_Int(CXmpMeta* m,
+                                 CXmpError* outError,
+                                 const char* schemaNS,
+                                 const char* propName,
+                                 AdobeXMPCommon::int32* outValue,
+                                 AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Int(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+
+	bool CXmpMetaGetProperty_Int64(CXmpMeta* m,
+                                   CXmpError* outError,
+                                   const char* schemaNS,
+                                   const char* propName,
+                                   AdobeXMPCommon::int64* outValue,
+                                   AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Int64(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+
+	bool CXmpMetaGetProperty_Float(CXmpMeta* m,
+                                   CXmpError* outError,
+                                   const char* schemaNS,
+                                   const char* propName,
+                                   double* outValue,
+                                   AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Float(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+    
+    bool CXmpMetaGetProperty_Date(CXmpMeta* m,
+                                  CXmpError* outError,
+                                  const char* schemaNS,
+                                  const char* propName,
+                                  XMP_DateTime* outValue,
+                                  AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Date(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+
     void CXmpMetaSetProperty(CXmpMeta* m,
                              CXmpError* outError,
                              const char* schemaNS,
                              const char* propName,
-                             const char* propValue) {
+                             const char* propValue,
+                             AdobeXMPCommon::uint32 options) {
         #ifndef NOOP_FFI
-            // TO DO: Bridge options parameter.
-            // For my purposes at the moment,
-            // default value (0) always suffices.
             try {
-                m->m.SetProperty(schemaNS, propName, propValue);
+                m->m.SetProperty(schemaNS, propName, propValue, options);
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
@@ -390,13 +510,11 @@ extern "C" {
                                  CXmpError* outError,
                                  const char* schemaNS,
                                  const char* propName,
-                                 const CXmpDateTime* propValue) {
+                                 const XMP_DateTime* propValue,
+                                 AdobeXMPCommon::uint32 options) {
         #ifndef NOOP_FFI
-            // TO DO: Bridge options parameter.
-            // For my purposes at the moment,
-            // default value (0) always suffices.
             try {
-                m->m.SetProperty_Date(schemaNS, propName, propValue->dt);
+                m->m.SetProperty_Date(schemaNS, propName, *propValue, options);
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
@@ -440,27 +558,12 @@ extern "C" {
 
     // --- CXmpDateTime ---
 
-    CXmpDateTime* CXmpDateTimeNew() {
-        // As of this writing (2022-07-09,
-        // https://github.com/adobe/XMP-Toolkit-SDK/blob/337c052b059640e243dbd6646b9462edaf6038c1/public/include/XMP_Const.h#L230),
-        // XMP_DateTime does not throw on construction.
-        return new CXmpDateTime;
-    }
-
-    void CXmpDateTimeDrop(CXmpDateTime* dt) {
-        // As of this writing (2022-07-09,
-        // https://github.com/adobe/XMP-Toolkit-SDK/blob/337c052b059640e243dbd6646b9462edaf6038c1/public/include/XMP_Const.h#L230),
-        // XMP_DateTime does not have a destructor and its member types are simple,
-        // so it does not throw on destruction.
-        delete dt;
-    }
-
-    CXmpDateTime* CXmpDateTimeCurrent(CXmpError* outError) {
+    void CXmpDateTimeCurrent(XMP_DateTime* dt, CXmpError* outError) {
         #ifndef NOOP_FFI
             try {
-                CXmpDateTime* dt = new CXmpDateTime;
-                SXMPUtils::CurrentDateTime(&dt->dt);
-                return dt;
+                if (dt) {
+                    SXMPUtils::CurrentDateTime(dt);
+                }
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
@@ -469,7 +572,5 @@ extern "C" {
                 signalUnknownError(outError);
             }
         #endif
-
-        return NULL;
     }
 }
