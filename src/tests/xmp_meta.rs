@@ -570,31 +570,269 @@ mod set_property {
     }
 }
 
-mod does_property_exist {
-    use crate::{tests::fixtures::*, xmp_ns, XmpMeta};
+mod set_property_bool {
+    use crate::{tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
 
     #[test]
-    fn exists() {
-        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert!(m.does_property_exist(xmp_ns::XMP, "CreatorTool"));
+    fn happy_path() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        m.set_property_bool(xmp_ns::XMP_RIGHTS, "Marked", &true.into())
+            .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::XMP_RIGHTS, "Marked").unwrap(),
+            XmpValue {
+                value: "True".to_owned(),
+                options: 0
+            }
+        );
     }
 
     #[test]
-    fn doesnt_exist() {
-        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert!(!m.does_property_exist(xmp_ns::XMP, "RandomProperty"));
+    fn options() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        m.set_property_bool(
+            xmp_ns::XMP_RIGHTS,
+            "Marked",
+            &XmpValue::from(true).set_is_uri(true),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::XMP_RIGHTS, "Marked").unwrap(),
+            XmpValue {
+                value: "True".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            }
+        );
     }
 
     #[test]
-    fn empty_namespace() {
-        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert!(!m.does_property_exist("", "CreatorTool"));
+    fn error_empty_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        let err = m.set_property_bool("", "Marked", &true.into()).unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadSchema);
+        assert_eq!(err.debug_message, "Empty schema namespace URI");
     }
 
     #[test]
-    fn empty_prop_name() {
-        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert!(!m.does_property_exist(xmp_ns::XMP, ""));
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        let err = m
+            .set_property_bool("x\0x", "Marked", &true.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
+    }
+}
+
+mod set_property_i32 {
+    use crate::{tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        m.set_property_i32(xmp_ns::EXIF, "PixelXDimension", &225.into())
+            .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::EXIF, "PixelXDimension").unwrap(),
+            XmpValue {
+                value: "225".to_owned(),
+                options: 0
+            }
+        );
+    }
+
+    #[test]
+    fn options() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        m.set_property_i32(
+            xmp_ns::EXIF,
+            "PixelXDimension",
+            &XmpValue::from(225).set_is_uri(true),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::EXIF, "PixelXDimension").unwrap(),
+            XmpValue {
+                value: "225".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            }
+        );
+    }
+
+    #[test]
+    fn error_empty_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        let err = m
+            .set_property_i32("", "PixelXDimension", &225.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadSchema);
+        assert_eq!(err.debug_message, "Empty schema namespace URI");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        let err = m
+            .set_property_i32("x\0x", "PixelXDimension", &225.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
+    }
+}
+
+mod set_property_i64 {
+    use crate::{tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        m.set_property_i64(xmp_ns::EXIF, "PixelXDimension", &225.into())
+            .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::EXIF, "PixelXDimension").unwrap(),
+            XmpValue {
+                value: "225".to_owned(),
+                options: 0
+            }
+        );
+    }
+
+    #[test]
+    fn options() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        m.set_property_i64(
+            xmp_ns::EXIF,
+            "PixelXDimension",
+            &XmpValue::from(225).set_is_uri(true),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::EXIF, "PixelXDimension").unwrap(),
+            XmpValue {
+                value: "225".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            }
+        );
+    }
+
+    #[test]
+    fn error_empty_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        let err = m
+            .set_property_i64("", "PixelXDimension", &225.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadSchema);
+        assert_eq!(err.debug_message, "Empty schema namespace URI");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        let err = m
+            .set_property_i64("x\0x", "PixelXDimension", &225.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
+    }
+}
+
+mod set_property_f64 {
+    use crate::{tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        m.set_property_f64(xmp_ns::EXIF, "PixelXDimension", &225.7.into())
+            .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::EXIF, "PixelXDimension").unwrap(),
+            XmpValue {
+                value: "225.700000".to_owned(),
+                options: 0
+            }
+        );
+    }
+
+    #[test]
+    fn options() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        m.set_property_f64(
+            xmp_ns::EXIF,
+            "PixelXDimension",
+            &XmpValue::from(225.7).set_is_uri(true),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::EXIF, "PixelXDimension").unwrap(),
+            XmpValue {
+                value: "225.700000".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            }
+        );
+    }
+
+    #[test]
+    fn error_empty_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        let err = m
+            .set_property_f64("", "PixelXDimension", &225.7.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadSchema);
+        assert_eq!(err.debug_message, "Empty schema namespace URI");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        let err = m
+            .set_property_f64("x\0x", "PixelXDimension", &225.7.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
     }
 }
 
@@ -701,6 +939,34 @@ mod set_property_date {
             err.debug_message,
             "Unable to convert to C string because a NUL byte was found"
         );
+    }
+}
+
+mod does_property_exist {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta};
+
+    #[test]
+    fn exists() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert!(m.does_property_exist(xmp_ns::XMP, "CreatorTool"));
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert!(!m.does_property_exist(xmp_ns::XMP, "RandomProperty"));
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert!(!m.does_property_exist("", "CreatorTool"));
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert!(!m.does_property_exist(xmp_ns::XMP, ""));
     }
 }
 
