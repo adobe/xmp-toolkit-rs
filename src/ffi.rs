@@ -100,6 +100,51 @@ extern "C" {
         out_options: *mut u32,
     ) -> *mut c_char;
 
+    pub(crate) fn CXmpMetaGetProperty_Bool(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut bool,
+        out_options: *mut u32,
+    ) -> bool;
+
+    pub(crate) fn CXmpMetaGetProperty_Int(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut i32,
+        out_options: *mut u32,
+    ) -> bool;
+
+    pub(crate) fn CXmpMetaGetProperty_Int64(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut i64,
+        out_options: *mut u32,
+    ) -> bool;
+
+    pub(crate) fn CXmpMetaGetProperty_Float(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut f64,
+        out_options: *mut u32,
+    ) -> bool;
+
+    pub(crate) fn CXmpMetaGetProperty_Date(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        out_value: *mut CXmpDateTime,
+        out_options: *mut u32,
+    ) -> bool;
+
     pub(crate) fn CXmpMetaSetProperty(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,
