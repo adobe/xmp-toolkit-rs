@@ -36,10 +36,10 @@ fn open_and_edit_file() {
         m.set_property("http://purl.org/dc/terms/", "provenance", &"blah".into())
             .unwrap();
 
-        assert!(m.does_property_exist("http://purl.org/dc/terms/", "provenance"));
-        assert!(!m.does_property_exist("http://purl.org/dc/terms/", "provenancx"));
+        assert!(m.contains_property("http://purl.org/dc/terms/", "provenance"));
+        assert!(!m.contains_property("http://purl.org/dc/terms/", "provenancx"));
 
-        if m.does_property_exist(xmp_ns::XMP, "MetadataDate") {
+        if m.contains_property(xmp_ns::XMP, "MetadataDate") {
             let updated_time = XmpDateTime::current().unwrap();
             m.set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time.into())
                 .unwrap();
