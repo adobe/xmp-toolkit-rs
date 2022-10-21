@@ -16,7 +16,7 @@ use std::{convert::From, fmt::Debug};
 /// An XMP value consists describes a simple property or an item in an
 /// array property.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct XmpValue<T: Clone + Debug + Default + Eq + PartialEq> {
+pub struct XmpValue<T: Clone + Debug + Default + PartialEq> {
     /// Core value for this item (typically a `String` or scalar value).
     pub value: T,
 
@@ -43,7 +43,7 @@ pub(crate) mod xmp_prop {
     pub(crate) const IS_DERIVED: u32 = 0x00200000;
 }
 
-impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
+impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
     /// Creates a new value with default flags.
     pub fn new(value: T) -> Self {
         Self { value, options: 0 }
@@ -288,7 +288,7 @@ impl<T: Clone + Debug + Default + Eq + PartialEq> XmpValue<T> {
     }
 }
 
-impl<T: Clone + Debug + Default + Eq + PartialEq> From<T> for XmpValue<T> {
+impl<T: Clone + Debug + Default + PartialEq> From<T> for XmpValue<T> {
     fn from(value: T) -> Self {
         Self { value, options: 0 }
     }
