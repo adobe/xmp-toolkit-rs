@@ -157,6 +157,24 @@ impl XmpMeta {
         }
     }
 
+    /// Creates an iterator for an array property value.
+    ///
+    /// ## Arguments
+    ///
+    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
+    ///
+    /// * `prop_name`: The name of the property. Can be a general path
+    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
+    ///   for namespace prefix usage.
+    pub fn property_array(&self, schema_ns: &str, prop_name: &str) -> ArrayProperty {
+        ArrayProperty {
+            meta: self,
+            ns: CString::new(schema_ns).unwrap_or_default(),
+            name: CString::new(prop_name).unwrap_or_default(),
+            index: 1,
+        }
+    }
+
     /// Gets a simple property value and interprets it as a bool.
     ///
     /// ## Arguments
@@ -595,24 +613,6 @@ impl XmpMeta {
         XmpError::raise_from_c(&err)
     }
 
-    /// Creates an iterator for an array property value.
-    ///
-    /// ## Arguments
-    ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
-    pub fn array_property(&self, schema_ns: &str, prop_name: &str) -> ArrayProperty {
-        ArrayProperty {
-            meta: self,
-            ns: CString::new(schema_ns).unwrap_or_default(),
-            name: CString::new(prop_name).unwrap_or_default(),
-            index: 1,
-        }
-    }
-
     /// Reports whether a property currently exists.
     ///
     /// ## Arguments
@@ -659,7 +659,7 @@ impl FromStr for XmpMeta {
 
 /// An iterator that provides access to items within a property array.
 ///
-/// Create via [`XmpMeta::array_property`].
+/// Create via [`XmpMeta::property_array`].
 pub struct ArrayProperty<'a> {
     meta: &'a XmpMeta,
     ns: CString,
