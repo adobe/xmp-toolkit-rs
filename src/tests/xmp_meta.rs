@@ -166,6 +166,34 @@ mod register_namespace {
     }
 }
 
+mod contains_property {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta};
+
+    #[test]
+    fn exists() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert!(m.contains_property(xmp_ns::XMP, "CreatorTool"));
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert!(!m.contains_property(xmp_ns::XMP, "RandomProperty"));
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert!(!m.contains_property("", "CreatorTool"));
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert!(!m.contains_property(xmp_ns::XMP, ""));
+    }
+}
+
 mod property {
     use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
 
@@ -989,33 +1017,5 @@ mod set_property_date {
             err.debug_message,
             "Unable to convert to C string because a NUL byte was found"
         );
-    }
-}
-
-mod does_property_exist {
-    use crate::{tests::fixtures::*, xmp_ns, XmpMeta};
-
-    #[test]
-    fn exists() {
-        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert!(m.does_property_exist(xmp_ns::XMP, "CreatorTool"));
-    }
-
-    #[test]
-    fn doesnt_exist() {
-        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert!(!m.does_property_exist(xmp_ns::XMP, "RandomProperty"));
-    }
-
-    #[test]
-    fn empty_namespace() {
-        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert!(!m.does_property_exist("", "CreatorTool"));
-    }
-
-    #[test]
-    fn empty_prop_name() {
-        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
-        assert!(!m.does_property_exist(xmp_ns::XMP, ""));
     }
 }
