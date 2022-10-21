@@ -206,6 +206,293 @@ mod property {
     }
 }
 
+mod property_bool {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_bool(xmp_ns::XMP_RIGHTS, "Marked"),
+            Some(XmpValue {
+                value: false,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn unrecognizable_as_bool() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn value_1_is_true() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_bool(xmp_ns::TIFF, "Orientation"),
+            Some(XmpValue {
+                value: true,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_bool(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod property_i32 {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_i32(xmp_ns::EXIF, "PixelXDimension"),
+            Some(XmpValue {
+                value: 200,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn unrecognizable_as_int() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn bool_value() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32(xmp_ns::XMP_RIGHTS, "Marked"), None);
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i32(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod property_i64 {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_i64(xmp_ns::EXIF, "PixelXDimension"),
+            Some(XmpValue {
+                value: 200,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn unrecognizable_as_int() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn bool_value() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64(xmp_ns::XMP_RIGHTS, "Marked"), None);
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_i64(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod property_f64 {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_f64(xmp_ns::EXIF, "PixelXDimension"),
+            Some(XmpValue {
+                value: 200.0,
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn ratio() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::TIFF, "XResolution"), None);
+    }
+
+    #[test]
+    fn unrecognizable_as_float() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn bool_value() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::XMP_RIGHTS, "Marked"), None);
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_f64(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod property_date {
+    use crate::{
+        tests::fixtures::*, xmp_ns, XmpDate, XmpDateTime, XmpMeta, XmpTime, XmpTimeZone, XmpValue,
+    };
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(
+            m.property_date(xmp_ns::XMP, "ModifyDate"),
+            Some(XmpValue {
+                value: XmpDateTime {
+                    date: Some(XmpDate {
+                        year: 2006,
+                        month: 4,
+                        day: 27
+                    }),
+                    time: Some(XmpTime {
+                        hour: 15,
+                        minute: 38,
+                        second: 36,
+                        nanosecond: 655000000,
+                        time_zone: Some(XmpTimeZone { hour: 2, minute: 0 }),
+                    })
+                },
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn unrecognizable_as_date() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
+    fn bool_value() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date(xmp_ns::XMP_RIGHTS, "Marked"), None);
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date("", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date(xmp_ns::XMP, ""), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date("\0", "CreatorTool"), None);
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        assert_eq!(m.property_date(xmp_ns::XMP, "\0"), None);
+    }
+}
+
 mod set_property {
     use crate::{tests::fixtures::*, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
 

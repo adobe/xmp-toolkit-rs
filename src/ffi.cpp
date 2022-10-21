@@ -342,6 +342,136 @@ extern "C" {
         return NULL;
     }
 
+    bool CXmpMetaGetProperty_Bool(CXmpMeta* m,
+                                  CXmpError* outError,
+                                  const char* schemaNS,
+                                  const char* propName,
+                                  bool* outValue,
+                                  AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Bool(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+    
+	bool CXmpMetaGetProperty_Int(CXmpMeta* m,
+                                 CXmpError* outError,
+                                 const char* schemaNS,
+                                 const char* propName,
+                                 AdobeXMPCommon::int32* outValue,
+                                 AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Int(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+
+	bool CXmpMetaGetProperty_Int64(CXmpMeta* m,
+                                   CXmpError* outError,
+                                   const char* schemaNS,
+                                   const char* propName,
+                                   AdobeXMPCommon::int64* outValue,
+                                   AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Int64(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+
+	bool CXmpMetaGetProperty_Float(CXmpMeta* m,
+                                   CXmpError* outError,
+                                   const char* schemaNS,
+                                   const char* propName,
+                                   double* outValue,
+                                   AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Float(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+    
+    bool CXmpMetaGetProperty_Date(CXmpMeta* m,
+                                  CXmpError* outError,
+                                  const char* schemaNS,
+                                  const char* propName,
+                                  XMP_DateTime* outValue,
+                                  AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetProperty_Date(schemaNS, propName, outValue, outOptions)) {
+                    return true;
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+
     void CXmpMetaSetProperty(CXmpMeta* m,
                              CXmpError* outError,
                              const char* schemaNS,
