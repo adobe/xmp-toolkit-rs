@@ -77,7 +77,7 @@ fn read_xmp_from_file() -> Result<()> {
     }
 
     // Display the first element of the `creator` array.
-    if let Some(first_creator) = xmp.array_property(xmp_ns::DC, "creator").next() {
+    if let Some(first_creator) = xmp.property_array(xmp_ns::DC, "creator").next() {
         println!("dc:creator = {}", first_creator.value);
     } else {
         println!("No creator found");
@@ -86,7 +86,7 @@ fn read_xmp_from_file() -> Result<()> {
     // Display all elements in the `subject` property (which is an array).
     // Note that the C++ XMP Toolkit's indices are 1-based. This example's output
     // instead follows Rust's convention of being 0-based.
-    for (index, v) in xmp.array_property(xmp_ns::DC, "subject").enumerate() {
+    for (index, v) in xmp.property_array(xmp_ns::DC, "subject").enumerate() {
         println!("dc::subject[{}] = {}", index, v.value);
     }
 
