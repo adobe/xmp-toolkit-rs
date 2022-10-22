@@ -103,8 +103,14 @@ fn read_xmp_from_file() -> Result<()> {
     {
         println!("dc:title in French = {}", value.value);
     }
+    
+    // Get a date property; read the `MetadataDate` property if it exists. If so,
+    // convert the `XmpDateTime` into a string and display it.
+    if let Some(value) = xmp.property_date(xmp_ns::XMP, "MetadataDate") {
+        println!("meta:MetadataDate = {}", value.value);
+    }
 
-    // TODO: Continue from step 15 of C++ example.
+    // TODO: Continue from step 16 of C++ example.
 
     Ok(())
 }
