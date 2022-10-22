@@ -90,7 +90,21 @@ fn read_xmp_from_file() -> Result<()> {
         println!("dc::subject[{}] = {}", index, v.value);
     }
 
-    // TODO: Continue from step 13 of C++ example.
+    // Get a localized text item; display the `title` property in English.
+    if let Some((value, _actual_lang)) =
+        xmp.localized_text(xmp_ns::DC, "title", Some("en"), "en-US")
+    {
+        println!("dc:title in English = {}", value.value);
+    }
+
+    // Get a localized text item; display the `title` property in French.
+    if let Some((value, _actual_lang)) =
+        xmp.localized_text(xmp_ns::DC, "title", Some("fr"), "fr-FR")
+    {
+        println!("dc:title in French = {}", value.value);
+    }
+
+    // TODO: Continue from step 15 of C++ example.
 
     Ok(())
 }
