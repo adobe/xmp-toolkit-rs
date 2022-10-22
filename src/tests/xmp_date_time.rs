@@ -551,3 +551,178 @@ mod as_ffi {
         );
     }
 }
+
+mod fmt {
+    use crate::{XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
+
+    #[test]
+    fn fully_populated_west_of_utc() {
+        let dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: Some(XmpTime {
+                hour: 18,
+                minute: 9,
+                second: 20,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone {
+                    hour: -7,
+                    minute: 0,
+                }),
+            }),
+        };
+
+        assert_eq!(format!("{}", dt), "2022-10-19T18:09:20.000000042-07:00");
+    }
+
+    #[test]
+    fn fully_populated_east_of_utc() {
+        let dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: Some(XmpTime {
+                hour: 18,
+                minute: 9,
+                second: 20,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone {
+                    hour: 5,
+                    minute: 30,
+                }),
+            }),
+        };
+
+        assert_eq!(format!("{}", dt), "2022-10-19T18:09:20.000000042+05:30");
+    }
+
+    #[test]
+    fn fully_populated_utc() {
+        let dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: Some(XmpTime {
+                hour: 18,
+                minute: 9,
+                second: 20,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone { hour: 0, minute: 0 }),
+            }),
+        };
+
+        assert_eq!(format!("{}", dt), "2022-10-19T18:09:20.000000042Z");
+    }
+
+    #[test]
+    fn no_time_zone() {
+        let dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: Some(XmpTime {
+                hour: 18,
+                minute: 9,
+                second: 20,
+                nanosecond: 42,
+                time_zone: None,
+            }),
+        };
+
+        assert_eq!(format!("{}", dt), "2022-10-19T18:09:20.000000042");
+    }
+
+    #[test]
+    fn no_time() {
+        let dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: None,
+        };
+
+        assert_eq!(format!("{}", dt), "2022-10-19");
+    }
+
+    #[test]
+    fn no_time_year_after_10000() {
+        let dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 10203,
+                month: 10,
+                day: 19,
+            }),
+            time: None,
+        };
+
+        assert_eq!(format!("{}", dt), "10203-10-19");
+    }
+
+    #[test]
+    fn no_time_year_before_1000() {
+        let dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 981,
+                month: 10,
+                day: 19,
+            }),
+            time: None,
+        };
+
+        assert_eq!(format!("{}", dt), "0981-10-19");
+    }
+
+    #[test]
+    fn no_time_year_before_0() {
+        let dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: -542,
+                month: 10,
+                day: 19,
+            }),
+            time: None,
+        };
+
+        assert_eq!(format!("{}", dt), "-0542-10-19");
+    }
+
+    #[test]
+    fn no_date() {
+        let dt = XmpDateTime {
+            date: None,
+            time: Some(XmpTime {
+                hour: 18,
+                minute: 9,
+                second: 20,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone {
+                    hour: -7,
+                    minute: 0,
+                }),
+            }),
+        };
+
+        assert_eq!(format!("{}", dt), "0000-01-01T18:09:20.000000042-07:00");
+    }
+
+    #[test]
+    fn no_date_or_time() {
+        let dt = XmpDateTime {
+            date: None,
+            time: None,
+        };
+
+        assert_eq!(format!("{}", dt), "0000");
+    }
+}

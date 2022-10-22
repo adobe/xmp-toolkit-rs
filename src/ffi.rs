@@ -228,4 +228,10 @@ extern "C" {
     // --- CXmpDateTime ---
 
     pub(crate) fn CXmpDateTimeCurrent(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
+
+    pub(crate) fn CXmpDateTimeToString(
+        dt: *const CXmpDateTime,
+        out_error: *mut CXmpError,
+    ) -> *mut c_char;
+
 }
