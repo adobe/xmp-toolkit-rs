@@ -701,6 +701,46 @@ impl XmpMeta {
             })
         }
     }
+
+    /// Composes the path expression for a field in a struct.
+    ///
+    /// ## Arguments
+    ///
+    /// * `struct_ns` and `struct_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    ///
+    /// ## Return
+    ///
+    /// If successful, the returned string is in the form
+    /// `struct_ns:struct_name/field_ns:field_name`.
+    pub fn compose_struct_field_path(
+        struct_ns: &str,
+        struct_path: &str,
+        field_ns: &str,
+        field_name: &str,
+    ) -> XmpResult<String> {
+        let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
+        let c_struct_name = CString::new(struct_path).unwrap_or_default();
+        let c_field_ns = CString::new(field_ns).unwrap_or_default();
+        let c_field_name = CString::new(field_name).unwrap_or_default();
+
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            let result = CXmpString::from_ptr(ffi::CXmpMetaComposeStructFieldPath(
+                &mut err,
+                c_struct_ns.as_ptr(),
+                c_struct_name.as_ptr(),
+                c_field_ns.as_ptr(),
+                c_field_name.as_ptr(),
+            ));
+
+            XmpError::raise_from_c(&err)?;
+            Ok(result.as_string())
+        }
+    }
 }
 
 impl FromStr for XmpMeta {

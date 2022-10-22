@@ -1140,3 +1140,16 @@ mod localized_text {
         );
     }
 }
+
+mod compose_struct_field_path {
+    use crate::{xmp_ns, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        assert_eq!(
+            XmpMeta::compose_struct_field_path(xmp_ns::XMP, "StructName", xmp_ns::XMP, "FieldName")
+                .unwrap(),
+            "StructName/xmp:FieldName"
+        );
+    }
+}
