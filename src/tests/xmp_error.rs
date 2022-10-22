@@ -12,17 +12,11 @@
 // each license.
 
 mod raise_from_c {
-    use std::{ffi::CString, ptr};
-
     use crate::{ffi::CXmpError, XmpError, XmpErrorType};
 
     #[test]
     fn no_error() {
-        let c = CXmpError {
-            had_error: 0,
-            id: 0, // See kXMPErr_* constants in XMPConst.h.
-            debug_message: ptr::null(),
-        };
+        let c = CXmpError::new(false, 0, None);
 
         let result = XmpError::raise_from_c(&c);
         assert!(result.is_ok());
@@ -30,11 +24,7 @@ mod raise_from_c {
 
     #[test]
     fn unknown_error_without_debug_message() {
-        let c = CXmpError {
-            had_error: 1,
-            id: 0,
-            debug_message: ptr::null(),
-        };
+        let c = CXmpError::new(true, 0, None);
 
         let err = XmpError::raise_from_c(&c).unwrap_err();
         assert_eq!(err.error_type, XmpErrorType::Unknown);
@@ -43,13 +33,7 @@ mod raise_from_c {
 
     #[test]
     fn unknown_error_with_debug_message() {
-        let msg = CString::new("sample message").unwrap();
-
-        let c = CXmpError {
-            had_error: 1,
-            id: 0,
-            debug_message: msg.as_ptr(),
-        };
+        let c = CXmpError::new(true, 0, Some("sample message"));
 
         let err = XmpError::raise_from_c(&c).unwrap_err();
         assert_eq!(err.error_type, XmpErrorType::Unknown);
@@ -58,11 +42,7 @@ mod raise_from_c {
 
     #[test]
     fn user_abort_error() {
-        let c = CXmpError {
-            had_error: 1,
-            id: 12,
-            debug_message: ptr::null(),
-        };
+        let c = CXmpError::new(true, 12, None);
 
         let err = XmpError::raise_from_c(&c).unwrap_err();
         assert_eq!(err.error_type, XmpErrorType::UserAbort);
@@ -71,13 +51,7 @@ mod raise_from_c {
 
     #[test]
     fn bad_id() {
-        let msg = CString::new("bogus XMP error").unwrap();
-
-        let c = CXmpError {
-            had_error: 1,
-            id: 9000,
-            debug_message: msg.as_ptr(),
-        };
+        let c = CXmpError::new(true, 9000, Some("bogus XMP error"));
 
         let err = XmpError::raise_from_c(&c).unwrap_err();
         assert_eq!(err.error_type, XmpErrorType::Unknown);

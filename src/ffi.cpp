@@ -65,12 +65,14 @@ extern "C" {
         const char* debugMessage;
 
         CXmpError() {
+            debugMessage = NULL;
             reset();
         }
 
         void reset() {
             hadError = 0;
             id = 0;
+            free((void*) debugMessage);
             debugMessage = NULL;
         }
     } CXmpError;
@@ -80,6 +82,7 @@ static void copyErrorForResult(XMP_Error& e, CXmpError* outError) {
     if (outError) {
         outError->hadError = 1;
         outError->id = e.GetID();
+        free((void*) outError->debugMessage);
         outError->debugMessage = copyStringForResult(e.GetErrMsg());
     }
 }
@@ -88,6 +91,8 @@ static void signalUnknownError(CXmpError* outError) {
     if (outError) {
         outError->hadError = 1;
         outError->id = kXMPErr_Unknown;
+        free((void*) outError->debugMessage);
+        outError->debugMessage = NULL;
     }
 }
 
@@ -100,6 +105,7 @@ static bool xmpFileErrorCallback(void* context,
     if (err) {
         err->hadError = 1;
         err->id = cause;
+        free((void*) err->debugMessage);
         err->debugMessage = copyStringForResult(message);
     }
 
@@ -131,6 +137,19 @@ extern "C" {
             SXMPMeta m;
         #endif
     } CXmpMeta;
+
+    const char* CXmpStringCopy(const char* str) {
+        // This function should be used *only* to test FFI behavior.
+        // It copies a Rust-originated string so that it can subsequently
+        // be used for CXmpStringDrop.
+        return copyStringForResult(str);
+    }
+
+    void CXmpStringDrop(void* str) {
+        // This function must be called from Rust FFI code for every
+        // const char* sent over to Rust (i.e. generated via copyStringForResult).
+        free(str);
+    }
 
     // --- CXmpFile ---
 

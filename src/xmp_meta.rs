@@ -11,14 +11,11 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{
-    ffi::{CStr, CString},
-    path::Path,
-    str::FromStr,
-};
+use std::{ffi::CString, path::Path, str::FromStr};
 
 use crate::{
-    ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult, XmpValue,
+    ffi::{self, CXmpString},
+    OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult, XmpValue,
 };
 
 /// An `XmpMeta` struct allows you to inspect and modify the data model
@@ -114,11 +111,15 @@ impl XmpMeta {
         unsafe {
             let mut err = ffi::CXmpError::default();
 
-            let c_result = ffi::CXmpMetaRegisterNamespace(&mut err, c_ns.as_ptr(), c_sp.as_ptr());
+            let result = CXmpString::from_ptr(ffi::CXmpMetaRegisterNamespace(
+                &mut err,
+                c_ns.as_ptr(),
+                c_sp.as_ptr(),
+            ));
 
             XmpError::raise_from_c(&err)?;
 
-            Ok(CStr::from_ptr(c_result).to_string_lossy().into_owned())
+            Ok(result.as_string())
         }
     }
 
@@ -160,22 +161,14 @@ impl XmpMeta {
         let mut err = ffi::CXmpError::default();
 
         unsafe {
-            let c_result = ffi::CXmpMetaGetProperty(
+            CXmpString::from_ptr(ffi::CXmpMetaGetProperty(
                 self.m,
                 &mut err,
                 c_ns.as_ptr(),
                 c_name.as_ptr(),
                 &mut options,
-            );
-
-            if c_result.is_null() {
-                None
-            } else {
-                Some(XmpValue {
-                    value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
-                    options,
-                })
-            }
+            ))
+            .map(|value| XmpValue { value, options })
         }
     }
 
@@ -190,7 +183,7 @@ impl XmpMeta {
             meta: self,
             ns: CString::new(namespace).unwrap_or_default(),
             name: CString::new(path).unwrap_or_default(),
-            index: 1,
+            index: 0,
         }
     }
 
@@ -687,7 +680,7 @@ impl XmpMeta {
         unsafe {
             let mut c_actual_lang: *const i8 = std::ptr::null_mut();
 
-            let c_result = ffi::CXmpMetaGetLocalizedText(
+            CXmpString::from_ptr(ffi::CXmpMetaGetLocalizedText(
                 self.m,
                 &mut err,
                 c_ns.as_ptr(),
@@ -699,19 +692,13 @@ impl XmpMeta {
                 c_specific_lang.as_ptr(),
                 &mut c_actual_lang,
                 &mut options,
-            );
-
-            if c_result.is_null() {
-                None
-            } else {
-                Some((
-                    XmpValue {
-                        value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
-                        options,
-                    },
-                    CStr::from_ptr(c_actual_lang).to_string_lossy().into_owned(),
-                ))
-            }
+            ))
+            .map(|value| {
+                (
+                    XmpValue { value, options },
+                    CXmpString::from_ptr(c_actual_lang).as_string(),
+                )
+            })
         }
     }
 }
@@ -755,25 +742,17 @@ impl<'a> Iterator for ArrayProperty<'a> {
             let mut options: u32 = 0;
             let mut err = ffi::CXmpError::default();
 
-            let c_result = ffi::CXmpMetaGetArrayItem(
+            self.index += 1;
+
+            CXmpString::from_ptr(ffi::CXmpMetaGetArrayItem(
                 self.meta.m,
                 &mut err,
                 self.ns.as_ptr(),
                 self.name.as_ptr(),
                 self.index,
                 &mut options,
-            );
-
-            self.index += 1;
-
-            if c_result.is_null() {
-                None
-            } else {
-                Some(XmpValue {
-                    value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
-                    options,
-                })
-            }
+            ))
+            .map(|value| XmpValue { value, options })
         }
     }
 }
