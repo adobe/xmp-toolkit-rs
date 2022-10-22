@@ -685,6 +685,31 @@ extern "C" {
         return NULL;
     }
 
+    const char* CXmpMetaComposeStructFieldPath(CXmpError* outError,
+                                               const char* schemaNS,
+                                               const char* structName,
+                                               const char* fieldNS,
+                                               const char* fieldName) {
+        #ifndef NOOP_FFI
+            try {
+                std::string resultPath;
+                SXMPUtils::ComposeStructFieldPath(schemaNS,
+                                                  structName,
+                                                  fieldNS,
+                                                  fieldName,
+                                                  &resultPath);
+
+                return copyStringForResult(resultPath);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     // --- CXmpDateTime ---
 
     void CXmpDateTimeCurrent(XMP_DateTime* dt, CXmpError* outError) {

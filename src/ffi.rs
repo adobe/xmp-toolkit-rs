@@ -293,6 +293,14 @@ extern "C" {
         out_options: *mut u32,
     ) -> *const c_char;
 
+    pub(crate) fn CXmpMetaComposeStructFieldPath(
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
+    ) -> *const c_char;
+
     // --- CXmpDateTime ---
 
     pub(crate) fn CXmpDateTimeCurrent(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
