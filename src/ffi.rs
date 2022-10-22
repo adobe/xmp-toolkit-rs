@@ -11,13 +11,39 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::os::raw::{c_char, c_int};
+use std::{
+    ffi::CString,
+    os::raw::{c_char, c_int},
+};
 
 #[repr(C)]
 pub(crate) struct CXmpError {
     pub(crate) had_error: u32,
     pub(crate) id: i32,
     pub(crate) debug_message: *const c_char,
+}
+
+impl CXmpError {
+    #[allow(dead_code)] // only used in test code
+    pub(crate) fn new(had_error: bool, id: i32, debug_message: Option<&str>) -> Self {
+        // Mimic a debug message coming from C++ code
+        // so that we don't foul up our memory management
+        // when this struct is dropped.
+
+        Self {
+            had_error: if had_error { 1 } else { 0 },
+            id,
+            debug_message: unsafe {
+                match debug_message {
+                    Some(debug_message) => {
+                        let debug_message_as_cstr = CString::new(debug_message).unwrap();
+                        CXmpStringCopy(debug_message_as_cstr.as_ptr())
+                    }
+                    None => std::ptr::null(),
+                }
+            },
+        }
+    }
 }
 
 impl Default for CXmpError {
@@ -27,6 +53,13 @@ impl Default for CXmpError {
             id: 0,
             debug_message: std::ptr::null(),
         }
+    }
+}
+
+impl Drop for CXmpError {
+    fn drop(&mut self) {
+        unsafe { CXmpStringDrop(self.debug_message) };
+        self.debug_message = std::ptr::null();
     }
 }
 
@@ -52,6 +85,9 @@ pub(crate) enum CXmpFile {}
 pub(crate) enum CXmpMeta {}
 
 extern "C" {
+    pub(crate) fn CXmpStringCopy(s: *const c_char) -> *const c_char;
+    pub(crate) fn CXmpStringDrop(s: *const c_char);
+
     // --- CXmpFile ---
 
     pub(crate) fn CXmpFileNew(out_error: *mut CXmpError) -> *mut CXmpFile;
@@ -233,5 +269,4 @@ extern "C" {
         dt: *const CXmpDateTime,
         out_error: *mut CXmpError,
     ) -> *mut c_char;
-
 }
