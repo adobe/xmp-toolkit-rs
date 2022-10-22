@@ -620,7 +620,8 @@ impl XmpMeta {
     /// `i` or `x` as the generic language is also considered poor practice but
     /// allowed.
     ///
-    /// Advice from the W3C about the use of RFC 3066 language tags can be found at http://www.w3.org/International/articles/language-tags/.
+    /// Advice from the W3C about the use of RFC 3066 language tags can be found
+    /// at <https://www.w3.org/International/articles/language-tags/>.
     ///
     /// **Note:** RFC 3066 language tags must be treated in a case insensitive
     /// manner. The XMP toolkit does this by normalizing their capitalization:
