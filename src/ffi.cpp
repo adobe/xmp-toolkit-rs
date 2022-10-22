@@ -632,6 +632,42 @@ extern "C" {
         #endif
     }
 
+    const char* CXmpMetaGetLocalizedText(CXmpMeta* m,
+                                         CXmpError* outError,
+                                         const char* schemaNS,
+                                         const char* altTextName,
+                                         const char* genericLang,
+                                         const char* specificLang,
+                                         const char** actualLang,
+                                         AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                std::string outActualLang;
+                if (m->m.GetLocalizedText(schemaNS,
+                                          altTextName,
+                                          genericLang,
+                                          specificLang,
+                                          &outActualLang,
+                                          &propValue,
+                                          outOptions)) {
+                    *actualLang = copyStringForResult(outActualLang);
+                    return copyStringForResult(propValue);
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
     // --- CXmpDateTime ---
 
     void CXmpDateTimeCurrent(XMP_DateTime* dt, CXmpError* outError) {

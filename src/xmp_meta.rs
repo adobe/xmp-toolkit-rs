@@ -592,6 +592,128 @@ impl XmpMeta {
 
         XmpError::raise_from_c(&err)
     }
+
+    /// Retrieves information about a selected item from an alt-text array.
+    ///
+    /// Localized text properties are stored in alt-text arrays. They allow
+    /// multiple concurrent localizations of a property value, for example a
+    /// document title or copyright in several languages. These functions
+    /// provide convenient support for localized text properties, including a
+    /// number of special and obscure aspects. The most important aspect of
+    /// these functions is that they select an appropriate array item based on
+    /// one or two RFC 3066 language tags. One of these languages, the
+    /// "specific" language, is preferred and selected if there is an exact
+    /// match. For many languages it is also possible to define a "generic"
+    /// language that can be used if there is no specific language match. The
+    /// generic language must be a valid RFC 3066 primary subtag, or the empty
+    /// string.
+    ///
+    /// For example, a specific language of `en-US` should be used in the US,
+    /// and a specific language of `en-UK` should be used in England. It is also
+    /// appropriate to use `en` as the generic language in each case. If a US
+    /// document goes to England, the `en-US` title is selected by using the
+    /// `en` generic language and the `en-UK` specific language.
+    ///
+    /// It is considered poor practice, but allowed, to pass a specific language
+    /// that is just an RFC 3066 primary tag. For example `en` is not a good
+    /// specific language, it should only be used as a generic language. Passing
+    /// `i` or `x` as the generic language is also considered poor practice but
+    /// allowed.
+    ///
+    /// Advice from the W3C about the use of RFC 3066 language tags can be found
+    /// at <https://www.w3.org/International/articles/language-tags/>.
+    ///
+    /// **Note:** RFC 3066 language tags must be treated in a case insensitive
+    /// manner. The XMP toolkit does this by normalizing their capitalization:
+    ///
+    /// * The primary subtag is lower case, the suggested practice of ISO 639.
+    /// * All 2-letter secondary subtags are upper case, the suggested practice
+    ///   of ISO 3166.
+    /// * All other subtags are lower case. The XMP specification defines an
+    ///   artificial language, `x-default`, that is used to explicitly denote a
+    ///   default item in an alt-text array. The XMP toolkit normalizes alt-text
+    ///   arrays such that the x-default item is the first item. The
+    ///   `set_localized_text` function has several special features related to
+    ///   the `x-default` item. See its description for details. The array item
+    ///   is selected according to these rules:
+    /// * Look for an exact match with the specific language.
+    /// * If a generic language is given, look for a partial match.
+    /// * Look for an `x-default` item.
+    /// * Choose the first item.
+    ///
+    /// A partial match with the generic language is where the start of the
+    /// item's language matches the generic string and the next character is
+    /// `-`. An exact match is also recognized as a degenerate case.
+    ///
+    /// You can pass `x-default` as the specific language. In this case,
+    /// selection of an `x-default` item is an exact match by the first rule,
+    /// not a selection by the 3rd rule. The last 2 rules are fallbacks used
+    /// when the specific and generic languages fail to produce a match.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `generic_lang`: The name of the generic language as an RFC 3066
+    ///   primary subtag. Can be `None` or the empty string if no generic
+    ///   language is wanted.
+    /// * `specific_lang`: The name of the specific language as an RFC 3066 tag,
+    ///   or `x-default`. Must not be an empty string.
+    ///
+    /// ## Return value
+    ///
+    /// If a suitable match is found, returns `Some(XmpValue<String>, String)`
+    /// where the second string is the actual language that was matched.
+    ///
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `false` in such cases.
+    pub fn localized_text(
+        &self,
+        namespace: &str,
+        path: &str,
+        generic_lang: Option<&str>,
+        specific_lang: &str,
+    ) -> Option<(XmpValue<String>, String)> {
+        let c_ns = CString::new(namespace).unwrap_or_default();
+        let c_name = CString::new(path).unwrap_or_default();
+        let c_generic_lang = generic_lang.map(|s| CString::new(s).unwrap_or_default());
+        let c_specific_lang = CString::new(specific_lang).unwrap_or_default();
+
+        let mut options: u32 = 0;
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            let mut c_actual_lang: *const i8 = std::ptr::null_mut();
+
+            let c_result = ffi::CXmpMetaGetLocalizedText(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                match c_generic_lang {
+                    Some(p) => p.as_ptr(),
+                    None => std::ptr::null(),
+                },
+                c_specific_lang.as_ptr(),
+                &mut c_actual_lang,
+                &mut options,
+            );
+
+            if c_result.is_null() {
+                None
+            } else {
+                Some((
+                    XmpValue {
+                        value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
+                        options,
+                    },
+                    CStr::from_ptr(c_actual_lang).to_string_lossy().into_owned(),
+                ))
+            }
+        }
+    }
 }
 
 impl FromStr for XmpMeta {
