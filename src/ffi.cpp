@@ -27,7 +27,8 @@ std::once_flag xmp_init_flag;
 
 inline void init_xmp_fn() {
     #ifndef NOOP_FFI
-        // TO DO: Check return status from Initialize functions.
+        // TO DO (#100): Check return status from Initialize functions
+        // and eliminate call to exit(1).
         try {
             SXMPMeta::Initialize();
             SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText);
@@ -37,9 +38,6 @@ inline void init_xmp_fn() {
             exit(1);
         }
     #endif
-
-    // TO DO: Terminate? How to hook into process exit?
-    // Or do we care that it's a messy exit?
 }
 
 static void init_xmp() {
