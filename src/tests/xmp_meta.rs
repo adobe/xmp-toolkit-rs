@@ -1019,3 +1019,124 @@ mod set_property_date {
         );
     }
 }
+
+mod localized_text {
+    use std::str::FromStr;
+
+    use crate::{xmp_ns, xmp_value::xmp_prop, XmpMeta};
+
+    const LOCALIZED_TEXT_EXAMPLE: &str = r#"<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            xmlns:dc="http://purl.org/dc/elements/1.1/">
+            <rdf:Description rdf:about="">
+                <dc:title>
+                    <rdf:Alt>
+                        <rdf:li xml:lang="x-default">
+                            XMP - Extensible Metadata Platform
+                        </rdf:li>
+                        <rdf:li xml:lang="en-us">
+                            XMP - Extensible Metadata Platform (US English)
+                        </rdf:li>
+                        <rdf:li xml:lang="fr">
+                            XMP - Une Platforme Extensible pour les Métadonnées
+                        </rdf:li>
+                    </rdf:Alt>
+                </dc:title>
+            </rdf:Description>
+        </rdf:RDF>"#;
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_str(LOCALIZED_TEXT_EXAMPLE).unwrap();
+
+        let (value, actual_lang) = m
+            .localized_text(xmp_ns::DC, "title", None, "x-default")
+            .unwrap();
+
+        assert_eq!(value.value.trim(), "XMP - Extensible Metadata Platform");
+        assert_eq!(value.options, xmp_prop::HAS_LANG | xmp_prop::HAS_QUALIFIERS);
+        assert_eq!(actual_lang, "x-default");
+
+        let (value, actual_lang) = m
+            .localized_text(xmp_ns::DC, "title", Some("x-default"), "x-default")
+            .unwrap();
+
+        assert_eq!(value.value.trim(), "XMP - Extensible Metadata Platform");
+        assert_eq!(value.options, xmp_prop::HAS_LANG | xmp_prop::HAS_QUALIFIERS);
+        assert_eq!(actual_lang, "x-default");
+
+        let (value, actual_lang) = m
+            .localized_text(xmp_ns::DC, "title", Some("en"), "en-US")
+            .unwrap();
+
+        assert_eq!(
+            value.value.trim(),
+            "XMP - Extensible Metadata Platform (US English)"
+        );
+        assert_eq!(value.options, xmp_prop::HAS_LANG | xmp_prop::HAS_QUALIFIERS);
+        assert_eq!(actual_lang, "en-US");
+
+        let (value, actual_lang) = m
+            .localized_text(xmp_ns::DC, "title", Some("en-us"), "en-uk")
+            .unwrap();
+
+        assert_eq!(value.value.trim(), "XMP - Extensible Metadata Platform");
+        assert_eq!(value.options, xmp_prop::HAS_LANG | xmp_prop::HAS_QUALIFIERS);
+        assert_eq!(actual_lang, "x-default");
+
+        let (value, actual_lang) = m
+            .localized_text(xmp_ns::DC, "title", Some("fr"), "fr")
+            .unwrap();
+
+        assert_eq!(
+            value.value.trim(),
+            "XMP - Une Platforme Extensible pour les Métadonnées"
+        );
+        assert_eq!(value.options, xmp_prop::HAS_LANG | xmp_prop::HAS_QUALIFIERS);
+        assert_eq!(actual_lang, "fr");
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_str(LOCALIZED_TEXT_EXAMPLE).unwrap();
+        assert_eq!(m.localized_text("", "CreatorTool", None, "x-default"), None);
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_str(LOCALIZED_TEXT_EXAMPLE).unwrap();
+        assert_eq!(m.localized_text(xmp_ns::XMP, "", None, "x-default"), None);
+    }
+
+    #[test]
+    fn invalid_namespace() {
+        let m = XmpMeta::from_str(LOCALIZED_TEXT_EXAMPLE).unwrap();
+        assert_eq!(
+            m.localized_text("\0", "CreatorTool", None, "x-default"),
+            None,
+        );
+    }
+
+    #[test]
+    fn invalid_prop_name() {
+        let m = XmpMeta::from_str(LOCALIZED_TEXT_EXAMPLE).unwrap();
+        assert_eq!(m.localized_text(xmp_ns::XMP, "\0", None, "x-default"), None);
+    }
+
+    #[test]
+    fn invalid_generic_lang() {
+        let m = XmpMeta::from_str(LOCALIZED_TEXT_EXAMPLE).unwrap();
+        assert_eq!(
+            m.localized_text(xmp_ns::XMP, "title", Some("no-such-lang"), "x-default"),
+            None
+        );
+    }
+
+    #[test]
+    fn invalid_specific_lang() {
+        let m = XmpMeta::from_str(LOCALIZED_TEXT_EXAMPLE).unwrap();
+        assert_eq!(
+            m.localized_text(xmp_ns::XMP, "title", Some("x-default"), "no-such-lang"),
+            None
+        );
+    }
+}

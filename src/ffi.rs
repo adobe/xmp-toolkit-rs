@@ -214,6 +214,17 @@ extern "C" {
         out_options: *mut u32,
     ) -> *mut c_char;
 
+    pub(crate) fn CXmpMetaGetLocalizedText(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        alt_text_name: *const c_char,
+        generic_lang: *const c_char,
+        specific_lang: *const c_char,
+        out_actual_lang: *mut *const c_char,
+        out_options: *mut u32,
+    ) -> *mut c_char;
+
     // --- CXmpDateTime ---
 
     pub(crate) fn CXmpDateTimeCurrent(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
