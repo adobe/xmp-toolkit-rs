@@ -28,24 +28,24 @@ use crate::{
 /// * Creating an empty struct ([`XmpMeta::new`])
 /// * Reading metadata from a file ([`XmpFile::xmp`])
 /// * Parsing a string containing metadata ([`XmpMeta::from_str`])
-/// 
+///
 /// ## Accessing properties
-/// 
+///
 /// Many of the methods on this struct allow you to access or modify a
 /// **property.** Every property in XMP is identified using two arguments:
-/// 
+///
 /// * **`namespace`** may be either a URI or a prefix. If a URI is used, it must
 ///   have been registered via ([`XmpMeta::register_namespace`]) or be built-in
 ///   to the XMP Toolkit (see [`xmp_ns`](crate::xmp_ns) for constants you may
-///   use in this way). If a prefix is used, it must be a prefix returned
-///   after having called [`XmpMeta::register_namespace`]. If both a URI and
-///   path prefix are present, they must be corresponding parts of a registered
+///   use in this way). If a prefix is used, it must be a prefix returned after
+///   having called [`XmpMeta::register_namespace`]. If both a URI and path
+///   prefix are present, they must be corresponding parts of a registered
 ///   namespace.
 /// * **`path`** specifies a path to the property. In the simplest case, this is
 ///   a simple string identifier within `namespace`, but it can also be a path
-///   expression. Must not be an empty string. The first component of a path expression
-///   can be a namespace prefix; if so, the prefix must have been registered via
-///   [`XmpMeta::register_namespace`].
+///   expression. Must not be an empty string. The first component of a path
+///   expression can be a namespace prefix; if so, the prefix must have been
+///   registered via [`XmpMeta::register_namespace`].
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
 }
@@ -125,8 +125,9 @@ impl XmpMeta {
     /// Returns `true` if the metadata block contains a property by this name.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -143,8 +144,9 @@ impl XmpMeta {
     /// Gets a simple string property value.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -180,8 +182,9 @@ impl XmpMeta {
     /// Creates an iterator for an array property value.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     pub fn property_array(&self, namespace: &str, path: &str) -> ArrayProperty {
         ArrayProperty {
             meta: self,
@@ -194,8 +197,9 @@ impl XmpMeta {
     /// Gets a simple property value and interprets it as a bool.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -231,8 +235,9 @@ impl XmpMeta {
     /// Gets a simple property value and interprets it as a 32-bit integer.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -268,8 +273,9 @@ impl XmpMeta {
     /// Gets a simple property value and interprets it as a 64-bit integer.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -305,8 +311,9 @@ impl XmpMeta {
     /// Gets a simple property value and interprets it as a 64-bit float.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -343,8 +350,9 @@ impl XmpMeta {
     /// Gets a simple property value and interprets it as a date/time value.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -386,8 +394,9 @@ impl XmpMeta {
     /// simple properties.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     /// * `new_value`: The new value.
     pub fn set_property(
         &mut self,
@@ -420,8 +429,9 @@ impl XmpMeta {
     /// a string (`"True"` or `"False"`) as part of this operation.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     /// * `new_value`: The new value.
     pub fn set_property_bool(
         &mut self,
@@ -453,8 +463,9 @@ impl XmpMeta {
     /// a string as part of this operation.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     /// * `new_value`: The new value.
     pub fn set_property_i32(
         &mut self,
@@ -486,8 +497,9 @@ impl XmpMeta {
     /// a string as part of this operation.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     /// * `new_value`: The new value.
     pub fn set_property_i64(
         &mut self,
@@ -519,8 +531,9 @@ impl XmpMeta {
     /// a string as part of this operation.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     /// * `new_value`: The new value.
     pub fn set_property_f64(
         &mut self,
@@ -552,8 +565,9 @@ impl XmpMeta {
     /// ISO 8601 format as part of this operation.
     ///
     /// ## Arguments
-    /// 
-    /// * `namespace` and `path`: See [Accessing properties](#accessing-properties).
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     /// * `new_value`: The new value.
     pub fn set_property_date(
         &mut self,
