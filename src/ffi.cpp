@@ -96,7 +96,7 @@ static void signalUnknownError(CXmpError* outError) {
 static bool xmpFileErrorCallback(void* context,
                                  XMP_StringPtr filePath,
                                  XMP_ErrorSeverity severity,
-                                 XMP_Int32 cause,
+                                 AdobeXMPCommon::int32 cause,
                                  XMP_StringPtr message) {
     CXmpError* err = (CXmpError*) context;
     if (err) {
@@ -684,5 +684,25 @@ extern "C" {
                 signalUnknownError(outError);
             }
         #endif
+    }
+
+    const char* CXmpDateTimeToString(const XMP_DateTime* dt, CXmpError* outError) {
+        #ifndef NOOP_FFI
+            try {
+                if (dt) {
+                    std::string dtAsString;
+                    SXMPUtils::ConvertFromDate(*dt, &dtAsString);
+                    return copyStringForResult(dtAsString);
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
     }
 }

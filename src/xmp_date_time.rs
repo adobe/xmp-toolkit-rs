@@ -11,6 +11,8 @@
 // specific language governing permissions and limitations under
 // each license.
 
+use std::fmt;
+
 use crate::{ffi, XmpError, XmpResult};
 
 /// The `XmpDateTime` struct allows easy conversion between ISO8601 format
@@ -166,5 +168,54 @@ impl XmpDateTime {
         }
 
         result
+    }
+}
+
+impl fmt::Display for XmpDateTime {
+    /// Formats a date according to the ISO 8601 profile in <https://www.w3.org/TR/NOTE-datetime>.
+    ///
+    /// The format will be one of the following:
+    ///
+    /// * `YYYY`
+    /// * `YYYY-MM-DD`
+    /// * `YYYY-MM-DDThh:mmTZD`
+    /// * `YYYY-MM-DDThh:mm:ssTZD`
+    /// * `YYYY-MM-DDThh:mm:ss.sTZD`
+    ///
+    /// Where:
+    ///
+    /// * `YYYY` = four-digit year
+    /// * `MM` = two-digit month (01=January)
+    /// * `DD` = two-digit day of month (01 through 31)
+    /// * `hh` = two digits of hour (00 through 23)
+    /// * `mm` = two digits of minute (00 through 59)
+    /// * `ss` = two digits of second (00 through 59)
+    /// * `s` = one or more digits representing a decimal fraction of a second
+    /// * `TZD` = time zone designator (`Z` or `+hh:mm` or `-hh:mm`)
+    ///
+    /// XMP allows time-only values (`date` = `None`). In this case, the date
+    /// portion of the output will be `0000-01-01`.
+    ///
+    /// **NOTE:** ISO 8601 does not allow years less than 1000 or greater than
+    /// 9999. `XmpDateTime` allows any year, even negative ones. The W3C
+    /// profile also requires a time zone designator if a time is present;
+    /// since `XmpDateTime` has an explicit notion of zone-less time, the
+    /// `TZD` will not appear in that case.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            let c_result = ffi::CXmpDateTimeToString(&self.as_ffi(), &mut err);
+
+            if c_result.is_null() {
+                let err = XmpError::raise_from_c(&err);
+                write!(f, "(unable to format date: {:#?})", err)
+            } else {
+                let dt_as_str = std::ffi::CStr::from_ptr(c_result)
+                    .to_string_lossy()
+                    .into_owned();
+                write!(f, "{}", dt_as_str)
+            }
+        }
     }
 }
