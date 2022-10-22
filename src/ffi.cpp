@@ -491,6 +491,101 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaSetProperty_Bool(CXmpMeta* m,
+                                  CXmpError* outError,
+                                  const char* schemaNS,
+                                  const char* propName,
+                                  bool propValue,
+                                  AdobeXMPCommon::uint32 options) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.SetProperty_Bool(schemaNS, propName, propValue, options);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
+    void CXmpMetaSetProperty_Int(CXmpMeta* m,
+                                 CXmpError* outError,
+                                 const char* schemaNS,
+                                 const char* propName,
+                                 AdobeXMPCommon::int32 propValue,
+                                 AdobeXMPCommon::uint32 options) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.SetProperty_Int(schemaNS, propName, propValue, options);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
+    void CXmpMetaSetProperty_Int64(CXmpMeta* m,
+                                   CXmpError* outError,
+                                   const char* schemaNS,
+                                   const char* propName,
+                                   AdobeXMPCommon::int64 propValue,
+                                   AdobeXMPCommon::uint32 options) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.SetProperty_Int64(schemaNS, propName, propValue, options);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
+    void CXmpMetaSetProperty_Float(CXmpMeta* m,
+                                   CXmpError* outError,
+                                   const char* schemaNS,
+                                   const char* propName,
+                                   double propValue,
+                                   AdobeXMPCommon::uint32 options) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.SetProperty_Float(schemaNS, propName, propValue, options);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
+    void CXmpMetaSetProperty_Date(CXmpMeta* m,
+                                  CXmpError* outError,
+                                  const char* schemaNS,
+                                  const char* propName,
+                                  const XMP_DateTime* propValue,
+                                  AdobeXMPCommon::uint32 options) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.SetProperty_Date(schemaNS, propName, *propValue, options);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     int CXmpMetaDoesPropertyExist(CXmpMeta* m,
                                   const char* schemaNS,
                                   const char* propName) {
@@ -504,25 +599,6 @@ extern "C" {
         #endif
 
         return 0;
-    }
-
-    void CXmpMetaSetPropertyDate(CXmpMeta* m,
-                                 CXmpError* outError,
-                                 const char* schemaNS,
-                                 const char* propName,
-                                 const XMP_DateTime* propValue,
-                                 AdobeXMPCommon::uint32 options) {
-        #ifndef NOOP_FFI
-            try {
-                m->m.SetProperty_Date(schemaNS, propName, *propValue, options);
-            }
-            catch (XMP_Error& e) {
-                copyErrorForResult(e, outError);
-            }
-            catch (...) {
-                signalUnknownError(outError);
-            }
-        #endif
     }
 
     const char* CXmpMetaGetArrayItem(CXmpMeta* m,

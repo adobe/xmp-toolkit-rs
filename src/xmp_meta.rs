@@ -21,13 +21,31 @@ use crate::{
     ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult, XmpValue,
 };
 
-/// The `XmpMeta` struct allows access to the XMP Toolkit core services.
+/// An `XmpMeta` struct allows you to inspect and modify the data model
+/// of an XMP packet.
 ///
-/// You can create `XmpMeta` structs from metadata that you construct,
-/// or that you obtain from files using the [`XmpFile`] struct.
+/// You can create an `XmpMeta` struct by:
+/// * Creating an empty struct ([`XmpMeta::new`])
+/// * Reading metadata from a file ([`XmpFile::xmp`])
+/// * Parsing a string containing metadata ([`XmpMeta::from_str`])
 ///
-/// `XmpMeta` implements `std::str::FromStr`, so you can create an `XmpMeta`
-/// struct from a string that contains XMP as well.
+/// ## Accessing properties
+///
+/// Many of the methods on this struct allow you to access or modify a
+/// **property.** Every property in XMP is identified using two arguments:
+///
+/// * **`namespace`** may be either a URI or a prefix. If a URI is used, it must
+///   have been registered via ([`XmpMeta::register_namespace`]) or be built-in
+///   to the XMP Toolkit (see [`xmp_ns`](crate::xmp_ns) for constants you may
+///   use in this way). If a prefix is used, it must be a prefix returned after
+///   having called [`XmpMeta::register_namespace`]. If both a URI and path
+///   prefix are present, they must be corresponding parts of a registered
+///   namespace.
+/// * **`path`** specifies a path to the property. In the simplest case, this is
+///   a simple string identifier within `namespace`, but it can also be a path
+///   expression. Must not be an empty string. The first component of a path
+///   expression can be a namespace prefix; if so, the prefix must have been
+///   registered via [`XmpMeta::register_namespace`].
 pub struct XmpMeta {
     pub(crate) m: *mut ffi::CXmpMeta,
 }
@@ -104,35 +122,39 @@ impl XmpMeta {
         }
     }
 
-    /// Gets a simple string property value.
-    ///
-    /// When specifying a namespace and path (in this and all other accessors):
-    /// * If a namespace URI is specified, it must be for a registered
-    ///   namespace.
-    /// * If the namespace is specified only by a prefix in the property name
-    ///   path, it must be a registered prefix.
-    /// * If both a URI and path prefix are present, they must be corresponding
-    ///   parts of a registered namespace.
+    /// Returns `true` if the metadata block contains a property by this name.
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI for the property. The URI must be for a
-    ///   registered namespace. Must not be an empty string.
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. The first component can be a
-    ///   namespace prefix; if present without a `schema_ns` value, the prefix
-    ///   specifies the namespace. The prefix must be for a registered
-    ///   namespace, and if a namespace URI is specified, must match the
-    ///   registered prefix for that namespace.
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `false` in such cases.
+    pub fn contains_property(&self, namespace: &str, path: &str) -> bool {
+        let c_ns = CString::new(namespace).unwrap_or_default();
+        let c_name = CString::new(path).unwrap_or_default();
+
+        let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
+        r != 0
+    }
+
+    /// Gets a simple string property value.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `None` in such cases.
-    pub fn property(&self, schema_ns: &str, prop_name: &str) -> Option<XmpValue<String>> {
-        let c_ns = CString::new(schema_ns).unwrap_or_default();
-        let c_name = CString::new(prop_name).unwrap_or_default();
+    pub fn property(&self, namespace: &str, path: &str) -> Option<XmpValue<String>> {
+        let c_ns = CString::new(namespace).unwrap_or_default();
+        let c_name = CString::new(path).unwrap_or_default();
 
         let mut options: u32 = 0;
         let mut err = ffi::CXmpError::default();
@@ -157,15 +179,27 @@ impl XmpMeta {
         }
     }
 
+    /// Creates an iterator for an array property value.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
+    pub fn property_array(&self, namespace: &str, path: &str) -> ArrayProperty {
+        ArrayProperty {
+            meta: self,
+            ns: CString::new(namespace).unwrap_or_default(),
+            name: CString::new(path).unwrap_or_default(),
+            index: 1,
+        }
+    }
+
     /// Gets a simple property value and interprets it as a bool.
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -174,9 +208,9 @@ impl XmpMeta {
     ///
     /// If the value can not be parsed as a boolean (for example, it is
     /// an unrecognizable string), the function will return `None`.
-    pub fn property_bool(&self, schema_ns: &str, prop_name: &str) -> Option<XmpValue<bool>> {
-        let c_ns = CString::new(schema_ns).unwrap_or_default();
-        let c_name = CString::new(prop_name).unwrap_or_default();
+    pub fn property_bool(&self, namespace: &str, path: &str) -> Option<XmpValue<bool>> {
+        let c_ns = CString::new(namespace).unwrap_or_default();
+        let c_name = CString::new(path).unwrap_or_default();
 
         let mut options: u32 = 0;
         let mut value = false;
@@ -202,11 +236,8 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -215,9 +246,9 @@ impl XmpMeta {
     ///
     /// If the value can not be parsed as a number, the function will
     /// return `None`.
-    pub fn property_i32(&self, schema_ns: &str, prop_name: &str) -> Option<XmpValue<i32>> {
-        let c_ns = CString::new(schema_ns).unwrap_or_default();
-        let c_name = CString::new(prop_name).unwrap_or_default();
+    pub fn property_i32(&self, namespace: &str, path: &str) -> Option<XmpValue<i32>> {
+        let c_ns = CString::new(namespace).unwrap_or_default();
+        let c_name = CString::new(path).unwrap_or_default();
 
         let mut options: u32 = 0;
         let mut value: i32 = 0;
@@ -243,11 +274,8 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -256,9 +284,9 @@ impl XmpMeta {
     ///
     /// If the value can not be parsed as a number, the function will
     /// return `None`.
-    pub fn property_i64(&self, schema_ns: &str, prop_name: &str) -> Option<XmpValue<i64>> {
-        let c_ns = CString::new(schema_ns).unwrap_or_default();
-        let c_name = CString::new(prop_name).unwrap_or_default();
+    pub fn property_i64(&self, namespace: &str, path: &str) -> Option<XmpValue<i64>> {
+        let c_ns = CString::new(namespace).unwrap_or_default();
+        let c_name = CString::new(path).unwrap_or_default();
 
         let mut options: u32 = 0;
         let mut value: i64 = 0;
@@ -284,11 +312,8 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -298,9 +323,9 @@ impl XmpMeta {
     /// If the value can not be parsed as a number, the function will
     /// return `None`. Note that ratio values, such as those found in
     /// TIFF and EXIF blocks, are not parsed.
-    pub fn property_f64(&self, schema_ns: &str, prop_name: &str) -> Option<XmpValue<f64>> {
-        let c_ns = CString::new(schema_ns).unwrap_or_default();
-        let c_name = CString::new(prop_name).unwrap_or_default();
+    pub fn property_f64(&self, namespace: &str, path: &str) -> Option<XmpValue<f64>> {
+        let c_ns = CString::new(namespace).unwrap_or_default();
+        let c_name = CString::new(path).unwrap_or_default();
 
         let mut options: u32 = 0;
         let mut value: f64 = 0.0;
@@ -326,11 +351,8 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
     ///
     /// ## Error handling
     ///
@@ -339,9 +361,9 @@ impl XmpMeta {
     ///
     /// If the value can not be parsed as a date (for example, it is
     /// an unrecognizable string), the function will return `None`.
-    pub fn property_date(&self, schema_ns: &str, prop_name: &str) -> Option<XmpValue<XmpDateTime>> {
-        let c_ns = CString::new(schema_ns).unwrap_or_default();
-        let c_name = CString::new(prop_name).unwrap_or_default();
+    pub fn property_date(&self, namespace: &str, path: &str) -> Option<XmpValue<XmpDateTime>> {
+        let c_ns = CString::new(namespace).unwrap_or_default();
+        let c_name = CString::new(path).unwrap_or_default();
 
         let mut options: u32 = 0;
         let mut value = ffi::CXmpDateTime::default();
@@ -373,22 +395,18 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
-    ///
-    /// * `prop_value`: The new value.
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `new_value`: The new value.
     pub fn set_property(
         &mut self,
-        schema_ns: &str,
-        prop_name: &str,
-        prop_value: &XmpValue<String>,
+        namespace: &str,
+        path: &str,
+        new_value: &XmpValue<String>,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(schema_ns)?;
-        let c_name = CString::new(prop_name)?;
-        let c_value = CString::new(prop_value.value.as_bytes())?;
+        let c_ns = CString::new(namespace)?;
+        let c_name = CString::new(path)?;
+        let c_value = CString::new(new_value.value.as_bytes())?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
@@ -398,7 +416,143 @@ impl XmpMeta {
                 c_ns.as_ptr(),
                 c_name.as_ptr(),
                 c_value.as_ptr(),
-                prop_value.options,
+                new_value.options,
+            );
+        }
+
+        XmpError::raise_from_c(&err)
+    }
+
+    /// Creates or sets a property value using a bool value.
+    ///
+    /// Since XMP only stores strings, the bool value will be converted to
+    /// a string (`"True"` or `"False"`) as part of this operation.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `new_value`: The new value.
+    pub fn set_property_bool(
+        &mut self,
+        namespace: &str,
+        path: &str,
+        new_value: &XmpValue<bool>,
+    ) -> XmpResult<()> {
+        let c_ns = CString::new(namespace)?;
+        let c_name = CString::new(path)?;
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            ffi::CXmpMetaSetProperty_Bool(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                new_value.value,
+                new_value.options,
+            );
+        }
+
+        XmpError::raise_from_c(&err)
+    }
+
+    /// Creates or sets a property value using a 32-bit integer value.
+    ///
+    /// Since XMP only stores strings, the integer value will be converted to
+    /// a string as part of this operation.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `new_value`: The new value.
+    pub fn set_property_i32(
+        &mut self,
+        namespace: &str,
+        path: &str,
+        new_value: &XmpValue<i32>,
+    ) -> XmpResult<()> {
+        let c_ns = CString::new(namespace)?;
+        let c_name = CString::new(path)?;
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            ffi::CXmpMetaSetProperty_Int(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                new_value.value,
+                new_value.options,
+            );
+        }
+
+        XmpError::raise_from_c(&err)
+    }
+
+    /// Creates or sets a property value using a 64-bit integer value.
+    ///
+    /// Since XMP only stores strings, the integer value will be converted to
+    /// a string as part of this operation.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `new_value`: The new value.
+    pub fn set_property_i64(
+        &mut self,
+        namespace: &str,
+        path: &str,
+        new_value: &XmpValue<i64>,
+    ) -> XmpResult<()> {
+        let c_ns = CString::new(namespace)?;
+        let c_name = CString::new(path)?;
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            ffi::CXmpMetaSetProperty_Int64(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                new_value.value,
+                new_value.options,
+            );
+        }
+
+        XmpError::raise_from_c(&err)
+    }
+
+    /// Creates or sets a property value using a 64-bit floating-point value.
+    ///
+    /// Since XMP only stores strings, the float value will be converted to
+    /// a string as part of this operation.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `new_value`: The new value.
+    pub fn set_property_f64(
+        &mut self,
+        namespace: &str,
+        path: &str,
+        new_value: &XmpValue<f64>,
+    ) -> XmpResult<()> {
+        let c_ns = CString::new(namespace)?;
+        let c_name = CString::new(path)?;
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            ffi::CXmpMetaSetProperty_Float(
+                self.m,
+                &mut err,
+                c_ns.as_ptr(),
+                c_name.as_ptr(),
+                new_value.value,
+                new_value.options,
             );
         }
 
@@ -412,75 +566,31 @@ impl XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
-    ///
-    /// * `prop_value`: The new value.
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `new_value`: The new value.
     pub fn set_property_date(
         &mut self,
-        schema_ns: &str,
-        prop_name: &str,
-        prop_value: &XmpValue<XmpDateTime>,
+        namespace: &str,
+        path: &str,
+        new_value: &XmpValue<XmpDateTime>,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(schema_ns)?;
-        let c_name = CString::new(prop_name)?;
+        let c_ns = CString::new(namespace)?;
+        let c_name = CString::new(path)?;
         let mut err = ffi::CXmpError::default();
 
         unsafe {
-            ffi::CXmpMetaSetPropertyDate(
+            ffi::CXmpMetaSetProperty_Date(
                 self.m,
                 &mut err,
                 c_ns.as_ptr(),
                 c_name.as_ptr(),
-                &prop_value.value.as_ffi(),
-                prop_value.options,
+                &new_value.value.as_ffi(),
+                new_value.options,
             );
         }
 
         XmpError::raise_from_c(&err)
-    }
-
-    /// Creates an iterator for an array property value.
-    ///
-    /// ## Arguments
-    ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
-    pub fn array_property(&self, schema_ns: &str, prop_name: &str) -> ArrayProperty {
-        ArrayProperty {
-            meta: self,
-            ns: CString::new(schema_ns).unwrap_or_default(),
-            name: CString::new(prop_name).unwrap_or_default(),
-            index: 1,
-        }
-    }
-
-    /// Reports whether a property currently exists.
-    ///
-    /// ## Arguments
-    ///
-    /// * `schema_ns`: The namespace URI; see [`XmpMeta::property()`].
-    ///
-    /// * `prop_name`: The name of the property. Can be a general path
-    ///   expression. Must not be an empty string. See [`XmpMeta::property()`]
-    ///   for namespace prefix usage.
-    ///
-    /// ## Error handling
-    ///
-    /// Any errors (for instance, empty or invalid namespace or property name)
-    /// are ignored; the function will return `false` in such cases.
-    pub fn does_property_exist(&self, schema_ns: &str, prop_name: &str) -> bool {
-        let c_ns = CString::new(schema_ns).unwrap_or_default();
-        let c_name = CString::new(prop_name).unwrap_or_default();
-
-        let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
-        r != 0
     }
 }
 
@@ -507,7 +617,7 @@ impl FromStr for XmpMeta {
 
 /// An iterator that provides access to items within a property array.
 ///
-/// Create via [`XmpMeta::array_property`].
+/// Create via [`XmpMeta::property_array`].
 pub struct ArrayProperty<'a> {
     meta: &'a XmpMeta,
     ns: CString,

@@ -51,6 +51,14 @@ xmp_toolkit = "0.6.0"
 
 ## Breaking changes in 0.x series
 
+### Upgrading to 0.7 from earlier versions
+
+The `XmpMeta::array_property` method has been renamed to `XmpMeta::property_array`
+to make it consistent with the other typed property getters.
+
+The `XmpMeta::does_property_exist` method has been renamed to `XmpMeta::contains_property`
+for consistency with other Rust container types.
+
 ### Upgrading to 0.6 from earlier versions
 
 The `XmpMeta::property` method has been changed to return `Option<XmpValue<String>>`
