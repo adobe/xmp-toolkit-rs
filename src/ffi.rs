@@ -12,9 +12,41 @@
 // each license.
 
 use std::{
-    ffi::CString,
+    ffi::{CStr, CString},
     os::raw::{c_char, c_int},
 };
+
+pub(crate) struct CXmpString {
+    pub(crate) s: *const c_char,
+}
+
+impl CXmpString {
+    pub(crate) fn from_ptr(s: *const c_char) -> Self {
+        Self { s }
+    }
+
+    pub(crate) fn as_string(&self) -> String {
+        unsafe { CStr::from_ptr(self.s).to_string_lossy().into_owned() }
+    }
+
+    pub(crate) fn map<U, F>(&self, f: F) -> Option<U>
+    where
+        F: FnOnce(String) -> U,
+    {
+        if self.s.is_null() {
+            None
+        } else {
+            let s = self.as_string();
+            Some(f(s))
+        }
+    }
+}
+
+impl Drop for CXmpString {
+    fn drop(&mut self) {
+        unsafe { CXmpStringDrop(self.s) };
+    }
+}
 
 #[repr(C)]
 pub(crate) struct CXmpError {
@@ -24,7 +56,7 @@ pub(crate) struct CXmpError {
 }
 
 impl CXmpError {
-    #[allow(dead_code)] // only used in test code
+    #[allow(dead_code, clippy::unwrap_used)] // only used in test code
     pub(crate) fn new(had_error: bool, id: i32, debug_message: Option<&str>) -> Self {
         // Mimic a debug message coming from C++ code
         // so that we don't foul up our memory management
@@ -126,7 +158,7 @@ extern "C" {
         out_error: *mut CXmpError,
         namespace_uri: *const c_char,
         suggested_prefix: *const c_char,
-    ) -> *mut c_char;
+    ) -> *const c_char;
 
     pub(crate) fn CXmpMetaGetProperty(
         meta: *mut CXmpMeta,
@@ -134,7 +166,7 @@ extern "C" {
         schema_ns: *const c_char,
         prop_name: *const c_char,
         out_options: *mut u32,
-    ) -> *mut c_char;
+    ) -> *const c_char;
 
     pub(crate) fn CXmpMetaGetProperty_Bool(
         meta: *mut CXmpMeta,
@@ -248,7 +280,7 @@ extern "C" {
         prop_name: *const c_char,
         index: u32,
         out_options: *mut u32,
-    ) -> *mut c_char;
+    ) -> *const c_char;
 
     pub(crate) fn CXmpMetaGetLocalizedText(
         meta: *mut CXmpMeta,
@@ -259,7 +291,7 @@ extern "C" {
         specific_lang: *const c_char,
         out_actual_lang: *mut *const c_char,
         out_options: *mut u32,
-    ) -> *mut c_char;
+    ) -> *const c_char;
 
     // --- CXmpDateTime ---
 
@@ -268,5 +300,5 @@ extern "C" {
     pub(crate) fn CXmpDateTimeToString(
         dt: *const CXmpDateTime,
         out_error: *mut CXmpError,
-    ) -> *mut c_char;
+    ) -> *const c_char;
 }

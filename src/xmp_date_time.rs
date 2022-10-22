@@ -13,7 +13,10 @@
 
 use std::fmt;
 
-use crate::{ffi, XmpError, XmpResult};
+use crate::{
+    ffi::{self, CXmpString},
+    XmpError, XmpResult,
+};
 
 /// The `XmpDateTime` struct allows easy conversion between ISO8601 format
 /// (the "native" representation of dates and times in XMP) and other formats.
@@ -205,16 +208,16 @@ impl fmt::Display for XmpDateTime {
         let mut err = ffi::CXmpError::default();
 
         unsafe {
-            let c_result = ffi::CXmpDateTimeToString(&self.as_ffi(), &mut err);
-
-            if c_result.is_null() {
-                let err = XmpError::raise_from_c(&err);
-                write!(f, "(unable to format date: {:#?})", err)
-            } else {
-                let dt_as_str = std::ffi::CStr::from_ptr(c_result)
-                    .to_string_lossy()
-                    .into_owned();
-                write!(f, "{}", dt_as_str)
+            match CXmpString::from_ptr(ffi::CXmpDateTimeToString(&self.as_ffi(), &mut err))
+                .map(|s| s)
+            {
+                Some(s) => {
+                    write!(f, "{}", s)
+                }
+                None => {
+                    let err = XmpError::raise_from_c(&err);
+                    write!(f, "(unable to format date: {:#?})", err)
+                }
             }
         }
     }
