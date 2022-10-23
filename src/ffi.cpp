@@ -618,6 +618,23 @@ extern "C" {
         return 0;
     }
 
+    int CXmpMetaDoesStructFieldExist(CXmpMeta* m,
+                                  const char* schemaNS,
+                                  const char* structName,
+                                  const char* fieldNS,
+                                  const char* fieldName) {
+        #ifndef NOOP_FFI
+            try {
+                return (m->m.DoesStructFieldExist(schemaNS, structName, fieldNS, fieldName)) ? 1 : 0;
+            }
+            catch (...) {
+                // Intentional no-op.
+            }
+        #endif
+
+        return 0;
+    }
+
     const char* CXmpMetaGetArrayItem(CXmpMeta* m,
                                      CXmpError* outError,
                                      const char* schemaNS,

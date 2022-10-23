@@ -273,6 +273,14 @@ extern "C" {
         prop_name: *const c_char,
     ) -> c_int;
 
+    pub(crate) fn CXmpMetaDoesStructFieldExist(
+        meta: *const CXmpMeta,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
+    ) -> c_int;
+
     pub(crate) fn CXmpMetaGetArrayItem(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,
