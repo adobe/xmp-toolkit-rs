@@ -334,6 +334,17 @@ extern "C" {
         return NULL;
     }
 
+    void CXmpDumpNamespaces(void* rustString, XMP_TextOutputProc callback) {
+        #ifndef NOOP_FFI
+            try {
+                SXMPMeta::DumpNamespaces(callback, rustString);
+            }
+            catch (...) {
+                // intentional no-op
+            }
+        #endif
+    }
+
     const char* CXmpMetaGetProperty(CXmpMeta* m,
                                     CXmpError* outError,
                                     const char* schemaNS,

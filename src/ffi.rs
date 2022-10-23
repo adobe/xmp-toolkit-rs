@@ -13,7 +13,8 @@
 
 use std::{
     ffi::{CStr, CString},
-    os::raw::{c_char, c_int},
+    os::raw::{c_char, c_int, c_void},
+    slice,
 };
 
 pub(crate) struct CXmpString {
@@ -46,6 +47,20 @@ impl Drop for CXmpString {
     fn drop(&mut self) {
         unsafe { CXmpStringDrop(self.s) };
     }
+}
+
+type CXmpTextOutputProc = extern "C" fn(s: *mut c_void, buffer: *const u8, len: u32) -> i32;
+
+// Implementation of CXmpTextOutputProc that appends buffer to a Rust String.
+pub(crate) extern "C" fn xmp_dump_to_string(s: *mut c_void, buffer: *const u8, len: u32) -> i32 {
+    unsafe {
+        let cstr = slice::from_raw_parts(buffer, len as usize);
+        let cstr = String::from_utf8_lossy(cstr);
+        let s = &mut *s.cast::<String>();
+        s.push_str(cstr.as_ref());
+    }
+
+    0
 }
 
 #[repr(C)]
@@ -159,6 +174,8 @@ extern "C" {
         namespace_uri: *const c_char,
         suggested_prefix: *const c_char,
     ) -> *const c_char;
+
+    pub(crate) fn CXmpDumpNamespaces(out_string: *mut c_void, callback: CXmpTextOutputProc);
 
     pub(crate) fn CXmpMetaGetProperty(
         meta: *mut CXmpMeta,

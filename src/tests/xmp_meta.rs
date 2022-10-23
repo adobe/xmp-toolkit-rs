@@ -166,6 +166,17 @@ mod register_namespace {
     }
 }
 
+mod debug_dump_namespaces {
+    use crate::XmpMeta;
+
+    #[test]
+    fn happy_path() {
+        let ns = XmpMeta::debug_dump_namespaces();
+        println!("NAMESPACES = {}\n\n\n", ns);
+        assert!(ns.starts_with("\nDumping namespace prefix to URI map"));
+    }
+}
+
 mod contains_property {
     use crate::{tests::fixtures::*, xmp_ns, XmpMeta};
 
