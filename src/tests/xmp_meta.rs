@@ -194,6 +194,73 @@ mod contains_property {
     }
 }
 
+mod contains_struct_field {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::STRUCT_EXAMPLE, xmp_ns, XmpMeta};
+
+    #[test]
+    fn exists() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m.contains_struct_field(
+            xmp_ns::IPTC_CORE,
+            "CreatorContactInfo",
+            xmp_ns::IPTC_CORE,
+            "CiAdrPcode"
+        ));
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(!m.contains_struct_field(
+            xmp_ns::IPTC_CORE,
+            "CreatorContactInfo",
+            xmp_ns::IPTC_CORE,
+            "CiAdrPcodx"
+        ));
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(!m.contains_struct_field(
+            "",
+            "CreatorContactInfo",
+            xmp_ns::IPTC_CORE,
+            "CiAdrPcode"
+        ));
+    }
+
+    #[test]
+    fn empty_struct_name() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(!m.contains_struct_field(xmp_ns::IPTC_CORE, "", xmp_ns::IPTC_CORE, "CiAdrPcode"));
+    }
+
+    #[test]
+    fn empty_field_namespace() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(!m.contains_struct_field(
+            xmp_ns::IPTC_CORE,
+            "CreatorContactInfo",
+            "",
+            "CiAdrPcode"
+        ));
+    }
+
+    #[test]
+    fn empty_field_name() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(!m.contains_struct_field(
+            xmp_ns::IPTC_CORE,
+            "CreatorContactInfo",
+            xmp_ns::IPTC_CORE,
+            ""
+        ));
+    }
+}
+
 mod property {
     use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
 
@@ -568,6 +635,80 @@ mod property_date {
     fn invalid_prop_name() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert_eq!(m.property_date(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod struct_field {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::STRUCT_EXAMPLE, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn exists() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert_eq!(
+            m.struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            )
+            .unwrap(),
+            XmpValue {
+                value: "98110".to_owned(),
+                options: 0
+            }
+        );
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcodx"
+            )
+            .is_none());
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field("", "CreatorContactInfo", xmp_ns::IPTC_CORE, "CiAdrPcode")
+            .is_none());
+    }
+
+    #[test]
+    fn empty_struct_name() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field(xmp_ns::IPTC_CORE, "", xmp_ns::IPTC_CORE, "CiAdrPcode")
+            .is_none());
+    }
+
+    #[test]
+    fn empty_field_namespace() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field(xmp_ns::IPTC_CORE, "CreatorContactInfo", "", "CiAdrPcode")
+            .is_none());
+    }
+
+    #[test]
+    fn empty_field_name() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                ""
+            )
+            .is_none());
     }
 }
 
@@ -1137,6 +1278,19 @@ mod localized_text {
         assert_eq!(
             m.localized_text(xmp_ns::XMP, "title", Some("x-default"), "no-such-lang"),
             None
+        );
+    }
+}
+
+mod compose_struct_field_path {
+    use crate::{xmp_ns, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        assert_eq!(
+            XmpMeta::compose_struct_field_path(xmp_ns::XMP, "StructName", xmp_ns::XMP, "FieldName")
+                .unwrap(),
+            "StructName/xmp:FieldName"
         );
     }
 }

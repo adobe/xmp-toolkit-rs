@@ -11,13 +11,71 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::os::raw::{c_char, c_int};
+use std::{
+    ffi::{CStr, CString},
+    os::raw::{c_char, c_int},
+};
+
+pub(crate) struct CXmpString {
+    pub(crate) s: *const c_char,
+}
+
+impl CXmpString {
+    pub(crate) fn from_ptr(s: *const c_char) -> Self {
+        Self { s }
+    }
+
+    pub(crate) fn as_string(&self) -> String {
+        unsafe { CStr::from_ptr(self.s).to_string_lossy().into_owned() }
+    }
+
+    pub(crate) fn map<U, F>(&self, f: F) -> Option<U>
+    where
+        F: FnOnce(String) -> U,
+    {
+        if self.s.is_null() {
+            None
+        } else {
+            let s = self.as_string();
+            Some(f(s))
+        }
+    }
+}
+
+impl Drop for CXmpString {
+    fn drop(&mut self) {
+        unsafe { CXmpStringDrop(self.s) };
+    }
+}
 
 #[repr(C)]
 pub(crate) struct CXmpError {
     pub(crate) had_error: u32,
     pub(crate) id: i32,
     pub(crate) debug_message: *const c_char,
+}
+
+impl CXmpError {
+    #[allow(dead_code, clippy::unwrap_used)] // only used in test code
+    pub(crate) fn new(had_error: bool, id: i32, debug_message: Option<&str>) -> Self {
+        // Mimic a debug message coming from C++ code
+        // so that we don't foul up our memory management
+        // when this struct is dropped.
+
+        Self {
+            had_error: if had_error { 1 } else { 0 },
+            id,
+            debug_message: unsafe {
+                match debug_message {
+                    Some(debug_message) => {
+                        let debug_message_as_cstr = CString::new(debug_message).unwrap();
+                        CXmpStringCopy(debug_message_as_cstr.as_ptr())
+                    }
+                    None => std::ptr::null(),
+                }
+            },
+        }
+    }
 }
 
 impl Default for CXmpError {
@@ -27,6 +85,13 @@ impl Default for CXmpError {
             id: 0,
             debug_message: std::ptr::null(),
         }
+    }
+}
+
+impl Drop for CXmpError {
+    fn drop(&mut self) {
+        unsafe { CXmpStringDrop(self.debug_message) };
+        self.debug_message = std::ptr::null();
     }
 }
 
@@ -52,6 +117,9 @@ pub(crate) enum CXmpFile {}
 pub(crate) enum CXmpMeta {}
 
 extern "C" {
+    pub(crate) fn CXmpStringCopy(s: *const c_char) -> *const c_char;
+    pub(crate) fn CXmpStringDrop(s: *const c_char);
+
     // --- CXmpFile ---
 
     pub(crate) fn CXmpFileNew(out_error: *mut CXmpError) -> *mut CXmpFile;
@@ -90,7 +158,7 @@ extern "C" {
         out_error: *mut CXmpError,
         namespace_uri: *const c_char,
         suggested_prefix: *const c_char,
-    ) -> *mut c_char;
+    ) -> *const c_char;
 
     pub(crate) fn CXmpMetaGetProperty(
         meta: *mut CXmpMeta,
@@ -98,7 +166,7 @@ extern "C" {
         schema_ns: *const c_char,
         prop_name: *const c_char,
         out_options: *mut u32,
-    ) -> *mut c_char;
+    ) -> *const c_char;
 
     pub(crate) fn CXmpMetaGetProperty_Bool(
         meta: *mut CXmpMeta,
@@ -144,6 +212,16 @@ extern "C" {
         out_value: *mut CXmpDateTime,
         out_options: *mut u32,
     ) -> bool;
+
+    pub(crate) fn CXmpMetaGetStructField(
+        meta: *const CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
+        out_options: *mut u32,
+    ) -> *const c_char;
 
     pub(crate) fn CXmpMetaSetProperty(
         meta: *mut CXmpMeta,
@@ -205,6 +283,14 @@ extern "C" {
         prop_name: *const c_char,
     ) -> c_int;
 
+    pub(crate) fn CXmpMetaDoesStructFieldExist(
+        meta: *const CXmpMeta,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
+    ) -> c_int;
+
     pub(crate) fn CXmpMetaGetArrayItem(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,
@@ -212,7 +298,7 @@ extern "C" {
         prop_name: *const c_char,
         index: u32,
         out_options: *mut u32,
-    ) -> *mut c_char;
+    ) -> *const c_char;
 
     pub(crate) fn CXmpMetaGetLocalizedText(
         meta: *mut CXmpMeta,
@@ -223,7 +309,15 @@ extern "C" {
         specific_lang: *const c_char,
         out_actual_lang: *mut *const c_char,
         out_options: *mut u32,
-    ) -> *mut c_char;
+    ) -> *const c_char;
+
+    pub(crate) fn CXmpMetaComposeStructFieldPath(
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
+    ) -> *const c_char;
 
     // --- CXmpDateTime ---
 
@@ -232,6 +326,5 @@ extern "C" {
     pub(crate) fn CXmpDateTimeToString(
         dt: *const CXmpDateTime,
         out_error: *mut CXmpError,
-    ) -> *mut c_char;
-
+    ) -> *const c_char;
 }

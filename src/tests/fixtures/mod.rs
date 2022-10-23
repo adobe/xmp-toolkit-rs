@@ -102,3 +102,19 @@ pub(crate) const PURPLE_SQUARE_XMP: &str = r#"<x:xmpmeta xmlns:x="adobe:ns:meta/
         </rdf:RDF>
         </x:xmpmeta>
         "#;
+
+pub(crate) const STRUCT_EXAMPLE: &str = r#"
+        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0-c000 1.000000, 0000/00/00-00:00:00">
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+            <rdf:Description rdf:about=""
+                xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+                xmlns:xmpRights="http://ns.adobe.com/xap/1.0/rights/"
+                xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/"
+                xmpRights:Marked="True">
+                <Iptc4xmpCore:CreatorContactInfo
+                    Iptc4xmpCore:CiAdrPcode="98110"
+                    Iptc4xmpCore:CiAdrCtry="US"/>
+            </rdf:Description>
+        </rdf:RDF>
+    </x:xmpmeta>
+    "#;

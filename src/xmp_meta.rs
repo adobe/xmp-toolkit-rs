@@ -11,14 +11,11 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{
-    ffi::{CStr, CString},
-    path::Path,
-    str::FromStr,
-};
+use std::{ffi::CString, path::Path, str::FromStr};
 
 use crate::{
-    ffi, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult, XmpValue,
+    ffi::{self, CXmpString},
+    OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult, XmpValue,
 };
 
 /// An `XmpMeta` struct allows you to inspect and modify the data model
@@ -114,11 +111,15 @@ impl XmpMeta {
         unsafe {
             let mut err = ffi::CXmpError::default();
 
-            let c_result = ffi::CXmpMetaRegisterNamespace(&mut err, c_ns.as_ptr(), c_sp.as_ptr());
+            let result = CXmpString::from_ptr(ffi::CXmpMetaRegisterNamespace(
+                &mut err,
+                c_ns.as_ptr(),
+                c_sp.as_ptr(),
+            ));
 
             XmpError::raise_from_c(&err)?;
 
-            Ok(CStr::from_ptr(c_result).to_string_lossy().into_owned())
+            Ok(result.as_string())
         }
     }
 
@@ -141,6 +142,45 @@ impl XmpMeta {
         r != 0
     }
 
+    /// Returns `true` if the metadata block contains a struct field by this
+    /// name.
+    ///
+    /// ## Arguments
+    ///
+    /// * `struct_ns` and `struct_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    ///
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `false` in such cases.
+    pub fn contains_struct_field(
+        &self,
+        struct_ns: &str,
+        struct_path: &str,
+        field_ns: &str,
+        field_name: &str,
+    ) -> bool {
+        let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
+        let c_struct_name = CString::new(struct_path).unwrap_or_default();
+        let c_field_ns = CString::new(field_ns).unwrap_or_default();
+        let c_field_name = CString::new(field_name).unwrap_or_default();
+
+        let r = unsafe {
+            ffi::CXmpMetaDoesStructFieldExist(
+                self.m,
+                c_struct_ns.as_ptr(),
+                c_struct_name.as_ptr(),
+                c_field_ns.as_ptr(),
+                c_field_name.as_ptr(),
+            )
+        };
+
+        r != 0
+    }
+
     /// Gets a simple string property value.
     ///
     /// ## Arguments
@@ -160,22 +200,14 @@ impl XmpMeta {
         let mut err = ffi::CXmpError::default();
 
         unsafe {
-            let c_result = ffi::CXmpMetaGetProperty(
+            CXmpString::from_ptr(ffi::CXmpMetaGetProperty(
                 self.m,
                 &mut err,
                 c_ns.as_ptr(),
                 c_name.as_ptr(),
                 &mut options,
-            );
-
-            if c_result.is_null() {
-                None
-            } else {
-                Some(XmpValue {
-                    value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
-                    options,
-                })
-            }
+            ))
+            .map(|value| XmpValue { value, options })
         }
     }
 
@@ -190,7 +222,7 @@ impl XmpMeta {
             meta: self,
             ns: CString::new(namespace).unwrap_or_default(),
             name: CString::new(path).unwrap_or_default(),
-            index: 1,
+            index: 0,
         }
     }
 
@@ -385,6 +417,48 @@ impl XmpMeta {
             } else {
                 None
             }
+        }
+    }
+
+    /// Gets a field value from within an nested structure.
+    ///
+    /// ## Arguments
+    ///
+    /// * `struct_ns` and `struct_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    ///
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `None` in such cases.
+    pub fn struct_field(
+        &self,
+        struct_ns: &str,
+        struct_path: &str,
+        field_ns: &str,
+        field_name: &str,
+    ) -> Option<XmpValue<String>> {
+        let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
+        let c_struct_name = CString::new(struct_path).unwrap_or_default();
+        let c_field_ns = CString::new(field_ns).unwrap_or_default();
+        let c_field_name = CString::new(field_name).unwrap_or_default();
+
+        let mut options: u32 = 0;
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            CXmpString::from_ptr(ffi::CXmpMetaGetStructField(
+                self.m,
+                &mut err,
+                c_struct_ns.as_ptr(),
+                c_struct_name.as_ptr(),
+                c_field_ns.as_ptr(),
+                c_field_name.as_ptr(),
+                &mut options,
+            ))
+            .map(|value| XmpValue { value, options })
         }
     }
 
@@ -687,7 +761,7 @@ impl XmpMeta {
         unsafe {
             let mut c_actual_lang: *const i8 = std::ptr::null_mut();
 
-            let c_result = ffi::CXmpMetaGetLocalizedText(
+            CXmpString::from_ptr(ffi::CXmpMetaGetLocalizedText(
                 self.m,
                 &mut err,
                 c_ns.as_ptr(),
@@ -699,19 +773,53 @@ impl XmpMeta {
                 c_specific_lang.as_ptr(),
                 &mut c_actual_lang,
                 &mut options,
-            );
+            ))
+            .map(|value| {
+                (
+                    XmpValue { value, options },
+                    CXmpString::from_ptr(c_actual_lang).as_string(),
+                )
+            })
+        }
+    }
 
-            if c_result.is_null() {
-                None
-            } else {
-                Some((
-                    XmpValue {
-                        value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
-                        options,
-                    },
-                    CStr::from_ptr(c_actual_lang).to_string_lossy().into_owned(),
-                ))
-            }
+    /// Composes the path expression for a field in a struct.
+    ///
+    /// ## Arguments
+    ///
+    /// * `struct_ns` and `struct_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    ///
+    /// ## Return
+    ///
+    /// If successful, the returned string is in the form
+    /// `struct_ns:struct_name/field_ns:field_name`.
+    pub fn compose_struct_field_path(
+        struct_ns: &str,
+        struct_path: &str,
+        field_ns: &str,
+        field_name: &str,
+    ) -> XmpResult<String> {
+        let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
+        let c_struct_name = CString::new(struct_path).unwrap_or_default();
+        let c_field_ns = CString::new(field_ns).unwrap_or_default();
+        let c_field_name = CString::new(field_name).unwrap_or_default();
+
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            let result = CXmpString::from_ptr(ffi::CXmpMetaComposeStructFieldPath(
+                &mut err,
+                c_struct_ns.as_ptr(),
+                c_struct_name.as_ptr(),
+                c_field_ns.as_ptr(),
+                c_field_name.as_ptr(),
+            ));
+
+            XmpError::raise_from_c(&err)?;
+            Ok(result.as_string())
         }
     }
 }
@@ -755,25 +863,17 @@ impl<'a> Iterator for ArrayProperty<'a> {
             let mut options: u32 = 0;
             let mut err = ffi::CXmpError::default();
 
-            let c_result = ffi::CXmpMetaGetArrayItem(
+            self.index += 1;
+
+            CXmpString::from_ptr(ffi::CXmpMetaGetArrayItem(
                 self.meta.m,
                 &mut err,
                 self.ns.as_ptr(),
                 self.name.as_ptr(),
                 self.index,
                 &mut options,
-            );
-
-            self.index += 1;
-
-            if c_result.is_null() {
-                None
-            } else {
-                Some(XmpValue {
-                    value: CStr::from_ptr(c_result).to_string_lossy().into_owned(),
-                    options,
-                })
-            }
+            ))
+            .map(|value| XmpValue { value, options })
         }
     }
 }
