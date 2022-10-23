@@ -336,6 +336,8 @@ extern "C" {
 
     void CXmpDumpNamespaces(void* rustString, XMP_TextOutputProc callback) {
         #ifndef NOOP_FFI
+            init_xmp();
+
             try {
                 SXMPMeta::DumpNamespaces(callback, rustString);
             }
