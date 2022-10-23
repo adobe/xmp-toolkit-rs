@@ -336,6 +336,12 @@ extern "C" {
         field_name: *const c_char,
     ) -> *const c_char;
 
+    pub(crate) fn CXmpMetaDumpObj(
+        meta: *mut CXmpMeta,
+        out_string: *mut c_void,
+        callback: CXmpTextOutputProc,
+    );
+
     // --- CXmpDateTime ---
 
     pub(crate) fn CXmpDateTimeCurrent(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
