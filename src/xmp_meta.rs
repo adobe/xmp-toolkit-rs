@@ -11,7 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{ffi::CString, path::Path, str::FromStr};
+use std::{ffi::CString, os::raw::c_void, path::Path, str::FromStr};
 
 use crate::{
     ffi::{self, CXmpString},
@@ -121,6 +121,23 @@ impl XmpMeta {
 
             Ok(result.as_string())
         }
+    }
+
+    /// Returns a list of registered namespaces as a string.
+    ///
+    /// Intended for debugging/logging use.
+    pub fn debug_dump_namespaces() -> String {
+        let mut result = String::default();
+
+        unsafe {
+            let result: *mut String = &mut result;
+            ffi::CXmpDumpNamespaces(
+                std::mem::transmute::<*mut String, *mut c_void>(result),
+                ffi::xmp_dump_to_string,
+            );
+        }
+
+        result
     }
 
     /// Returns `true` if the metadata block contains a property by this name.
