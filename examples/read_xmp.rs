@@ -68,7 +68,7 @@ fn read_xmp_from_file() -> Result<()> {
     // Retrieve the XMP from the file.
     let xmp = f
         .xmp()
-        .ok_or(anyhow!("unable to process XMP in file {}", path))?;
+        .ok_or_else(|| anyhow!("unable to process XMP in file {}", path))?;
 
     // Add the code to display the simple property "CreatorTool" by providing
     // the namespace URI and the name of the property.
