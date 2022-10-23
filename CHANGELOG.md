@@ -6,6 +6,23 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.7.0
+_23 October 2022_
+
+* Add example (port of MyReadXMP app) ([#82](https://github.com/adobe/xmp-toolkit-rs/pull/82))
+* Add `XmpMeta::struct_field` ([#107](https://github.com/adobe/xmp-toolkit-rs/pull/107))
+* Add `XmpMeta::contains_struct_field` ([#106](https://github.com/adobe/xmp-toolkit-rs/pull/106))
+* Add `XmpMeta::compose_struct_field_path` ([#105](https://github.com/adobe/xmp-toolkit-rs/pull/105))
+* Fix memory leaks when returning strings from C++ to Rust ([#104](https://github.com/adobe/xmp-toolkit-rs/pull/104))
+* Implement `Display` for `XmpDateTime` ([#103](https://github.com/adobe/xmp-toolkit-rs/pull/103))
+* Add `XmpMeta::localized_text` accessor ([#99](https://github.com/adobe/xmp-toolkit-rs/pull/99))
+* Refactor `XmpMeta` documentation for property accessors ([#98](https://github.com/adobe/xmp-toolkit-rs/pull/98))
+* (MINOR) Rename `XmpMeta::does_property_exist` to `XmpMeta::contains_property` ([#97](https://github.com/adobe/xmp-toolkit-rs/pull/97))
+* (MINOR) Rename `XmpMeta.array_property` to `.property_array` ([#96](https://github.com/adobe/xmp-toolkit-rs/pull/96))
+* Add typed property setters ([#95](https://github.com/adobe/xmp-toolkit-rs/pull/95))
+* Add typed property getters ([#94](https://github.com/adobe/xmp-toolkit-rs/pull/94))
+* Remove `Eq` trait bound on `XmpValue<T>` ([#93](https://github.com/adobe/xmp-toolkit-rs/pull/93))
+
 ## 0.6.0
 _20 October 2022_
 
