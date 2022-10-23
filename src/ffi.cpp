@@ -725,6 +725,8 @@ extern "C" {
                 signalUnknownError(outError);
             }
         #endif
+
+        return NULL;
     }
 
     // --- CXmpDateTime ---
