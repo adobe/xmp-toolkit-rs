@@ -29,7 +29,7 @@
 use std::env;
 
 use anyhow::{anyhow, Context, Result};
-use xmp_toolkit::{xmp_ns, OpenFileOptions, XmpFile};
+use xmp_toolkit::{xmp_ns, OpenFileOptions, XmpFile, XmpMeta};
 
 fn read_xmp_from_file() -> Result<()> {
     // Parse command-line arguments. There should be only one
@@ -103,14 +103,23 @@ fn read_xmp_from_file() -> Result<()> {
     {
         println!("dc:title in French = {}", value.value);
     }
-    
+
     // Get a date property; read the `MetadataDate` property if it exists. If so,
     // convert the `XmpDateTime` into a string and display it.
     if let Some(value) = xmp.property_date(xmp_ns::XMP, "MetadataDate") {
         println!("meta:MetadataDate = {}", value.value);
     }
 
-    // TODO: Continue from step 16 of C++ example.
+    // Discover if the EXIF Flash structure is available. If so, display the
+    // flash status at the time the photograph was taken.
+    if xmp.contains_struct_field(xmp_ns::EXIF, "Flash", xmp_ns::EXIF, "Fired") {
+        let path = XmpMeta::compose_struct_field_path(xmp_ns::EXIF, "Flash", xmp_ns::EXIF, "Fired")
+            .unwrap();
+
+        if let Some(value) = xmp.property_bool(xmp_ns::EXIF, &path) {
+            println!("Flash Used = {}", value.value);
+        }
+    }
 
     Ok(())
 }
