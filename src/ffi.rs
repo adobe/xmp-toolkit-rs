@@ -213,6 +213,16 @@ extern "C" {
         out_options: *mut u32,
     ) -> bool;
 
+    pub(crate) fn CXmpMetaGetStructField(
+        meta: *const CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
+        out_options: *mut u32,
+    ) -> *const c_char;
+
     pub(crate) fn CXmpMetaSetProperty(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,

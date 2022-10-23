@@ -420,6 +420,48 @@ impl XmpMeta {
         }
     }
 
+    /// Gets a field value from within an nested structure.
+    ///
+    /// ## Arguments
+    ///
+    /// * `struct_ns` and `struct_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    ///
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `None` in such cases.
+    pub fn struct_field(
+        &self,
+        struct_ns: &str,
+        struct_path: &str,
+        field_ns: &str,
+        field_name: &str,
+    ) -> Option<XmpValue<String>> {
+        let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
+        let c_struct_name = CString::new(struct_path).unwrap_or_default();
+        let c_field_ns = CString::new(field_ns).unwrap_or_default();
+        let c_field_name = CString::new(field_name).unwrap_or_default();
+
+        let mut options: u32 = 0;
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            CXmpString::from_ptr(ffi::CXmpMetaGetStructField(
+                self.m,
+                &mut err,
+                c_struct_ns.as_ptr(),
+                c_struct_name.as_ptr(),
+                c_field_ns.as_ptr(),
+                c_field_name.as_ptr(),
+                &mut options,
+            ))
+            .map(|value| XmpValue { value, options })
+        }
+    }
+
     /// Creates or sets a property value.
     ///
     /// This is the simplest property setter. Use it for top-level

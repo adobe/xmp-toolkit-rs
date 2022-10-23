@@ -603,6 +603,34 @@ extern "C" {
         #endif
     }
 
+    const char* CXmpMetaGetStructField(CXmpMeta* m,
+                                       CXmpError* outError,
+                                       const char* schemaNS,
+                                       const char* structName,
+                                       const char* fieldNS,
+                                       const char* fieldName,
+                                       AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string propValue;
+                if (m->m.GetStructField(schemaNS, structName, fieldNS, fieldName,
+                                        &propValue, outOptions)) {
+                    return copyStringForResult(propValue);
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
     int CXmpMetaDoesPropertyExist(CXmpMeta* m,
                                   const char* schemaNS,
                                   const char* propName) {
