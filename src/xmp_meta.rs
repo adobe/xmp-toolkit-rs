@@ -142,6 +142,45 @@ impl XmpMeta {
         r != 0
     }
 
+    /// Returns `true` if the metadata block contains a struct field by this
+    /// name.
+    ///
+    /// ## Arguments
+    ///
+    /// * `struct_ns` and `struct_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    ///
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `false` in such cases.
+    pub fn contains_struct_field(
+        &self,
+        struct_ns: &str,
+        struct_path: &str,
+        field_ns: &str,
+        field_name: &str,
+    ) -> bool {
+        let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
+        let c_struct_name = CString::new(struct_path).unwrap_or_default();
+        let c_field_ns = CString::new(field_ns).unwrap_or_default();
+        let c_field_name = CString::new(field_name).unwrap_or_default();
+
+        let r = unsafe {
+            ffi::CXmpMetaDoesStructFieldExist(
+                self.m,
+                c_struct_ns.as_ptr(),
+                c_struct_name.as_ptr(),
+                c_field_ns.as_ptr(),
+                c_field_name.as_ptr(),
+            )
+        };
+
+        r != 0
+    }
+
     /// Gets a simple string property value.
     ///
     /// ## Arguments
