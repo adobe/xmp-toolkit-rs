@@ -770,6 +770,19 @@ extern "C" {
         return NULL;
     }
 
+    void CXmpMetaDumpObj(CXmpMeta* m,
+                         void* rustString,
+                         XMP_TextOutputProc callback) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.DumpObject(callback, rustString);
+            }
+            catch (...) {
+                // intentional no-op
+            }
+        #endif
+    }
+
     // --- CXmpDateTime ---
 
     void CXmpDateTimeCurrent(XMP_DateTime* dt, CXmpError* outError) {
