@@ -20,6 +20,8 @@
 
 #![allow(dead_code)] // TEMPORARY while in development
 
+use crate::XmpMeta;
+
 const NS1: &str = "ns:test1/";
 const NS2: &str = "ns:test2/";
 
@@ -365,17 +367,16 @@ fn xmp_core_coverage() {
 
     //-------------------------------------------------------------------------
 
+    write_major_label("Dump predefined namespaces");
+    println!("{}", XmpMeta::debug_dump_namespaces());
+
+    //-------------------------------------------------------------------------
+
     // //
     // int				i;
     // bool			ok;
     // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
     // XMP_OptionBits	options;
-
-    // write_major_label("Dump predefined namespaces" );
-
-    // SXMPMeta::DumpNamespaces ( DumpToFile, log );
-
-    // // --------------------------------------------------------------------------------------------
 
     // {
     // 	write_major_label("Test simple constructors and parsing, setting the
