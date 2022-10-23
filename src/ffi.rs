@@ -56,7 +56,7 @@ pub(crate) extern "C" fn xmp_dump_to_string(s: *mut c_void, buffer: *const u8, l
     unsafe {
         let cstr = slice::from_raw_parts(buffer, len as usize);
         let cstr = String::from_utf8_lossy(cstr);
-        let s = core::mem::transmute::<*mut c_void, &mut String>(s);
+        let s = &mut *s.cast::<String>();
         s.push_str(cstr.as_ref());
     }
 
