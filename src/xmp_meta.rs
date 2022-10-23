@@ -11,7 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{ffi::CString, os::raw::c_void, path::Path, str::FromStr};
+use std::{ffi::CString, fmt, os::raw::c_void, path::Path, str::FromStr};
 
 use crate::{
     ffi::{self, CXmpString},
@@ -838,6 +838,27 @@ impl XmpMeta {
             XmpError::raise_from_c(&err)?;
             Ok(result.as_string())
         }
+    }
+}
+
+impl fmt::Debug for XmpMeta {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        let mut result = String::default();
+
+        unsafe {
+            let result: *mut String = &mut result;
+            ffi::CXmpMetaDumpObj(
+                self.m,
+                std::mem::transmute::<*mut String, *mut c_void>(result),
+                ffi::xmp_dump_to_string,
+            );
+        }
+
+        if result.starts_with("Dumping ") {
+            result.replace_range(0..8, "");
+        }
+
+        write!(f, "{}", result)
     }
 }
 

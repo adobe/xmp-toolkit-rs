@@ -1305,3 +1305,16 @@ mod compose_struct_field_path {
         );
     }
 }
+
+mod impl_debug {
+    use crate::{tests::fixtures::*, XmpMeta};
+
+    #[test]
+    fn fmt() {
+        let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        let s = format!("{:#?}", m);
+
+        println!("Debug dump of XMP object follows:\n\n{}", s);
+        assert!(s.starts_with("XMPMeta object \"\""));
+    }
+}
