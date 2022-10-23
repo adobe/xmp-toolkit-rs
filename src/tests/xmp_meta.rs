@@ -197,23 +197,7 @@ mod contains_property {
 mod contains_struct_field {
     use std::str::FromStr;
 
-    use crate::{xmp_ns, XmpMeta};
-
-    const STRUCT_EXAMPLE: &str = r#"
-        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0-c000 1.000000, 0000/00/00-00:00:00">
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-            <rdf:Description rdf:about=""
-                xmlns:xmp="http://ns.adobe.com/xap/1.0/"
-                xmlns:xmpRights="http://ns.adobe.com/xap/1.0/rights/"
-                xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/"
-                xmpRights:Marked="True">
-                <Iptc4xmpCore:CreatorContactInfo
-                    Iptc4xmpCore:CiAdrPcode="98110"
-                    Iptc4xmpCore:CiAdrCtry="US"/>
-            </rdf:Description>
-        </rdf:RDF>
-    </x:xmpmeta>
-    "#;
+    use crate::{tests::fixtures::STRUCT_EXAMPLE, xmp_ns, XmpMeta};
 
     #[test]
     fn exists() {
@@ -253,6 +237,7 @@ mod contains_struct_field {
         let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
         assert!(!m.contains_struct_field(xmp_ns::IPTC_CORE, "", xmp_ns::IPTC_CORE, "CiAdrPcode"));
     }
+
     #[test]
     fn empty_field_namespace() {
         let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
@@ -650,6 +635,80 @@ mod property_date {
     fn invalid_prop_name() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert_eq!(m.property_date(xmp_ns::XMP, "\0"), None);
+    }
+}
+
+mod struct_field {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::STRUCT_EXAMPLE, xmp_ns, XmpMeta, XmpValue};
+
+    #[test]
+    fn exists() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert_eq!(
+            m.struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            )
+            .unwrap(),
+            XmpValue {
+                value: "98110".to_owned(),
+                options: 0
+            }
+        );
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcodx"
+            )
+            .is_none());
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field("", "CreatorContactInfo", xmp_ns::IPTC_CORE, "CiAdrPcode")
+            .is_none());
+    }
+
+    #[test]
+    fn empty_struct_name() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field(xmp_ns::IPTC_CORE, "", xmp_ns::IPTC_CORE, "CiAdrPcode")
+            .is_none());
+    }
+
+    #[test]
+    fn empty_field_namespace() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field(xmp_ns::IPTC_CORE, "CreatorContactInfo", "", "CiAdrPcode")
+            .is_none());
+    }
+
+    #[test]
+    fn empty_field_name() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+        assert!(m
+            .struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                ""
+            )
+            .is_none());
     }
 }
 
