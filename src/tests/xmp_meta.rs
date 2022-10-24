@@ -377,11 +377,9 @@ mod property_array {
     fn init_fail() {
         let m = XmpMeta::new_fail();
 
-        let creators: Vec<XmpValue<String>> = m
-            .property_array("http://purl.org/dc/elements/1.1/", "creator")
-            .collect();
+        let mut creator_iter = m.property_array("http://purl.org/dc/elements/1.1/", "creator");
 
-        assert!(creators.is_empty());
+        assert!(creator_iter.next().is_none());
     }
 
     #[test]
