@@ -1528,6 +1528,8 @@ mod impl_clone {
     #[test]
     fn init_fail() {
         let m = XmpMeta::new_fail();
+
+        #[allow(clippy::redundant_clone)]
         let clone = m.clone();
 
         assert_eq!(clone.property(xmp_ns::XMP, "Creator"), None);
