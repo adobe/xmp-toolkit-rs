@@ -1507,6 +1507,35 @@ mod compose_struct_field_path {
     }
 }
 
+mod impl_clone {
+    use crate::{tests::fixtures::*, xmp_ns, XmpMeta};
+
+    #[test]
+    fn clone() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+        let clone = m.clone();
+
+        m.set_property(xmp_ns::XMP, "Creator", &"(new creator)".into())
+            .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::XMP, "Creator").unwrap().value,
+            "(new creator)"
+        );
+        assert_eq!(clone.property(xmp_ns::XMP, "Creator"), None);
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+
+        #[allow(clippy::redundant_clone)]
+        let clone = m.clone();
+
+        assert_eq!(clone.property(xmp_ns::XMP, "Creator"), None);
+    }
+}
+
 mod impl_debug {
     use crate::{tests::fixtures::*, XmpMeta};
 

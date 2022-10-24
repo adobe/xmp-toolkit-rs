@@ -163,6 +163,8 @@ extern "C" {
     pub(crate) fn CXmpMetaNew(out_error: *mut CXmpError) -> *mut CXmpMeta;
     pub(crate) fn CXmpMetaDrop(meta: *mut CXmpMeta);
 
+    pub(crate) fn CXmpMetaClone(m: *const CXmpMeta, out_error: *mut CXmpError) -> *mut CXmpMeta;
+
     pub(crate) fn CXmpMetaParseFromBuffer(
         out_error: *mut CXmpError,
         buffer: *const u8,
