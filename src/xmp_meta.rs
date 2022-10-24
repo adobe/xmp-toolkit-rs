@@ -63,12 +63,19 @@ impl XmpMeta {
     /// An error result from this function is unlikely but possible
     /// if, for example, the C++ XMP Toolkit fails to initialize or
     /// reports an out-of-memory condition.
-    pub fn new() -> XmpResult<XmpMeta> {
+    pub fn new() -> XmpResult<Self> {
         let mut err = ffi::CXmpError::default();
         let m = unsafe { ffi::CXmpMetaNew(&mut err) };
         XmpError::raise_from_c(&err)?;
 
-        Ok(XmpMeta { m: Some(m) })
+        Ok(Self { m: Some(m) })
+    }
+
+    /// Use only for testing. Simulates failure to initialize
+    /// C++ XMP Toolkit.
+    #[allow(dead_code)] // used only in test code
+    pub(crate) fn new_fail() -> Self {
+        Self { m: None }
     }
 
     /// Reads the XMP from a file without keeping the file open.

@@ -59,10 +59,7 @@ mod from_file {
 
     #[test]
     fn no_xmp() {
-        let err = XmpMeta::from_file(fixture_path("no_xmp.txt"))
-            .err()
-            .unwrap();
-        // NOTE: Can't use unwrap_err() because XmpMeta doesn't implement Debug trait.
+        let err = XmpMeta::from_file(fixture_path("no_xmp.txt")).unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::Unavailable);
         assert_eq!(err.debug_message, "No XMP in file");
@@ -71,8 +68,7 @@ mod from_file {
     #[test]
     fn file_not_found() {
         let bad_path = PathBuf::from("doesnotexist.jpg");
-        let err = XmpMeta::from_file(&bad_path).err().unwrap();
-        // NOTE: Can't use unwrap_err() because XmpMeta doesn't implement Debug trait.
+        let err = XmpMeta::from_file(&bad_path).unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NoFile);
     }
@@ -198,6 +194,12 @@ mod contains_property {
     }
 
     #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert!(!m.contains_property(xmp_ns::XMP, "CreatorTool"));
+    }
+
+    #[test]
     fn empty_namespace() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert!(!m.contains_property("", "CreatorTool"));
@@ -234,6 +236,17 @@ mod contains_struct_field {
             "CreatorContactInfo",
             xmp_ns::IPTC_CORE,
             "CiAdrPcodx"
+        ));
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert!(!m.contains_struct_field(
+            xmp_ns::IPTC_CORE,
+            "CreatorContactInfo",
+            xmp_ns::IPTC_CORE,
+            "CiAdrPcode"
         ));
     }
 
@@ -293,6 +306,12 @@ mod property {
     }
 
     #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(m.property(xmp_ns::XMP, "CreatorTool"), None);
+    }
+
+    #[test]
     fn empty_namespace() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert_eq!(m.property("", "CreatorTool"), None);
@@ -334,8 +353,7 @@ mod property_array {
 
         let creator = creators.pop().unwrap();
         assert_eq!(creator.value, "Llywelyn");
-        // assert_eq!(creator.options, 0);
-        // TO DO: Implement this test when options are exposed.
+        assert_eq!(creator.options, 0);
     }
 
     #[test]
@@ -353,6 +371,17 @@ mod property_array {
             subjects,
             vec!("Stefan", "XMP", "XMPFiles", "purple", "square", "test")
         );
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+
+        let creators: Vec<XmpValue<String>> = m
+            .property_array("http://purl.org/dc/elements/1.1/", "creator")
+            .collect();
+
+        assert!(creators.is_empty());
     }
 
     #[test]
@@ -380,6 +409,12 @@ mod property_bool {
                 options: 0
             })
         );
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(m.property_bool(xmp_ns::XMP_RIGHTS, "Marked"), None);
     }
 
     #[test]
@@ -441,6 +476,12 @@ mod property_i32 {
     }
 
     #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(m.property_i32(xmp_ns::EXIF, "PixelXDimension"), None);
+    }
+
+    #[test]
     fn unrecognizable_as_int() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert_eq!(m.property_i32(xmp_ns::XMP, "CreatorTool"), None);
@@ -493,6 +534,12 @@ mod property_i64 {
     }
 
     #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(m.property_i64(xmp_ns::EXIF, "PixelXDimension"), None);
+    }
+
+    #[test]
     fn unrecognizable_as_int() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert_eq!(m.property_i64(xmp_ns::XMP, "CreatorTool"), None);
@@ -542,6 +589,12 @@ mod property_f64 {
                 options: 0
             })
         );
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(m.property_f64(xmp_ns::EXIF, "PixelXDimension"), None);
     }
 
     #[test]
@@ -618,6 +671,12 @@ mod property_date {
     }
 
     #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(m.property_date(xmp_ns::XMP, "ModifyDate"), None);
+    }
+
+    #[test]
     fn unrecognizable_as_date() {
         let m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
         assert_eq!(m.property_date(xmp_ns::XMP, "CreatorTool"), None);
@@ -688,6 +747,20 @@ mod struct_field {
                 "CiAdrPcodx"
             )
             .is_none());
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(
+            m.struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            ),
+            None
+        );
     }
 
     #[test]
@@ -774,6 +847,19 @@ mod set_property {
     }
 
     #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        let err = m
+            .set_property("http://purl.org/dc/terms/", "provenance", &"blah".into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
     fn error_empty_name() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
 
@@ -845,6 +931,17 @@ mod set_property_bool {
     }
 
     #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .set_property_bool(xmp_ns::XMP_RIGHTS, "Marked", &true.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
     fn error_empty_name() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
 
@@ -907,6 +1004,17 @@ mod set_property_i32 {
                 options: xmp_prop::VALUE_IS_URI
             }
         );
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .set_property_i32(xmp_ns::EXIF, "PixelXDimension", &225.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
     }
 
     #[test]
@@ -977,6 +1085,17 @@ mod set_property_i64 {
     }
 
     #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .set_property_i64(xmp_ns::EXIF, "PixelXDimension", &225.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
     fn error_empty_name() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
 
@@ -1041,6 +1160,17 @@ mod set_property_f64 {
                 options: xmp_prop::VALUE_IS_URI
             }
         );
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .set_property_f64(xmp_ns::EXIF, "PixelXDimension", &225.7.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
     }
 
     #[test]
@@ -1145,6 +1275,34 @@ mod set_property_date {
                 options: xmp_prop::VALUE_IS_URI
             }
         );
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+        let updated_time = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 10,
+                day: 19,
+            }),
+            time: Some(XmpTime {
+                hour: 20,
+                minute: 48,
+                second: 4,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone {
+                    hour: -7,
+                    minute: 0,
+                }),
+            }),
+        };
+
+        let err = m
+            .set_property_date(xmp_ns::XMP, "MetadataDate", &updated_time.into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
     }
 
     #[test]
@@ -1253,6 +1411,16 @@ mod localized_text {
     }
 
     #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+
+        assert_eq!(
+            m.localized_text(xmp_ns::DC, "title", None, "x-default"),
+            None
+        );
+    }
+
+    #[test]
     fn empty_namespace() {
         let m = XmpMeta::from_str(LOCALIZED_TEXT_EXAMPLE).unwrap();
         assert_eq!(m.localized_text("", "CreatorTool", None, "x-default"), None);
@@ -1299,7 +1467,7 @@ mod localized_text {
 }
 
 mod name {
-    use crate::XmpMeta;
+    use crate::{XmpErrorType, XmpMeta};
 
     #[test]
     fn default() {
@@ -1312,6 +1480,19 @@ mod name {
         let mut m = XmpMeta::new().unwrap();
         m.set_name("foo").unwrap();
         assert_eq!(m.name(), "foo");
+    }
+
+    #[test]
+    fn init_fail_read() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(m.name(), "");
+    }
+
+    #[test]
+    fn init_fail_write() {
+        let mut m = XmpMeta::new_fail();
+        let err = m.set_name("foo").unwrap_err();
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
     }
 }
 
@@ -1338,5 +1519,11 @@ mod impl_debug {
 
         println!("Debug dump of XMP object follows:\n\n{}", s);
         assert!(s.starts_with("XMPMeta object \"\""));
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(format!("{:#?}", m), "(C++ XMP Toolkit unavailable)");
     }
 }
