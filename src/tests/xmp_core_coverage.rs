@@ -428,27 +428,16 @@ fn xmp_core_coverage() {
         println!("\nSKIPPING object options tests -- not ported");
     }
 
-    // --------------------------------------------------------------------------------------------
-    // // Static namespace functions
-    // // --------------------------
+    //-------------------------------------------------------------------------
 
-    // int				i;
-    // bool			ok;
-    // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
-    // XMP_OptionBits	options;
+    write_major_label("Test static namespace functions");
 
-    // write_major_label("Test static namespace functions" );
-    // fprintf ( log, "\n" );
+    let ns2_prefix = XmpMeta::register_namespace(NS2, "ns2").unwrap();
+    println!("RegisterNamespace ns2 = {}", ns2_prefix);
 
-    // tmpStr1.erase();
-    // ok = SXMPMeta::RegisterNamespace ( NS2, "ns2", &tmpStr1 );
-    // fprintf ( log, "RegisterNamespace ns2 : %s, %s\n", YesOrNo ( ok ),
-    // tmpStr1.c_str() );
-
-    // tmpStr1.erase();
-    // ok = SXMPMeta::RegisterNamespace ( NS2, "nsx:", &tmpStr1 );
-    // fprintf ( log, "RegisterNamespace nsx : %s, %s\n", YesOrNo ( ok ),
-    // tmpStr1.c_str() );
+    let nsx_prefix = XmpMeta::register_namespace(NS2, "nsx:").unwrap();
+    println!("RegisterNamespace nsx = {}", nsx_prefix);
+    assert_eq!(nsx_prefix, "ns2:");
 
     // tmpStr1.erase();
     // ok = SXMPMeta::GetNamespacePrefix ( NS1, &tmpStr1 );
@@ -479,6 +468,11 @@ fn xmp_core_coverage() {
     // // --------------------------------------------------------------------------------------------
     // // Basic set/get methods
     // // ---------------------
+
+    // int				i;
+    // bool			ok;
+    // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
+    // XMP_OptionBits	options;
 
     // {
     // 	SXMPMeta meta;
