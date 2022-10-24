@@ -15,9 +15,14 @@ use crate::XmpMeta;
 
 #[test]
 fn new_empty() {
-    let mut _m = XmpMeta::new();
+    let m = XmpMeta::new().unwrap();
+    assert_eq!(format!("{:#?}", m), "XMPMeta object \"\"  (0x0)\n");
+}
 
-    // TODO: Add more tests when we can iterate.
+#[test]
+fn default() {
+    let m = XmpMeta::default();
+    assert_eq!(format!("{:#?}", m), "XMPMeta object \"\"  (0x0)\n");
 }
 
 mod from_file {
