@@ -145,6 +145,22 @@ mod can_put_xmp {
 
         assert!(!f.can_put_xmp(&m));
     }
+
+    #[test]
+    fn init_fail() {
+        let tempdir = tempdir().unwrap();
+        let no_xmp = temp_copy_of_fixture(tempdir.path(), "no_xmp.txt");
+
+        let mut f = XmpFile::new().unwrap();
+        assert!(f
+            .open_file(&no_xmp, OpenFileOptions::default().for_update())
+            .is_ok());
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        let m = XmpMeta::new_fail();
+        assert!(!f.can_put_xmp(&m));
+    }
 }
 
 mod put_xmp {
@@ -172,5 +188,23 @@ mod put_xmp {
 
         assert_eq!(err.error_type, XmpErrorType::Unavailable);
         assert_eq!(err.debug_message, "XMPFiles::PutXMP - Can't inject XMP");
+    }
+
+    #[test]
+    fn init_fail() {
+        let tempdir = tempdir().unwrap();
+        let no_xmp = temp_copy_of_fixture(tempdir.path(), "no_xmp.txt");
+
+        let mut f = XmpFile::new().unwrap();
+        assert!(f
+            .open_file(&no_xmp, OpenFileOptions::default().for_update())
+            .is_ok());
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        let m = XmpMeta::new_fail();
+        let err = f.put_xmp(&m).unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
     }
 }

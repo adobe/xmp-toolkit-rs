@@ -283,6 +283,10 @@ pub enum XmpErrorType {
     /// found.
     #[error("Unable to convert to C string because a NUL byte was found")]
     NulInRustString = -432,
+
+    /// C++ toolkit did not initialize properly.
+    #[error("C++ XMP toolkit did not initialize properly")]
+    NoCppToolkit = -433,
 }
 
 /// A specialized `Result` type for XMP Toolkit operations.
