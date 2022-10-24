@@ -20,7 +20,9 @@
 
 #![allow(dead_code)] // TEMPORARY while in development
 
-use crate::XmpMeta;
+use std::str::FromStr;
+
+use crate::{xmp_ns, XmpMeta};
 
 const NS1: &str = "ns:test1/";
 const NS2: &str = "ns:test2/";
@@ -373,29 +375,35 @@ fn xmp_core_coverage() {
     //-------------------------------------------------------------------------
 
     {
-        write_major_label(
-            "Test simple constructors and parsing, setting the
-    instance ID",
-        );
+        write_major_label("Test simple constructors and parsing, setting the instance ID");
 
-        let meta1 = XmpMeta::new().unwrap();
+        let mut meta1 = XmpMeta::new().unwrap();
         println!("Empty XMP object = {:#?}", meta1);
 
         assert_eq!(format!("{:#?}", meta1), "XMPMeta object \"\"  (0x0)\n");
 
-        //  meta1.GetObjectName ( &tmpStr1 );
-        // 	fprintf ( log, "\nEmpty object name = \"%s\"\n", tmpStr1.c_str() );
-        // 	meta1.SetObjectName ( "New object name" );
-        // 	DumpXMPObj ( log, meta1, "Set object name" );
+        let name = meta1.name();
+        println!("Empty object name = \"{}\"", name);
 
-        // 	SXMPMeta meta2 ( RDF_COVERAGE, strlen ( RDF_COVERAGE ) );
-        // 	DumpXMPObj ( log, meta2, "Construct and parse from buffer" );
-        // 	meta2.GetObjectName ( &tmpStr1 );
-        // 	fprintf ( log, "\nRDFCoverage object name = \"%s\"\n",
-        // tmpStr1.c_str() );
+        meta1.set_name("New object name").unwrap();
+        println!("Set object name -> {:#?}", meta1);
 
-        // 	meta2.SetProperty ( kXMP_NS_XMP_MM, "InstanceID", "meta2:Original" );
-        // 	DumpXMPObj ( log, meta2, "Add instance ID" );
+        assert_eq!(
+            format!("{:#?}", meta1),
+            "XMPMeta object \"New object name\"  (0x0)\n"
+        );
+
+        let mut meta2 = XmpMeta::from_str(RDF_COVERAGE).unwrap();
+        println!("Construct and parse from buffer = {:#?}", meta2);
+        println!("RDFCoverage object name = {}", meta2.name());
+
+        assert_eq!(meta2.name(), "Test:XMPCoreCoverage/kRDFCoverage");
+
+        meta2
+            .set_property(xmp_ns::XMP_MM, "InstanceID", &"meta2:original".into())
+            .unwrap();
+
+        println!("Add instance ID = {:#?}", meta2);
 
         // 	SXMPMeta meta4;
         // 	meta4 = meta2.Clone();
