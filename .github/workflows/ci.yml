@@ -258,7 +258,7 @@ jobs:
           ## See https://github.com/mathiasvr/command-output/issues/4.
         id: changelog
         with:
-          run: git log --format="* %s" ${{ steps.get-latest-tag.outputs.tag }}..HEAD || :; }
+          run: git log --format="* %s" ${{ steps.get-latest-tag.outputs.tag }}..HEAD
 
       - name: "Bump crate version (NOTE: Not pushed back to repo!)"
         if: ${{ !contains(github.event.pull_request.title, '(MINOR)') && steps.changelog.outputs.stdout != '' }}
