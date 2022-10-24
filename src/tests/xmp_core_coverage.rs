@@ -372,47 +372,52 @@ fn xmp_core_coverage() {
 
     //-------------------------------------------------------------------------
 
-    // //
+    {
+        write_major_label(
+            "Test simple constructors and parsing, setting the
+    instance ID",
+        );
+
+        let meta1 = XmpMeta::new().unwrap();
+        println!("Empty XMP object = {:#?}", meta1);
+
+        assert_eq!(format!("{:#?}", meta1), "XMPMeta object \"\"  (0x0)\n");
+
+        //  meta1.GetObjectName ( &tmpStr1 );
+        // 	fprintf ( log, "\nEmpty object name = \"%s\"\n", tmpStr1.c_str() );
+        // 	meta1.SetObjectName ( "New object name" );
+        // 	DumpXMPObj ( log, meta1, "Set object name" );
+
+        // 	SXMPMeta meta2 ( RDF_COVERAGE, strlen ( RDF_COVERAGE ) );
+        // 	DumpXMPObj ( log, meta2, "Construct and parse from buffer" );
+        // 	meta2.GetObjectName ( &tmpStr1 );
+        // 	fprintf ( log, "\nRDFCoverage object name = \"%s\"\n",
+        // tmpStr1.c_str() );
+
+        // 	meta2.SetProperty ( kXMP_NS_XMP_MM, "InstanceID", "meta2:Original" );
+        // 	DumpXMPObj ( log, meta2, "Add instance ID" );
+
+        // 	SXMPMeta meta4;
+        // 	meta4 = meta2.Clone();
+        // 	meta4.SetProperty ( kXMP_NS_XMP_MM, "InstanceID", "meta4:Clone" );
+        // 	DumpXMPObj ( log, meta4, "Clone and add instance ID" );
+
+        // #if 0
+
+        // 	write_major_label("Test XMPMeta object options" );
+
+        // 	fprintf ( log, "Initial object options 0x%X\n",
+        // meta2.GetObjectOptions() ); 	meta2.SetObjectOptions ( <TBD> );
+        // 	fprintf ( log, "Final object options 0x%X\n",
+        // meta2.GetObjectOptions() );
+
+        // #endif
+    }
+
     // int				i;
     // bool			ok;
     // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
     // XMP_OptionBits	options;
-
-    // {
-    // 	write_major_label("Test simple constructors and parsing, setting the
-    // instance ID" );
-
-    // 	SXMPMeta meta1;
-    // 	DumpXMPObj ( log, meta1, "Empty XMP object" );
-    // 	meta1.GetObjectName ( &tmpStr1 );
-    // 	fprintf ( log, "\nEmpty object name = \"%s\"\n", tmpStr1.c_str() );
-    // 	meta1.SetObjectName ( "New object name" );
-    // 	DumpXMPObj ( log, meta1, "Set object name" );
-
-    // 	SXMPMeta meta2 ( RDF_COVERAGE, strlen ( RDF_COVERAGE ) );
-    // 	DumpXMPObj ( log, meta2, "Construct and parse from buffer" );
-    // 	meta2.GetObjectName ( &tmpStr1 );
-    // 	fprintf ( log, "\nRDFCoverage object name = \"%s\"\n", tmpStr1.c_str() );
-
-    // 	meta2.SetProperty ( kXMP_NS_XMP_MM, "InstanceID", "meta2:Original" );
-    // 	DumpXMPObj ( log, meta2, "Add instance ID" );
-
-    // 	SXMPMeta meta4;
-    // 	meta4 = meta2.Clone();
-    // 	meta4.SetProperty ( kXMP_NS_XMP_MM, "InstanceID", "meta4:Clone" );
-    // 	DumpXMPObj ( log, meta4, "Clone and add instance ID" );
-
-    // #if 0
-
-    // 	write_major_label("Test XMPMeta object options" );
-
-    // 	fprintf ( log, "Initial object options 0x%X\n", meta2.GetObjectOptions() );
-    // 	meta2.SetObjectOptions ( <TBD> );
-    // 	fprintf ( log, "Final object options 0x%X\n", meta2.GetObjectOptions() );
-
-    // #endif
-
-    // }
 
     // // --------------------------------------------------------------------------------------------
     // // Static namespace functions
