@@ -252,8 +252,16 @@ jobs:
           major_pattern: "(MAJORXXXX)"
           minor_pattern: "(MINORXXXX)"
 
+      - name: Generate changelog since last tag
+        uses: mathiasvr/command-output@v1
+          ## NEEDS UPDATE for set-output deprecation.
+          ## See https://github.com/mathiasvr/command-output/issues/4.
+        id: changelog
+        with:
+          run: git log --format="* %s" ${{ steps.get-latest-tag.outputs.tag }}..HEAD || :; }
+
       - name: "Bump crate version (NOTE: Not pushed back to repo!)"
-        if: ${{ !contains(github.event.pull_request.title, '(MINOR)') }}
+        if: ${{ !contains(github.event.pull_request.title, '(MINOR)') && steps.changelog.outputs.stdout != '' }}
         run: |
           sed -i "s/^version = \"[^\"]*\"$/version = \"$VERSION\"/;" Cargo.toml
           git config user.email "nobody@example.com"
@@ -267,14 +275,14 @@ jobs:
         uses: mathiasvr/command-output@v1
         continue-on-error: true
         id: bump_exists
-        if: ${{ !contains(github.event.pull_request.title, '(MINOR)') }}
+        if: ${{ !contains(github.event.pull_request.title, '(MINOR)') && steps.changelog.outputs.stdout != '' }}
         with:
           run: |
             git log --format="%s" ${{ steps.get-latest-tag.outputs.tag }}..HEAD | grep "(MINOR)"
 
       - name: If this step fails, change title of the PR to include (MINOR) tag
         uses: obi1kenobi/cargo-semver-checks-action@v1
-        if: ${{ steps.bump_exists.outputs.stdout == '' && (!github.event.pull_request.title || !contains(github.event.pull_request.title, '(MINOR)')) }}
+        if: ${{ steps.bump_exists.outputs.stdout == '' && (!github.event.pull_request.title || !contains(github.event.pull_request.title, '(MINOR)')) && steps.changelog.outputs.stdout != '' }}
         with:
           crate-name: xmp_toolkit
 
