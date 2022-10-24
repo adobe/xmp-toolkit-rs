@@ -1293,6 +1293,23 @@ mod localized_text {
     }
 }
 
+mod name {
+    use crate::XmpMeta;
+
+    #[test]
+    fn default() {
+        let m = XmpMeta::new().unwrap();
+        assert_eq!(m.name(), "");
+    }
+
+    #[test]
+    fn set() {
+        let mut m = XmpMeta::new().unwrap();
+        m.set_name("foo").unwrap();
+        assert_eq!(m.name(), "foo");
+    }
+}
+
 mod compose_struct_field_path {
     use crate::{xmp_ns, XmpMeta};
 

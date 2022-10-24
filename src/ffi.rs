@@ -328,6 +328,17 @@ extern "C" {
         out_options: *mut u32,
     ) -> *const c_char;
 
+    pub(crate) fn CXmpMetaGetObjectName(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+    ) -> *const c_char;
+
+    pub(crate) fn CXmpMetaSetObjectName(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        name: *const c_char,
+    );
+
     pub(crate) fn CXmpMetaComposeStructFieldPath(
         out_error: *mut CXmpError,
         schema_ns: *const c_char,

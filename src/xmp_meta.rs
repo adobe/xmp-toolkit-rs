@@ -839,6 +839,34 @@ impl XmpMeta {
             Ok(result.as_string())
         }
     }
+
+    /// Returns the client-assigned name of this XMP object.
+    ///
+    /// This name is the empty string by default.
+    ///
+    /// See also `XmpMeta::set_name`.
+    pub fn name(&self) -> String {
+        let mut err = ffi::CXmpError::default();
+
+        unsafe { CXmpString::from_ptr(ffi::CXmpMetaGetObjectName(self.m, &mut err)).as_string() }
+    }
+
+    /// Assigns a name to this XMP object.
+    ///
+    /// This name can be retrieved via `XmpMeta::name`.
+    ///
+    /// This name is for client use only and it not interpreted by
+    /// the XMP Toolkit.
+    pub fn set_name(&mut self, name: &str) -> XmpResult<()> {
+        let c_name = CString::new(name.as_bytes())?;
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            ffi::CXmpMetaSetObjectName(self.m, &mut err, c_name.as_ptr());
+        }
+
+        XmpError::raise_from_c(&err)
+    }
 }
 
 impl fmt::Debug for XmpMeta {
