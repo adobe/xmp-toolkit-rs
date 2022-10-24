@@ -6,6 +6,16 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.7.1
+_24 October 2022_
+
+* Implement `Clone` for `XmpMeta` ([#114](https://github.com/adobe/xmp-toolkit-rs/pull/114))
+* Implement `Default` for `XmpMeta` ([#113](https://github.com/adobe/xmp-toolkit-rs/pull/113))
+* Add `XmpMeta::name` and `XmpMeta::set_name` accessors ([#112](https://github.com/adobe/xmp-toolkit-rs/pull/112))
+* Impl `Debug` for `XmpMeta` ([#111](https://github.com/adobe/xmp-toolkit-rs/pull/111))
+* Fix crash if `XmpMeta::debug_dump_namespaces` was the first call into XMP Toolkit ([#110](https://github.com/adobe/xmp-toolkit-rs/pull/110))
+* Add `XmpMeta::debug_dump_namespaces()` ([#109](https://github.com/adobe/xmp-toolkit-rs/pull/109))
+
 ## 0.7.0
 _23 October 2022_
 
