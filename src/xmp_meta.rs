@@ -947,6 +947,27 @@ impl XmpMeta {
     }
 }
 
+impl Clone for XmpMeta {
+    /// Returns a deep copy of the XMP metadata packet.
+    ///
+    /// In the unlikely event of a C++ error reported from the
+    /// underlying C++ XMP Toolkit operation, this function will
+    /// fail silently and generate an empty XMP data model.
+    fn clone(&self) -> Self {
+        if let Some(m) = self.m {
+            let mut err = ffi::CXmpError::default();
+            let m = unsafe { ffi::CXmpMetaClone(m, &mut err) };
+            if m.is_null() {
+                Self { m: None }
+            } else {
+                Self { m: Some(m) }
+            }
+        } else {
+            Self { m: None }
+        }
+    }
+}
+
 impl fmt::Debug for XmpMeta {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         if let Some(m) = self.m {
