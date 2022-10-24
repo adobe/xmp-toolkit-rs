@@ -114,7 +114,7 @@ impl XmpFile {
             if m.is_null() {
                 None
             } else {
-                Some(XmpMeta { m })
+                Some(XmpMeta { m: Some(m) })
             }
         }
     }
@@ -128,8 +128,11 @@ impl XmpFile {
     /// the serialized packet for the provided XMP, but does not keep it or
     /// modify it, and does not cause the file to be written when closed.
     pub fn can_put_xmp(&self, meta: &XmpMeta) -> bool {
-        let r = unsafe { ffi::CXmpFileCanPutXmp(self.f, meta.m) };
-        r != 0
+        if let Some(m) = meta.m {
+            unsafe { ffi::CXmpFileCanPutXmp(self.f, m) != 0 }
+        } else {
+            false
+        }
     }
 
     /// Updates the XMP metadata in this object without writing out the file.
@@ -139,11 +142,13 @@ impl XmpFile {
     /// The options provided when the file was opened determine if
     /// reconciliation is done with other forms of metadata.
     pub fn put_xmp(&mut self, meta: &XmpMeta) -> XmpResult<()> {
-        let mut err = ffi::CXmpError::default();
-
-        unsafe { ffi::CXmpFilePutXmp(self.f, &mut err, meta.m) };
-
-        XmpError::raise_from_c(&err)
+        if let Some(m) = meta.m {
+            let mut err = ffi::CXmpError::default();
+            unsafe { ffi::CXmpFilePutXmp(self.f, &mut err, m) };
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(crate::xmp_meta::no_cpp_toolkit())
+        }
     }
 
     /// Explicitly closes an opened file.

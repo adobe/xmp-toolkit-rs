@@ -44,13 +44,15 @@ use crate::{
 ///   expression can be a namespace prefix; if so, the prefix must have been
 ///   registered via [`XmpMeta::register_namespace`].
 pub struct XmpMeta {
-    pub(crate) m: *mut ffi::CXmpMeta,
+    pub(crate) m: Option<*mut ffi::CXmpMeta>,
 }
 
 impl Drop for XmpMeta {
     fn drop(&mut self) {
-        unsafe {
-            ffi::CXmpMetaDrop(self.m);
+        if let Some(m) = self.m {
+            unsafe {
+                ffi::CXmpMetaDrop(m);
+            }
         }
     }
 }
@@ -61,12 +63,19 @@ impl XmpMeta {
     /// An error result from this function is unlikely but possible
     /// if, for example, the C++ XMP Toolkit fails to initialize or
     /// reports an out-of-memory condition.
-    pub fn new() -> XmpResult<XmpMeta> {
+    pub fn new() -> XmpResult<Self> {
         let mut err = ffi::CXmpError::default();
         let m = unsafe { ffi::CXmpMetaNew(&mut err) };
         XmpError::raise_from_c(&err)?;
 
-        Ok(XmpMeta { m })
+        Ok(Self { m: Some(m) })
+    }
+
+    /// Use only for testing. Simulates failure to initialize
+    /// C++ XMP Toolkit.
+    #[allow(dead_code)] // used only in test code
+    pub(crate) fn new_fail() -> Self {
+        Self { m: None }
     }
 
     /// Reads the XMP from a file without keeping the file open.
@@ -152,11 +161,15 @@ impl XmpMeta {
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `false` in such cases.
     pub fn contains_property(&self, namespace: &str, path: &str) -> bool {
-        let c_ns = CString::new(namespace).unwrap_or_default();
-        let c_name = CString::new(path).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_name = CString::new(path).unwrap_or_default();
 
-        let r = unsafe { ffi::CXmpMetaDoesPropertyExist(self.m, c_ns.as_ptr(), c_name.as_ptr()) };
-        r != 0
+            let r = unsafe { ffi::CXmpMetaDoesPropertyExist(m, c_ns.as_ptr(), c_name.as_ptr()) };
+            r != 0
+        } else {
+            false
+        }
     }
 
     /// Returns `true` if the metadata block contains a struct field by this
@@ -180,22 +193,24 @@ impl XmpMeta {
         field_ns: &str,
         field_name: &str,
     ) -> bool {
-        let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
-        let c_struct_name = CString::new(struct_path).unwrap_or_default();
-        let c_field_ns = CString::new(field_ns).unwrap_or_default();
-        let c_field_name = CString::new(field_name).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
+            let c_struct_name = CString::new(struct_path).unwrap_or_default();
+            let c_field_ns = CString::new(field_ns).unwrap_or_default();
+            let c_field_name = CString::new(field_name).unwrap_or_default();
 
-        let r = unsafe {
-            ffi::CXmpMetaDoesStructFieldExist(
-                self.m,
-                c_struct_ns.as_ptr(),
-                c_struct_name.as_ptr(),
-                c_field_ns.as_ptr(),
-                c_field_name.as_ptr(),
-            )
-        };
-
-        r != 0
+            unsafe {
+                ffi::CXmpMetaDoesStructFieldExist(
+                    m,
+                    c_struct_ns.as_ptr(),
+                    c_struct_name.as_ptr(),
+                    c_field_ns.as_ptr(),
+                    c_field_name.as_ptr(),
+                ) != 0
+            }
+        } else {
+            false
+        }
     }
 
     /// Gets a simple string property value.
@@ -210,21 +225,25 @@ impl XmpMeta {
     /// Any errors (for instance, empty or invalid namespace or property name)
     /// are ignored; the function will return `None` in such cases.
     pub fn property(&self, namespace: &str, path: &str) -> Option<XmpValue<String>> {
-        let c_ns = CString::new(namespace).unwrap_or_default();
-        let c_name = CString::new(path).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_name = CString::new(path).unwrap_or_default();
 
-        let mut options: u32 = 0;
-        let mut err = ffi::CXmpError::default();
+            let mut options: u32 = 0;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            CXmpString::from_ptr(ffi::CXmpMetaGetProperty(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                &mut options,
-            ))
-            .map(|value| XmpValue { value, options })
+            unsafe {
+                CXmpString::from_ptr(ffi::CXmpMetaGetProperty(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    &mut options,
+                ))
+                .map(|value| XmpValue { value, options })
+            }
+        } else {
+            None
         }
     }
 
@@ -258,26 +277,30 @@ impl XmpMeta {
     /// If the value can not be parsed as a boolean (for example, it is
     /// an unrecognizable string), the function will return `None`.
     pub fn property_bool(&self, namespace: &str, path: &str) -> Option<XmpValue<bool>> {
-        let c_ns = CString::new(namespace).unwrap_or_default();
-        let c_name = CString::new(path).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_name = CString::new(path).unwrap_or_default();
 
-        let mut options: u32 = 0;
-        let mut value = false;
-        let mut err = ffi::CXmpError::default();
+            let mut options: u32 = 0;
+            let mut value = false;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            if ffi::CXmpMetaGetProperty_Bool(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                &mut value,
-                &mut options,
-            ) {
-                Some(XmpValue { value, options })
-            } else {
-                None
+            unsafe {
+                if ffi::CXmpMetaGetProperty_Bool(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    &mut value,
+                    &mut options,
+                ) {
+                    Some(XmpValue { value, options })
+                } else {
+                    None
+                }
             }
+        } else {
+            None
         }
     }
 
@@ -296,26 +319,30 @@ impl XmpMeta {
     /// If the value can not be parsed as a number, the function will
     /// return `None`.
     pub fn property_i32(&self, namespace: &str, path: &str) -> Option<XmpValue<i32>> {
-        let c_ns = CString::new(namespace).unwrap_or_default();
-        let c_name = CString::new(path).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_name = CString::new(path).unwrap_or_default();
 
-        let mut options: u32 = 0;
-        let mut value: i32 = 0;
-        let mut err = ffi::CXmpError::default();
+            let mut options: u32 = 0;
+            let mut value: i32 = 0;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            if ffi::CXmpMetaGetProperty_Int(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                &mut value,
-                &mut options,
-            ) {
-                Some(XmpValue { value, options })
-            } else {
-                None
+            unsafe {
+                if ffi::CXmpMetaGetProperty_Int(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    &mut value,
+                    &mut options,
+                ) {
+                    Some(XmpValue { value, options })
+                } else {
+                    None
+                }
             }
+        } else {
+            None
         }
     }
 
@@ -334,26 +361,30 @@ impl XmpMeta {
     /// If the value can not be parsed as a number, the function will
     /// return `None`.
     pub fn property_i64(&self, namespace: &str, path: &str) -> Option<XmpValue<i64>> {
-        let c_ns = CString::new(namespace).unwrap_or_default();
-        let c_name = CString::new(path).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_name = CString::new(path).unwrap_or_default();
 
-        let mut options: u32 = 0;
-        let mut value: i64 = 0;
-        let mut err = ffi::CXmpError::default();
+            let mut options: u32 = 0;
+            let mut value: i64 = 0;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            if ffi::CXmpMetaGetProperty_Int64(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                &mut value,
-                &mut options,
-            ) {
-                Some(XmpValue { value, options })
-            } else {
-                None
+            unsafe {
+                if ffi::CXmpMetaGetProperty_Int64(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    &mut value,
+                    &mut options,
+                ) {
+                    Some(XmpValue { value, options })
+                } else {
+                    None
+                }
             }
+        } else {
+            None
         }
     }
 
@@ -373,26 +404,30 @@ impl XmpMeta {
     /// return `None`. Note that ratio values, such as those found in
     /// TIFF and EXIF blocks, are not parsed.
     pub fn property_f64(&self, namespace: &str, path: &str) -> Option<XmpValue<f64>> {
-        let c_ns = CString::new(namespace).unwrap_or_default();
-        let c_name = CString::new(path).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_name = CString::new(path).unwrap_or_default();
 
-        let mut options: u32 = 0;
-        let mut value: f64 = 0.0;
-        let mut err = ffi::CXmpError::default();
+            let mut options: u32 = 0;
+            let mut value: f64 = 0.0;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            if ffi::CXmpMetaGetProperty_Float(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                &mut value,
-                &mut options,
-            ) {
-                Some(XmpValue { value, options })
-            } else {
-                None
+            unsafe {
+                if ffi::CXmpMetaGetProperty_Float(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    &mut value,
+                    &mut options,
+                ) {
+                    Some(XmpValue { value, options })
+                } else {
+                    None
+                }
             }
+        } else {
+            None
         }
     }
 
@@ -411,29 +446,33 @@ impl XmpMeta {
     /// If the value can not be parsed as a date (for example, it is
     /// an unrecognizable string), the function will return `None`.
     pub fn property_date(&self, namespace: &str, path: &str) -> Option<XmpValue<XmpDateTime>> {
-        let c_ns = CString::new(namespace).unwrap_or_default();
-        let c_name = CString::new(path).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_name = CString::new(path).unwrap_or_default();
 
-        let mut options: u32 = 0;
-        let mut value = ffi::CXmpDateTime::default();
-        let mut err = ffi::CXmpError::default();
+            let mut options: u32 = 0;
+            let mut value = ffi::CXmpDateTime::default();
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            if ffi::CXmpMetaGetProperty_Date(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                &mut value,
-                &mut options,
-            ) {
-                Some(XmpValue {
-                    value: XmpDateTime::from_ffi(&value),
-                    options,
-                })
-            } else {
-                None
+            unsafe {
+                if ffi::CXmpMetaGetProperty_Date(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    &mut value,
+                    &mut options,
+                ) {
+                    Some(XmpValue {
+                        value: XmpDateTime::from_ffi(&value),
+                        options,
+                    })
+                } else {
+                    None
+                }
             }
+        } else {
+            None
         }
     }
 
@@ -457,25 +496,29 @@ impl XmpMeta {
         field_ns: &str,
         field_name: &str,
     ) -> Option<XmpValue<String>> {
-        let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
-        let c_struct_name = CString::new(struct_path).unwrap_or_default();
-        let c_field_ns = CString::new(field_ns).unwrap_or_default();
-        let c_field_name = CString::new(field_name).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_struct_ns = CString::new(struct_ns).unwrap_or_default();
+            let c_struct_name = CString::new(struct_path).unwrap_or_default();
+            let c_field_ns = CString::new(field_ns).unwrap_or_default();
+            let c_field_name = CString::new(field_name).unwrap_or_default();
 
-        let mut options: u32 = 0;
-        let mut err = ffi::CXmpError::default();
+            let mut options: u32 = 0;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            CXmpString::from_ptr(ffi::CXmpMetaGetStructField(
-                self.m,
-                &mut err,
-                c_struct_ns.as_ptr(),
-                c_struct_name.as_ptr(),
-                c_field_ns.as_ptr(),
-                c_field_name.as_ptr(),
-                &mut options,
-            ))
-            .map(|value| XmpValue { value, options })
+            unsafe {
+                CXmpString::from_ptr(ffi::CXmpMetaGetStructField(
+                    m,
+                    &mut err,
+                    c_struct_ns.as_ptr(),
+                    c_struct_name.as_ptr(),
+                    c_field_ns.as_ptr(),
+                    c_field_name.as_ptr(),
+                    &mut options,
+                ))
+                .map(|value| XmpValue { value, options })
+            }
+        } else {
+            None
         }
     }
 
@@ -495,23 +538,27 @@ impl XmpMeta {
         path: &str,
         new_value: &XmpValue<String>,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(namespace)?;
-        let c_name = CString::new(path)?;
-        let c_value = CString::new(new_value.value.as_bytes())?;
-        let mut err = ffi::CXmpError::default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_name = CString::new(path)?;
+            let c_value = CString::new(new_value.value.as_bytes())?;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            ffi::CXmpMetaSetProperty(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                c_value.as_ptr(),
-                new_value.options,
-            );
+            unsafe {
+                ffi::CXmpMetaSetProperty(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    c_value.as_ptr(),
+                    new_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
         }
-
-        XmpError::raise_from_c(&err)
     }
 
     /// Creates or sets a property value using a bool value.
@@ -530,22 +577,26 @@ impl XmpMeta {
         path: &str,
         new_value: &XmpValue<bool>,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(namespace)?;
-        let c_name = CString::new(path)?;
-        let mut err = ffi::CXmpError::default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_name = CString::new(path)?;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            ffi::CXmpMetaSetProperty_Bool(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                new_value.value,
-                new_value.options,
-            );
+            unsafe {
+                ffi::CXmpMetaSetProperty_Bool(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    new_value.value,
+                    new_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
         }
-
-        XmpError::raise_from_c(&err)
     }
 
     /// Creates or sets a property value using a 32-bit integer value.
@@ -564,22 +615,26 @@ impl XmpMeta {
         path: &str,
         new_value: &XmpValue<i32>,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(namespace)?;
-        let c_name = CString::new(path)?;
-        let mut err = ffi::CXmpError::default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_name = CString::new(path)?;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            ffi::CXmpMetaSetProperty_Int(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                new_value.value,
-                new_value.options,
-            );
+            unsafe {
+                ffi::CXmpMetaSetProperty_Int(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    new_value.value,
+                    new_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
         }
-
-        XmpError::raise_from_c(&err)
     }
 
     /// Creates or sets a property value using a 64-bit integer value.
@@ -598,22 +653,26 @@ impl XmpMeta {
         path: &str,
         new_value: &XmpValue<i64>,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(namespace)?;
-        let c_name = CString::new(path)?;
-        let mut err = ffi::CXmpError::default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_name = CString::new(path)?;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            ffi::CXmpMetaSetProperty_Int64(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                new_value.value,
-                new_value.options,
-            );
+            unsafe {
+                ffi::CXmpMetaSetProperty_Int64(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    new_value.value,
+                    new_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
         }
-
-        XmpError::raise_from_c(&err)
     }
 
     /// Creates or sets a property value using a 64-bit floating-point value.
@@ -632,22 +691,26 @@ impl XmpMeta {
         path: &str,
         new_value: &XmpValue<f64>,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(namespace)?;
-        let c_name = CString::new(path)?;
-        let mut err = ffi::CXmpError::default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_name = CString::new(path)?;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            ffi::CXmpMetaSetProperty_Float(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                new_value.value,
-                new_value.options,
-            );
+            unsafe {
+                ffi::CXmpMetaSetProperty_Float(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    new_value.value,
+                    new_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
         }
-
-        XmpError::raise_from_c(&err)
     }
 
     /// Creates or sets a property value using an [`XmpDateTime`] structure.
@@ -666,22 +729,26 @@ impl XmpMeta {
         path: &str,
         new_value: &XmpValue<XmpDateTime>,
     ) -> XmpResult<()> {
-        let c_ns = CString::new(namespace)?;
-        let c_name = CString::new(path)?;
-        let mut err = ffi::CXmpError::default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_name = CString::new(path)?;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            ffi::CXmpMetaSetProperty_Date(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                &new_value.value.as_ffi(),
-                new_value.options,
-            );
+            unsafe {
+                ffi::CXmpMetaSetProperty_Date(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    &new_value.value.as_ffi(),
+                    new_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
         }
-
-        XmpError::raise_from_c(&err)
     }
 
     /// Retrieves information about a selected item from an alt-text array.
@@ -767,36 +834,40 @@ impl XmpMeta {
         generic_lang: Option<&str>,
         specific_lang: &str,
     ) -> Option<(XmpValue<String>, String)> {
-        let c_ns = CString::new(namespace).unwrap_or_default();
-        let c_name = CString::new(path).unwrap_or_default();
-        let c_generic_lang = generic_lang.map(|s| CString::new(s).unwrap_or_default());
-        let c_specific_lang = CString::new(specific_lang).unwrap_or_default();
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_name = CString::new(path).unwrap_or_default();
+            let c_generic_lang = generic_lang.map(|s| CString::new(s).unwrap_or_default());
+            let c_specific_lang = CString::new(specific_lang).unwrap_or_default();
 
-        let mut options: u32 = 0;
-        let mut err = ffi::CXmpError::default();
+            let mut options: u32 = 0;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            let mut c_actual_lang: *const i8 = std::ptr::null_mut();
+            unsafe {
+                let mut c_actual_lang: *const i8 = std::ptr::null_mut();
 
-            CXmpString::from_ptr(ffi::CXmpMetaGetLocalizedText(
-                self.m,
-                &mut err,
-                c_ns.as_ptr(),
-                c_name.as_ptr(),
-                match c_generic_lang {
-                    Some(p) => p.as_ptr(),
-                    None => std::ptr::null(),
-                },
-                c_specific_lang.as_ptr(),
-                &mut c_actual_lang,
-                &mut options,
-            ))
-            .map(|value| {
-                (
-                    XmpValue { value, options },
-                    CXmpString::from_ptr(c_actual_lang).as_string(),
-                )
-            })
+                CXmpString::from_ptr(ffi::CXmpMetaGetLocalizedText(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    match c_generic_lang {
+                        Some(p) => p.as_ptr(),
+                        None => std::ptr::null(),
+                    },
+                    c_specific_lang.as_ptr(),
+                    &mut c_actual_lang,
+                    &mut options,
+                ))
+                .map(|value| {
+                    (
+                        XmpValue { value, options },
+                        CXmpString::from_ptr(c_actual_lang).as_string(),
+                    )
+                })
+            }
+        } else {
+            None
         }
     }
 
@@ -846,9 +917,12 @@ impl XmpMeta {
     ///
     /// See also `XmpMeta::set_name`.
     pub fn name(&self) -> String {
-        let mut err = ffi::CXmpError::default();
-
-        unsafe { CXmpString::from_ptr(ffi::CXmpMetaGetObjectName(self.m, &mut err)).as_string() }
+        if let Some(m) = self.m {
+            let mut err = ffi::CXmpError::default();
+            unsafe { CXmpString::from_ptr(ffi::CXmpMetaGetObjectName(m, &mut err)).as_string() }
+        } else {
+            String::default()
+        }
     }
 
     /// Assigns a name to this XMP object.
@@ -858,35 +932,76 @@ impl XmpMeta {
     /// This name is for client use only and it not interpreted by
     /// the XMP Toolkit.
     pub fn set_name(&mut self, name: &str) -> XmpResult<()> {
-        let c_name = CString::new(name.as_bytes())?;
-        let mut err = ffi::CXmpError::default();
+        if let Some(m) = self.m {
+            let c_name = CString::new(name.as_bytes())?;
+            let mut err = ffi::CXmpError::default();
 
-        unsafe {
-            ffi::CXmpMetaSetObjectName(self.m, &mut err, c_name.as_ptr());
+            unsafe {
+                ffi::CXmpMetaSetObjectName(m, &mut err, c_name.as_ptr());
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
         }
+    }
+}
 
-        XmpError::raise_from_c(&err)
+impl Clone for XmpMeta {
+    /// Returns a deep copy of the XMP metadata packet.
+    ///
+    /// In the unlikely event of a C++ error reported from the
+    /// underlying C++ XMP Toolkit operation, this function will
+    /// fail silently and generate an empty XMP data model.
+    fn clone(&self) -> Self {
+        if let Some(m) = self.m {
+            let mut err = ffi::CXmpError::default();
+            let m = unsafe { ffi::CXmpMetaClone(m, &mut err) };
+            if m.is_null() {
+                Self { m: None }
+            } else {
+                Self { m: Some(m) }
+            }
+        } else {
+            Self { m: None }
+        }
     }
 }
 
 impl fmt::Debug for XmpMeta {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        let mut result = String::default();
+        if let Some(m) = self.m {
+            let mut result = String::default();
 
-        unsafe {
-            let result: *mut String = &mut result;
-            ffi::CXmpMetaDumpObj(
-                self.m,
-                std::mem::transmute::<*mut String, *mut c_void>(result),
-                ffi::xmp_dump_to_string,
-            );
+            unsafe {
+                let result: *mut String = &mut result;
+                ffi::CXmpMetaDumpObj(
+                    m,
+                    std::mem::transmute::<*mut String, *mut c_void>(result),
+                    ffi::xmp_dump_to_string,
+                );
+            }
+
+            if result.starts_with("Dumping ") {
+                result.replace_range(0..8, "");
+            }
+
+            write!(f, "{}", result)
+        } else {
+            write!(f, "(C++ XMP Toolkit unavailable)")
         }
+    }
+}
 
-        if result.starts_with("Dumping ") {
-            result.replace_range(0..8, "");
+impl Default for XmpMeta {
+    fn default() -> Self {
+        let mut err = ffi::CXmpError::default();
+        let m = unsafe { ffi::CXmpMetaNew(&mut err) };
+        if m.is_null() {
+            XmpMeta { m: None }
+        } else {
+            XmpMeta { m: Some(m) }
         }
-
-        write!(f, "{}", result)
     }
 }
 
@@ -907,7 +1022,7 @@ impl FromStr for XmpMeta {
             unsafe { ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32) };
         XmpError::raise_from_c(&err)?;
 
-        Ok(XmpMeta { m })
+        Ok(XmpMeta { m: Some(m) })
     }
 }
 
@@ -925,21 +1040,32 @@ impl<'a> Iterator for ArrayProperty<'a> {
     type Item = XmpValue<String>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        unsafe {
-            let mut options: u32 = 0;
-            let mut err = ffi::CXmpError::default();
+        if let Some(m) = self.meta.m {
+            unsafe {
+                let mut options: u32 = 0;
+                let mut err = ffi::CXmpError::default();
 
-            self.index += 1;
+                self.index += 1;
 
-            CXmpString::from_ptr(ffi::CXmpMetaGetArrayItem(
-                self.meta.m,
-                &mut err,
-                self.ns.as_ptr(),
-                self.name.as_ptr(),
-                self.index,
-                &mut options,
-            ))
-            .map(|value| XmpValue { value, options })
+                CXmpString::from_ptr(ffi::CXmpMetaGetArrayItem(
+                    m,
+                    &mut err,
+                    self.ns.as_ptr(),
+                    self.name.as_ptr(),
+                    self.index,
+                    &mut options,
+                ))
+                .map(|value| XmpValue { value, options })
+            }
+        } else {
+            None
         }
+    }
+}
+
+pub(crate) fn no_cpp_toolkit() -> XmpError {
+    XmpError {
+        error_type: XmpErrorType::NoCppToolkit,
+        debug_message: "C++ XMP Toolkit not available".to_owned(),
     }
 }

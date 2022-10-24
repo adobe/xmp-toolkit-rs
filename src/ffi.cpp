@@ -287,6 +287,25 @@ extern "C" {
         #endif
     }
 
+    CXmpMeta* CXmpMetaClone(CXmpMeta* m,
+                            CXmpError* outError) {
+        #ifndef NOOP_FFI
+            try {
+                CXmpMeta* result = new CXmpMeta;
+                result->m = m->m.Clone();
+                return result;
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
     CXmpMeta* CXmpMetaParseFromBuffer(CXmpError* outError,
                                       const char* buffer,
                                       AdobeXMPCommon::uint32 buffer_size) {
