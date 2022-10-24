@@ -405,31 +405,37 @@ fn xmp_core_coverage() {
 
         println!("Add instance ID = {:#?}", meta2);
 
-        // 	SXMPMeta meta4;
-        // 	meta4 = meta2.Clone();
-        // 	meta4.SetProperty ( kXMP_NS_XMP_MM, "InstanceID", "meta4:Clone" );
-        // 	DumpXMPObj ( log, meta4, "Clone and add instance ID" );
+        let mut meta4 = meta2.clone();
+        meta4
+            .set_property(xmp_ns::XMP_MM, "InstanceID", &"meta4:Clone".into())
+            .unwrap();
 
-        // #if 0
+        assert_eq!(
+            meta2.property(xmp_ns::XMP_MM, "InstanceID").unwrap().value,
+            "meta2:original"
+        );
 
-        // 	write_major_label("Test XMPMeta object options" );
+        assert_eq!(
+            meta4.property(xmp_ns::XMP_MM, "InstanceID").unwrap().value,
+            "meta4:Clone"
+        );
 
-        // 	fprintf ( log, "Initial object options 0x%X\n",
-        // meta2.GetObjectOptions() ); 	meta2.SetObjectOptions ( <TBD> );
-        // 	fprintf ( log, "Final object options 0x%X\n",
-        // meta2.GetObjectOptions() );
+        println!("Clone and add instance ID = {:#?}", meta4);
 
-        // #endif
+        write_major_label("Test XMPMeta object options");
+        println!("object options APIs not ported since there are no relevant options");
+
+        println!("\nSKIPPING object options tests -- not ported");
     }
+
+    // --------------------------------------------------------------------------------------------
+    // // Static namespace functions
+    // // --------------------------
 
     // int				i;
     // bool			ok;
     // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
     // XMP_OptionBits	options;
-
-    // // --------------------------------------------------------------------------------------------
-    // // Static namespace functions
-    // // --------------------------
 
     // write_major_label("Test static namespace functions" );
     // fprintf ( log, "\n" );
