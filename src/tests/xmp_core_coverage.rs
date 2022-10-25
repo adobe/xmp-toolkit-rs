@@ -22,7 +22,7 @@
 
 use std::str::FromStr;
 
-use crate::{xmp_ns, XmpMeta};
+use crate::{xmp_ns, XmpMeta, XmpValue};
 
 const NS1: &str = "ns:test1/";
 const NS2: &str = "ns:test2/";
@@ -461,358 +461,383 @@ fn xmp_core_coverage() {
 
     //-------------------------------------------------------------------------
 
-    // // --------------------------------------------------------------------------------------------
-    // // Basic set/get methods
-    // // ---------------------
-
-    // int				i;
-    // bool			ok;
-    // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
-    // XMP_OptionBits	options;
-
-    // {
-    // 	SXMPMeta meta;
-
-    // 	write_major_label("Test SetProperty and related methods" );
-
-    // 	tmpStr1 = "Prop value";
-    // 	meta.SetProperty ( NS1, "Prop", tmpStr1 );
-    // 	meta.SetProperty ( NS1, "ns1:XMLProp", "<PropValue/>" );
-    // 	meta.SetProperty ( NS1, "ns1:URIProp", "URI:value/", kXMP_PropValueIsURI );
-
-    // 	tmpStr1 = "BagItem value";
-    // 	meta.AppendArrayItem ( NS1, "Bag", kXMP_PropValueIsArray, tmpStr1 );
-    // 	meta.AppendArrayItem ( NS1, "ns1:Seq", kXMP_PropArrayIsOrdered, "SeqItem
-    // value" ); 	meta.AppendArrayItem ( NS1, "ns1:Alt",
-    // kXMP_PropArrayIsAlternate, "AltItem value" );
-
-    // 	tmpStr1 = "Field1 value";
-    // 	meta.SetStructField ( NS1, "Struct", NS2, "Field1", tmpStr1 );
-    // 	meta.SetStructField ( NS1, "ns1:Struct", NS2, "Field2", "Field2 value" );
-    // 	meta.SetStructField ( NS1, "ns1:Struct", NS2, "Field3", "Field3 value" );
-
-    // 	tmpStr1 = "BagItem 3";
-    // 	meta.SetArrayItem ( NS1, "Bag", 1, tmpStr1 );
-    // 	meta.SetArrayItem ( NS1, "ns1:Bag", 1, "BagItem 1", kXMP_InsertBeforeItem );
-    // 	meta.SetArrayItem ( NS1, "ns1:Bag", 1, "BagItem 2", kXMP_InsertAfterItem );
-    // 	meta.AppendArrayItem ( NS1, "Bag", 0, "BagItem 4" );
-
-    // 	DumpXMPObj ( log, meta, "A few basic Set... calls" );
-
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper );
-    // 	fprintf ( log, "\n%s\n", tmpStr1.c_str() );
-
-    // 	fprintf ( log, "CountArrayItems Bag = %d\n", meta.CountArrayItems ( NS1,
-    // "Bag" ) );
-
-    // 	meta.SetProperty ( NS1, "QualProp1", "Prop value" );
-    // 	meta.SetQualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
-    // 	// *** meta.SetProperty ( NS1, "QualProp1/Qual2", "Qual2 value",
-    // kXMP_PropIsQualifier );	invalid 	meta.SetProperty ( NS1,
-    // "QualProp1/?ns2:Qual3", "Qual3 value" ); 	meta.SetProperty ( NS1,
-    // "QualProp1/?xml:lang", "x-qual" );
-
-    // 	meta.SetProperty ( NS1, "QualProp2", "Prop value" );
-    // 	meta.SetQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang", "en-us" );
-    // 	// *** meta.SetProperty ( NS1, "QualProp2/xml:lang", "x-field",
-    // kXMP_PropIsQualifier );	invalid 	meta.SetProperty ( NS1,
-    // "QualProp2/@xml:lang", "x-attr" );
-
-    // 	meta.SetProperty ( NS1, "QualProp3", "Prop value" );
-    // 	meta.SetQualifier ( NS1, "ns1:QualProp3", kXMP_NS_XML, "xml:lang", "en-us" );
-    // 	meta.SetQualifier ( NS1, "ns1:QualProp3", NS2, "ns2:Qual", "Qual value" );
-
-    // 	meta.SetProperty ( NS1, "QualProp4", "Prop value" );
-    // 	tmpStr1 = "Qual value";
-    // 	meta.SetQualifier ( NS1, "QualProp4", NS2, "Qual", tmpStr1 );
-    // 	meta.SetQualifier ( NS1, "QualProp4", kXMP_NS_XML, "lang", "en-us" );
-
-    // 	DumpXMPObj ( log, meta, "Add some qualifiers" );
-
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper );
-    // 	fprintf ( log, "\n%s\n", tmpStr1.c_str() );
-
-    // 	meta.SetProperty ( NS1, "QualProp1", "new value" );
-    // 	meta.SetProperty ( NS1, "QualProp2", "new value" );
-    // 	meta.SetProperty ( NS1, "QualProp3", "new value" );
-    // 	meta.SetProperty ( NS1, "QualProp4", "new value" );
-    // 	DumpXMPObj ( log, meta, "Change values and keep qualifiers" );
-
-    // 	// ----------------------------------------------------------------------------------------
-
-    // 	write_major_label("Test GetProperty and related methods" );
-
-    // 	meta.DeleteProperty ( NS1, "QualProp1" );	// ! Start with fresh qualifiers.
-    // 	meta.DeleteProperty ( NS1, "ns1:QualProp2" );
-    // 	meta.DeleteProperty ( NS1, "ns1:QualProp3" );
-    // 	meta.DeleteProperty ( NS1, "QualProp4" );
-
-    // 	meta.SetProperty ( NS1, "QualProp1", "Prop value" );
-    // 	meta.SetQualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
-
-    // 	meta.SetProperty ( NS1, "QualProp2", "Prop value" );
-    // 	meta.SetQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang", "en-us" );
-
-    // 	meta.SetProperty ( NS1, "QualProp3", "Prop value" );
-    // 	meta.SetQualifier ( NS1, "QualProp3", kXMP_NS_XML, "lang", "en-us" );
-    // 	meta.SetQualifier ( NS1, "QualProp3", NS2, "Qual", "Qual value" );
-
-    // 	meta.SetProperty ( NS1, "QualProp4", "Prop value" );
-    // 	meta.SetQualifier ( NS1, "QualProp4", NS2, "Qual", "Qual value" );
-    // 	meta.SetQualifier ( NS1, "QualProp4", kXMP_NS_XML, "lang", "en-us" );
-
-    // 	DumpXMPObj ( log, meta, "XMP object" );
-    // 	fprintf ( log, "\n" );
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetProperty ( NS1, "Prop", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ns1:Prop : %s, \"%s\", 0x%X\n", FoundOrNot ( ok
-    // ), tmpStr1.c_str(), options );
-
-    // 	try {
-    // 		tmpStr1.erase();
-    // 		ok = meta.GetProperty ( 0, "ns1:Prop", &tmpStr1, &options );
-    // 		fprintf ( log, "#ERROR: No exception for GetProperty with no schema URI : %s,
-    // \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options ); 	} catch (
-    // XMP_Error & excep ) { 		fprintf ( log, "GetProperty with no schema URI -
-    // threw XMP_Error #%d : %s\n", excep.GetID(), excep.GetErrMsg() );
-    // 	} catch ( ... ) {
-    // 		fprintf ( log, "GetProperty with no schema URI - threw unknown exception\n"
-    // ); 	}
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetProperty ( NS1, "ns1:XMLProp", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ns1:XMLProp : %s, \"%s\", 0x%X\n", FoundOrNot (
-    // ok ), tmpStr1.c_str(), options );
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetProperty ( NS1, "ns1:URIProp", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ns1:URIProp : %s, \"%s\", 0x%X\n", FoundOrNot (
-    // ok ), tmpStr1.c_str(), options );
-
-    // 	fprintf ( log, "\n" );
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetArrayItem ( NS1, "Bag", 2, &tmpStr1, &options );
-    // 	fprintf ( log, "GetArrayItem ns1:Bag[2] : %s, \"%s\", 0x%X\n", FoundOrNot (
-    // ok ), tmpStr1.c_str(), options );
-
-    // 	try {
-    // 		tmpStr1.erase();
-    // 		ok = meta.GetArrayItem ( 0, "ns1:Bag", 1, &tmpStr1, &options );
-    // 		fprintf ( log, "#ERROR: No exception for GetArrayItem with no schema URI :
-    // %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-    // 	} catch ( XMP_Error & excep ) {
-    // 		fprintf ( log, "GetArrayItem with no schema URI - threw XMP_Error #%d :
-    // %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch ( ... ) {
-    // 		fprintf ( log, "GetArrayItem with no schema URI - threw unknown exception\n"
-    // ); 	}
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetArrayItem ( NS1, "ns1:Seq", 1, &tmpStr1, &options );
-    // 	fprintf ( log, "GetArrayItem ns1:Seq[1] : %s, \"%s\", 0x%X\n", FoundOrNot (
-    // ok ), tmpStr1.c_str(), options );
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetArrayItem ( NS1, "ns1:Alt", kXMP_ArrayLastItem, &tmpStr1,
-    // &options ); 	fprintf ( log, "GetArrayItem ns1:Alt[1] : %s, \"%s\",
-    // 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-
-    // 	fprintf ( log, "\n" );
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetStructField ( NS1, "Struct", NS2, "Field1", &tmpStr1, &options
-    // ); 	fprintf ( log, "GetStructField ns1:Struct/ns2:Field1 : %s, \"%s\",
-    // 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetStructField ( NS1, "ns1:Struct", NS2, "ns2:Field2", &tmpStr1,
-    // &options ); 	fprintf ( log, "GetStructField ns1:Struct/ns2:Field2 : %s,
-    // \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetStructField ( NS1, "ns1:Struct", NS2, "ns2:Field3", &tmpStr1,
-    // &options ); 	fprintf ( log, "GetStructField ns1:Struct/ns2:Field3 : %s,
-    // \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetQualifier ( NS1, "QualProp1", NS2, "Qual1", &tmpStr1, &options
-    // ); 	fprintf ( log, "GetQualifier ns1:QualProp1/?ns2:Qual1 : %s, \"%s\",
-    // 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-
-    // 	try {
-    // 		tmpStr1.erase();
-    // 		ok = meta.GetQualifier ( 0, "ns1:QualProp1", NS2, "Qual1", &tmpStr1, &options
-    // ); 		fprintf ( log, "#ERROR: No exception for GetQualifier with no schema
-    // URI : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-    // 	} catch ( XMP_Error & excep ) {
-    // 		fprintf ( log, "GetQualifier with no schema URI - threw XMP_Error #%d :
-    // %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch ( ... ) {
-    // 		fprintf ( log, "GetQualifier with no schema URI - threw unknown exception\n"
-    // ); 	}
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetQualifier ( NS1, "ns1:QualProp3", kXMP_NS_XML, "xml:lang",
-    // &tmpStr1, &options ); 	fprintf ( log, "GetQualifier ns1:QualProp3 : %s,
-    // \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-
-    // 	tmpStr1.erase();
-    // 	ok = meta.GetQualifier ( NS1, "ns1:QualProp3", NS2, "ns2:Qual", &tmpStr1,
-    // &options ); 	fprintf ( log, "GetQualifier ns1:QualProp3/?ns2:Qual : %s,
-    // \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-
-    // 	fprintf ( log, "\n" );
-
-    // 	tmpStr1 = "junk";
-    // 	ok = meta.GetProperty ( NS1, "Bag", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ns1:Bag : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
-    // tmpStr1.c_str(), options );
-
-    // 	tmpStr1 = "junk";
-    // 	ok = meta.GetProperty ( NS1, "Seq", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ns1:Seq : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
-    // tmpStr1.c_str(), options );
-
-    // 	tmpStr1 = "junk";
-    // 	ok = meta.GetProperty ( NS1, "Alt", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ns1:Alt : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
-    // tmpStr1.c_str(), options );
-
-    // 	tmpStr1 = "junk";
-    // 	ok = meta.GetProperty ( NS1, "Struct", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ns1:Struct : %s, \"%s\", 0x%X\n", FoundOrNot ( ok
-    // ), tmpStr1.c_str(), options );
-
-    // 	fprintf ( log, "\n" );
-
-    // 	try {
-    // 		tmpStr1 = "junk";
-    // 		ok = meta.GetProperty ( "ns:bogus/", "Bogus", &tmpStr1, &options );
-    // 		fprintf ( log, "#ERROR: No exception for GetProperty with bogus schema URI:
-    // %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options );
-    // 	} catch ( XMP_Error & excep ) {
-    // 		fprintf ( log, "GetProperty with bogus schema URI - threw XMP_Error #%d :
-    // %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch ( ... ) {
-    // 		fprintf ( log, "GetProperty with bogus schema URI - threw unknown
-    // exception\n" ); 	}
-
-    // 	tmpStr1 = "junk";
-    // 	ok = meta.GetProperty ( NS1, "Bogus", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ns1:Bogus : %s\n", FoundOrNot ( ok ) );
-
-    // 	tmpStr1 = "junk";
-    // 	ok = meta.GetArrayItem ( NS1, "Bag", 99, &tmpStr1, &options );
-    // 	fprintf ( log, "GetArrayItem ns1:Bag[99] : %s\n", FoundOrNot ( ok ) );
-
-    // 	tmpStr1 = "junk";
-    // 	ok = meta.GetStructField ( NS1, "Struct", NS2, "Bogus", &tmpStr1, &options );
-    // 	fprintf ( log, "GetStructField ns1:Struct/ns2:Bogus : %s\n", FoundOrNot ( ok
-    // ) );
-
-    // 	tmpStr1 = "junk";
-    // 	ok = meta.GetQualifier ( NS1, "Prop", NS2, "Bogus", &tmpStr1, &options );
-    // 	fprintf ( log, "GetQualifier ns1:Prop/?ns2:Bogus : %s\n", FoundOrNot ( ok )
-    // );
-
-    // 	// ----------------------------------------------------------------------------------------
-
-    // 	write_major_label("Test DoesPropertyExist, DeleteProperty, and related
-    // methods" );
-
-    // 	DumpXMPObj ( log, meta, "XMP object" );
-    // 	fprintf ( log, "\n" );
-
-    // 	ok = meta.DoesPropertyExist ( NS1, "Prop" );
-    // 	fprintf ( log, "DoesPropertyExist ns1:Prop : %s\n", YesOrNo ( ok ) );
-
-    // 	try {
-    // 		ok = meta.DoesPropertyExist ( 0, "ns1:Bag" );
-    // 		fprintf ( log, "#ERROR: No exception for DoesPropertyExist with no schema
-    // URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error & excep ) {
-    // 		fprintf ( log, "DoesPropertyExist with no schema URI - threw XMP_Error #%d :
-    // %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch ( ... ) {
-    // 		fprintf ( log, "DoesPropertyExist with no schema URI - threw unknown
-    // exception\n" ); 	}
-
-    // 	ok = meta.DoesPropertyExist ( NS1, "ns1:Struct" );
-    // 	fprintf ( log, "DoesPropertyExist ns1:Struct : %s\n", YesOrNo ( ok ) );
-
-    // 	fprintf ( log, "\n" );
-
-    // 	ok = meta.DoesArrayItemExist ( NS1, "Bag", 2 );
-    // 	fprintf ( log, "DoesArrayItemExist ns1:Bag[2] : %s\n", YesOrNo ( ok ) );
-
-    // 	ok = meta.DoesArrayItemExist ( NS1, "ns1:Seq", kXMP_ArrayLastItem );
-    // 	fprintf ( log, "DoesArrayItemExist ns1:Seq[last] : %s\n", YesOrNo ( ok ) );
-
-    // 	ok = meta.DoesStructFieldExist ( NS1, "Struct", NS2, "Field1" );
-    // 	fprintf ( log, "DoesStructFieldExist ns1:Struct/ns2:Field1 : %s\n", YesOrNo (
-    // ok ) );
-
-    // 	ok = meta.DoesQualifierExist ( NS1, "QualProp1", NS2, "Qual1" );
-    // 	fprintf ( log, "DoesQualifierExist ns1:QualProp1/?ns2:Qual1 : %s\n", YesOrNo
-    // ( ok ) );
-
-    // 	ok = meta.DoesQualifierExist ( NS1, "QualProp2", kXMP_NS_XML, "lang" );
-    // 	fprintf ( log, "DoesQualifierExist ns1:QualProp2/?xml:lang : %s\n", YesOrNo (
-    // ok ) );
-
-    // 	fprintf ( log, "\n" );
-
-    // 	try {
-    // 		ok = meta.DoesPropertyExist ( "ns:bogus/", "Bogus" );
-    // 		fprintf ( log, "#ERROR: No exception for DoesPropertyExist with bogus schema
-    // URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error & excep ) {
-    // 		fprintf ( log, "DoesPropertyExist with bogus schema URI - threw XMP_Error #%d
-    // : %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch ( ... ) {
-    // 		fprintf ( log, "DoesPropertyExist with bogus schema URI - threw unknown
-    // exception\n" ); 	}
-
-    // 	ok = meta.DoesPropertyExist ( NS1, "Bogus" );
-    // 	fprintf ( log, "DoesPropertyExist ns1:Bogus : %s\n", YesOrNo ( ok ) );
-
-    // 	ok = meta.DoesArrayItemExist ( NS1, "Bag", 99 );
-    // 	fprintf ( log, "DoesArrayItemExist ns1:Bag[99] : %s\n", YesOrNo ( ok ) );
-
-    // 	try {
-    // 		ok = meta.DoesArrayItemExist ( 0, "ns1:Bag", kXMP_ArrayLastItem );
-    // 		fprintf ( log, "#ERROR: No exception for DoesArrayItemExist with no schema
-    // URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error & excep ) {
-    // 		fprintf ( log, "DoesArrayItemExist with no schema URI - threw XMP_Error #%d :
-    // %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch ( ... ) {
-    // 		fprintf ( log, "DoesArrayItemExist with no schema URI - threw unknown
-    // exception\n" ); 	}
-
-    // 	ok = meta.DoesStructFieldExist ( NS1, "Struct", NS2, "Bogus" );
-    // 	fprintf ( log, "DoesStructFieldExist ns1:Struct/ns2:Bogus : %s\n", YesOrNo (
-    // ok ) );
-
-    // 	ok = meta.DoesQualifierExist ( NS1, "Prop", NS2, "Bogus" );
-    // 	fprintf ( log, "DoesQualifierExist ns1:Prop/?ns2:Bogus : %s\n", YesOrNo ( ok
-    // ) );
-
-    // 	meta.DeleteProperty ( NS1, "Prop" );
-    // 	meta.DeleteArrayItem ( NS1, "Bag", 2 );
-    // 	meta.DeleteStructField ( NS1, "Struct", NS2, "Field1" );
-
-    // 	DumpXMPObj ( log, meta, "Delete Prop, Bag[2], and Struct1/Field1" );
-
-    // 	meta.DeleteQualifier ( NS1, "QualProp1", NS2, "Qual1" );
-    // 	meta.DeleteQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang" );
-    // 	meta.DeleteQualifier ( NS1, "QualProp3", NS2, "Qual" );
-    // 	meta.DeleteQualifier ( NS1, "QualProp4", kXMP_NS_XML, "lang" );
-
-    // 	DumpXMPObj ( log, meta, "Delete QualProp1/?ns2:Qual1, QualProp2/?xml:lang,
-    // QualProp3:/ns2:Qual, and QualProp4/?xml:lang" );
-
-    // 	meta.DeleteProperty ( NS1, "Bag" );
-    // 	meta.DeleteProperty ( NS1, "Struct" );
-
-    // 	DumpXMPObj ( log, meta, "Delete all of Bag and Struct" );
-
-    // }
+    {
+        write_major_label("Test SetProperty and related methods");
+
+        let mut meta = XmpMeta::default();
+
+        meta.set_property(NS1, "Prop", &"Prop value".into())
+            .unwrap();
+
+        meta.set_property(NS1, "ns1:XMLProp", &"<PropValue/>".into())
+            .unwrap();
+
+        meta.set_property(
+            NS1,
+            "ns1:URIProp",
+            &XmpValue::new("URI:value/".to_owned()).set_is_uri(true),
+        )
+        .unwrap();
+
+        // int				i;
+        // bool			ok;
+        // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
+        // XMP_OptionBits	options;
+
+        // 	tmpStr1 = "BagItem value";
+        // 	meta.AppendArrayItem ( NS1, "Bag", kXMP_PropValueIsArray, tmpStr1 );
+        // 	meta.AppendArrayItem ( NS1, "ns1:Seq", kXMP_PropArrayIsOrdered,
+        // "SeqItem value" ); 	meta.AppendArrayItem ( NS1, "ns1:Alt",
+        // kXMP_PropArrayIsAlternate, "AltItem value" );
+
+        // 	tmpStr1 = "Field1 value";
+        // 	meta.SetStructField ( NS1, "Struct", NS2, "Field1", tmpStr1 );
+        // 	meta.SetStructField ( NS1, "ns1:Struct", NS2, "Field2", "Field2
+        // value" ); 	meta.SetStructField ( NS1, "ns1:Struct", NS2,
+        // "Field3", "Field3 value" );
+
+        // 	tmpStr1 = "BagItem 3";
+        // 	meta.SetArrayItem ( NS1, "Bag", 1, tmpStr1 );
+        // 	meta.SetArrayItem ( NS1, "ns1:Bag", 1, "BagItem 1",
+        // kXMP_InsertBeforeItem ); 	meta.SetArrayItem ( NS1, "ns1:Bag",
+        // 1, "BagItem 2", kXMP_InsertAfterItem ); 	meta.AppendArrayItem
+        // ( NS1, "Bag", 0, "BagItem 4" );
+
+        // 	DumpXMPObj ( log, meta, "A few basic Set... calls" );
+
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper );
+        // 	fprintf ( log, "\n%s\n", tmpStr1.c_str() );
+
+        // 	fprintf ( log, "CountArrayItems Bag = %d\n", meta.CountArrayItems (
+        // NS1, "Bag" ) );
+
+        // 	meta.SetProperty ( NS1, "QualProp1", "Prop value" );
+        // 	meta.SetQualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
+        // 	// *** meta.SetProperty ( NS1, "QualProp1/Qual2", "Qual2 value",
+        // kXMP_PropIsQualifier );	invalid 	meta.SetProperty ( NS1,
+        // "QualProp1/?ns2:Qual3", "Qual3 value" ); 	meta.SetProperty ( NS1,
+        // "QualProp1/?xml:lang", "x-qual" );
+
+        // 	meta.SetProperty ( NS1, "QualProp2", "Prop value" );
+        // 	meta.SetQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang", "en-us" );
+        // 	// *** meta.SetProperty ( NS1, "QualProp2/xml:lang", "x-field",
+        // kXMP_PropIsQualifier );	invalid 	meta.SetProperty ( NS1,
+        // "QualProp2/@xml:lang", "x-attr" );
+
+        // 	meta.SetProperty ( NS1, "QualProp3", "Prop value" );
+        // 	meta.SetQualifier ( NS1, "ns1:QualProp3", kXMP_NS_XML, "xml:lang",
+        // "en-us" ); 	meta.SetQualifier ( NS1, "ns1:QualProp3", NS2,
+        // "ns2:Qual", "Qual value" );
+
+        // 	meta.SetProperty ( NS1, "QualProp4", "Prop value" );
+        // 	tmpStr1 = "Qual value";
+        // 	meta.SetQualifier ( NS1, "QualProp4", NS2, "Qual", tmpStr1 );
+        // 	meta.SetQualifier ( NS1, "QualProp4", kXMP_NS_XML, "lang", "en-us" );
+
+        // 	DumpXMPObj ( log, meta, "Add some qualifiers" );
+
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper );
+        // 	fprintf ( log, "\n%s\n", tmpStr1.c_str() );
+
+        // 	meta.SetProperty ( NS1, "QualProp1", "new value" );
+        // 	meta.SetProperty ( NS1, "QualProp2", "new value" );
+        // 	meta.SetProperty ( NS1, "QualProp3", "new value" );
+        // 	meta.SetProperty ( NS1, "QualProp4", "new value" );
+        // 	DumpXMPObj ( log, meta, "Change values and keep qualifiers" );
+
+        // 	// ----------------------------------------------------------------------------------------
+
+        // 	write_major_label("Test GetProperty and related methods" );
+
+        // 	meta.DeleteProperty ( NS1, "QualProp1" );	// ! Start with fresh
+        // qualifiers. 	meta.DeleteProperty ( NS1, "ns1:QualProp2" );
+        // 	meta.DeleteProperty ( NS1, "ns1:QualProp3" );
+        // 	meta.DeleteProperty ( NS1, "QualProp4" );
+
+        // 	meta.SetProperty ( NS1, "QualProp1", "Prop value" );
+        // 	meta.SetQualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
+
+        // 	meta.SetProperty ( NS1, "QualProp2", "Prop value" );
+        // 	meta.SetQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang", "en-us" );
+
+        // 	meta.SetProperty ( NS1, "QualProp3", "Prop value" );
+        // 	meta.SetQualifier ( NS1, "QualProp3", kXMP_NS_XML, "lang", "en-us" );
+        // 	meta.SetQualifier ( NS1, "QualProp3", NS2, "Qual", "Qual value" );
+
+        // 	meta.SetProperty ( NS1, "QualProp4", "Prop value" );
+        // 	meta.SetQualifier ( NS1, "QualProp4", NS2, "Qual", "Qual value" );
+        // 	meta.SetQualifier ( NS1, "QualProp4", kXMP_NS_XML, "lang", "en-us" );
+
+        // 	DumpXMPObj ( log, meta, "XMP object" );
+        // 	fprintf ( log, "\n" );
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetProperty ( NS1, "Prop", &tmpStr1, &options );
+        // 	fprintf ( log, "GetProperty ns1:Prop : %s, \"%s\", 0x%X\n",
+        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+
+        // 	try {
+        // 		tmpStr1.erase();
+        // 		ok = meta.GetProperty ( 0, "ns1:Prop", &tmpStr1, &options );
+        // 		fprintf ( log, "#ERROR: No exception for GetProperty with no schema
+        // URI : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
+        // tmpStr1.c_str(), options ); 	} catch ( XMP_Error & excep ) {
+        // fprintf ( log, "GetProperty with no schema URI -
+        // threw XMP_Error #%d : %s\n", excep.GetID(), excep.GetErrMsg() );
+        // 	} catch ( ... ) {
+        // 		fprintf ( log, "GetProperty with no schema URI - threw unknown
+        // exception\n" ); 	}
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetProperty ( NS1, "ns1:XMLProp", &tmpStr1, &options );
+        // 	fprintf ( log, "GetProperty ns1:XMLProp : %s, \"%s\", 0x%X\n",
+        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetProperty ( NS1, "ns1:URIProp", &tmpStr1, &options );
+        // 	fprintf ( log, "GetProperty ns1:URIProp : %s, \"%s\", 0x%X\n",
+        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+
+        // 	fprintf ( log, "\n" );
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetArrayItem ( NS1, "Bag", 2, &tmpStr1, &options );
+        // 	fprintf ( log, "GetArrayItem ns1:Bag[2] : %s, \"%s\", 0x%X\n",
+        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+
+        // 	try {
+        // 		tmpStr1.erase();
+        // 		ok = meta.GetArrayItem ( 0, "ns1:Bag", 1, &tmpStr1, &options );
+        // 		fprintf ( log, "#ERROR: No exception for GetArrayItem with no schema
+        // URI : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
+        // tmpStr1.c_str(), options ); 	} catch ( XMP_Error & excep ) {
+        // 		fprintf ( log, "GetArrayItem with no schema URI - threw XMP_Error #%d
+        // : %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch ( ... )
+        // { 		fprintf ( log, "GetArrayItem with no schema URI - threw
+        // unknown exception\n" ); 	}
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetArrayItem ( NS1, "ns1:Seq", 1, &tmpStr1, &options );
+        // 	fprintf ( log, "GetArrayItem ns1:Seq[1] : %s, \"%s\", 0x%X\n",
+        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetArrayItem ( NS1, "ns1:Alt", kXMP_ArrayLastItem,
+        // &tmpStr1, &options ); 	fprintf ( log, "GetArrayItem ns1:Alt[1]
+        // : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(),
+        // options );
+
+        // 	fprintf ( log, "\n" );
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetStructField ( NS1, "Struct", NS2, "Field1", &tmpStr1,
+        // &options ); 	fprintf ( log, "GetStructField
+        // ns1:Struct/ns2:Field1 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok
+        // ), tmpStr1.c_str(), options );
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetStructField ( NS1, "ns1:Struct", NS2, "ns2:Field2",
+        // &tmpStr1, &options ); 	fprintf ( log, "GetStructField
+        // ns1:Struct/ns2:Field2 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok
+        // ), tmpStr1.c_str(), options );
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetStructField ( NS1, "ns1:Struct", NS2, "ns2:Field3",
+        // &tmpStr1, &options ); 	fprintf ( log, "GetStructField
+        // ns1:Struct/ns2:Field3 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok
+        // ), tmpStr1.c_str(), options );
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetQualifier ( NS1, "QualProp1", NS2, "Qual1", &tmpStr1,
+        // &options ); 	fprintf ( log, "GetQualifier
+        // ns1:QualProp1/?ns2:Qual1 : %s, \"%s\", 0x%X\n", FoundOrNot (
+        // ok ), tmpStr1.c_str(), options );
+
+        // 	try {
+        // 		tmpStr1.erase();
+        // 		ok = meta.GetQualifier ( 0, "ns1:QualProp1", NS2, "Qual1", &tmpStr1,
+        // &options ); 		fprintf ( log, "#ERROR: No exception for
+        // GetQualifier with no schema URI : %s, \"%s\", 0x%X\n",
+        // FoundOrNot ( ok ), tmpStr1.c_str(), options ); 	} catch (
+        // XMP_Error & excep ) { 		fprintf ( log, "GetQualifier with no
+        // schema URI - threw XMP_Error #%d : %s\n", excep.GetID(),
+        // excep.GetErrMsg() ); 	} catch ( ... ) { 		fprintf ( log,
+        // "GetQualifier with no schema URI - threw unknown exception\n"
+        // ); 	}
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetQualifier ( NS1, "ns1:QualProp3", kXMP_NS_XML,
+        // "xml:lang", &tmpStr1, &options ); 	fprintf ( log,
+        // "GetQualifier ns1:QualProp3 : %s, \"%s\", 0x%X\n", FoundOrNot
+        // ( ok ), tmpStr1.c_str(), options );
+
+        // 	tmpStr1.erase();
+        // 	ok = meta.GetQualifier ( NS1, "ns1:QualProp3", NS2, "ns2:Qual",
+        // &tmpStr1, &options ); 	fprintf ( log, "GetQualifier
+        // ns1:QualProp3/?ns2:Qual : %s, \"%s\", 0x%X\n", FoundOrNot (
+        // ok ), tmpStr1.c_str(), options );
+
+        // 	fprintf ( log, "\n" );
+
+        // 	tmpStr1 = "junk";
+        // 	ok = meta.GetProperty ( NS1, "Bag", &tmpStr1, &options );
+        // 	fprintf ( log, "GetProperty ns1:Bag : %s, \"%s\", 0x%X\n", FoundOrNot
+        // ( ok ), tmpStr1.c_str(), options );
+
+        // 	tmpStr1 = "junk";
+        // 	ok = meta.GetProperty ( NS1, "Seq", &tmpStr1, &options );
+        // 	fprintf ( log, "GetProperty ns1:Seq : %s, \"%s\", 0x%X\n", FoundOrNot
+        // ( ok ), tmpStr1.c_str(), options );
+
+        // 	tmpStr1 = "junk";
+        // 	ok = meta.GetProperty ( NS1, "Alt", &tmpStr1, &options );
+        // 	fprintf ( log, "GetProperty ns1:Alt : %s, \"%s\", 0x%X\n", FoundOrNot
+        // ( ok ), tmpStr1.c_str(), options );
+
+        // 	tmpStr1 = "junk";
+        // 	ok = meta.GetProperty ( NS1, "Struct", &tmpStr1, &options );
+        // 	fprintf ( log, "GetProperty ns1:Struct : %s, \"%s\", 0x%X\n",
+        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+
+        // 	fprintf ( log, "\n" );
+
+        // 	try {
+        // 		tmpStr1 = "junk";
+        // 		ok = meta.GetProperty ( "ns:bogus/", "Bogus", &tmpStr1, &options );
+        // 		fprintf ( log, "#ERROR: No exception for GetProperty with bogus
+        // schema URI: %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
+        // tmpStr1.c_str(), options ); 	} catch ( XMP_Error & excep ) {
+        // 		fprintf ( log, "GetProperty with bogus schema URI - threw XMP_Error
+        // #%d : %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch (
+        // ... ) { 		fprintf ( log, "GetProperty with bogus schema URI -
+        // threw unknown exception\n" ); 	}
+
+        // 	tmpStr1 = "junk";
+        // 	ok = meta.GetProperty ( NS1, "Bogus", &tmpStr1, &options );
+        // 	fprintf ( log, "GetProperty ns1:Bogus : %s\n", FoundOrNot ( ok ) );
+
+        // 	tmpStr1 = "junk";
+        // 	ok = meta.GetArrayItem ( NS1, "Bag", 99, &tmpStr1, &options );
+        // 	fprintf ( log, "GetArrayItem ns1:Bag[99] : %s\n", FoundOrNot ( ok )
+        // );
+
+        // 	tmpStr1 = "junk";
+        // 	ok = meta.GetStructField ( NS1, "Struct", NS2, "Bogus", &tmpStr1,
+        // &options ); 	fprintf ( log, "GetStructField
+        // ns1:Struct/ns2:Bogus : %s\n", FoundOrNot ( ok ) );
+
+        // 	tmpStr1 = "junk";
+        // 	ok = meta.GetQualifier ( NS1, "Prop", NS2, "Bogus", &tmpStr1,
+        // &options ); 	fprintf ( log, "GetQualifier ns1:Prop/?ns2:Bogus
+        // : %s\n", FoundOrNot ( ok ) );
+
+        // 	// ----------------------------------------------------------------------------------------
+
+        // 	write_major_label("Test DoesPropertyExist, DeleteProperty, and
+        // related methods" );
+
+        // 	DumpXMPObj ( log, meta, "XMP object" );
+        // 	fprintf ( log, "\n" );
+
+        // 	ok = meta.DoesPropertyExist ( NS1, "Prop" );
+        // 	fprintf ( log, "DoesPropertyExist ns1:Prop : %s\n", YesOrNo ( ok ) );
+
+        // 	try {
+        // 		ok = meta.DoesPropertyExist ( 0, "ns1:Bag" );
+        // 		fprintf ( log, "#ERROR: No exception for DoesPropertyExist with no
+        // schema URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error &
+        // excep ) { 		fprintf ( log, "DoesPropertyExist with no schema
+        // URI - threw XMP_Error #%d : %s\n", excep.GetID(),
+        // excep.GetErrMsg() ); 	} catch ( ... ) { 		fprintf ( log,
+        // "DoesPropertyExist with no schema URI - threw unknown
+        // exception\n" ); 	}
+
+        // 	ok = meta.DoesPropertyExist ( NS1, "ns1:Struct" );
+        // 	fprintf ( log, "DoesPropertyExist ns1:Struct : %s\n", YesOrNo ( ok )
+        // );
+
+        // 	fprintf ( log, "\n" );
+
+        // 	ok = meta.DoesArrayItemExist ( NS1, "Bag", 2 );
+        // 	fprintf ( log, "DoesArrayItemExist ns1:Bag[2] : %s\n", YesOrNo ( ok )
+        // );
+
+        // 	ok = meta.DoesArrayItemExist ( NS1, "ns1:Seq", kXMP_ArrayLastItem );
+        // 	fprintf ( log, "DoesArrayItemExist ns1:Seq[last] : %s\n", YesOrNo (
+        // ok ) );
+
+        // 	ok = meta.DoesStructFieldExist ( NS1, "Struct", NS2, "Field1" );
+        // 	fprintf ( log, "DoesStructFieldExist ns1:Struct/ns2:Field1 : %s\n",
+        // YesOrNo ( ok ) );
+
+        // 	ok = meta.DoesQualifierExist ( NS1, "QualProp1", NS2, "Qual1" );
+        // 	fprintf ( log, "DoesQualifierExist ns1:QualProp1/?ns2:Qual1 : %s\n",
+        // YesOrNo ( ok ) );
+
+        // 	ok = meta.DoesQualifierExist ( NS1, "QualProp2", kXMP_NS_XML, "lang"
+        // ); 	fprintf ( log, "DoesQualifierExist ns1:QualProp2/?xml:lang
+        // : %s\n", YesOrNo ( ok ) );
+
+        // 	fprintf ( log, "\n" );
+
+        // 	try {
+        // 		ok = meta.DoesPropertyExist ( "ns:bogus/", "Bogus" );
+        // 		fprintf ( log, "#ERROR: No exception for DoesPropertyExist with bogus
+        // schema URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error &
+        // excep ) { 		fprintf ( log, "DoesPropertyExist with bogus schema
+        // URI - threw XMP_Error #%d : %s\n", excep.GetID(),
+        // excep.GetErrMsg() ); 	} catch ( ... ) { 		fprintf ( log,
+        // "DoesPropertyExist with bogus schema URI - threw unknown
+        // exception\n" ); 	}
+
+        // 	ok = meta.DoesPropertyExist ( NS1, "Bogus" );
+        // 	fprintf ( log, "DoesPropertyExist ns1:Bogus : %s\n", YesOrNo ( ok )
+        // );
+
+        // 	ok = meta.DoesArrayItemExist ( NS1, "Bag", 99 );
+        // 	fprintf ( log, "DoesArrayItemExist ns1:Bag[99] : %s\n", YesOrNo ( ok
+        // ) );
+
+        // 	try {
+        // 		ok = meta.DoesArrayItemExist ( 0, "ns1:Bag", kXMP_ArrayLastItem );
+        // 		fprintf ( log, "#ERROR: No exception for DoesArrayItemExist with no
+        // schema URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error &
+        // excep ) { 		fprintf ( log, "DoesArrayItemExist with no schema
+        // URI - threw XMP_Error #%d : %s\n", excep.GetID(),
+        // excep.GetErrMsg() ); 	} catch ( ... ) { 		fprintf ( log,
+        // "DoesArrayItemExist with no schema URI - threw unknown
+        // exception\n" ); 	}
+
+        // 	ok = meta.DoesStructFieldExist ( NS1, "Struct", NS2, "Bogus" );
+        // 	fprintf ( log, "DoesStructFieldExist ns1:Struct/ns2:Bogus : %s\n",
+        // YesOrNo ( ok ) );
+
+        // 	ok = meta.DoesQualifierExist ( NS1, "Prop", NS2, "Bogus" );
+        // 	fprintf ( log, "DoesQualifierExist ns1:Prop/?ns2:Bogus : %s\n",
+        // YesOrNo ( ok ) );
+
+        // 	meta.DeleteProperty ( NS1, "Prop" );
+        // 	meta.DeleteArrayItem ( NS1, "Bag", 2 );
+        // 	meta.DeleteStructField ( NS1, "Struct", NS2, "Field1" );
+
+        // 	DumpXMPObj ( log, meta, "Delete Prop, Bag[2], and Struct1/Field1" );
+
+        // 	meta.DeleteQualifier ( NS1, "QualProp1", NS2, "Qual1" );
+        // 	meta.DeleteQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang" );
+        // 	meta.DeleteQualifier ( NS1, "QualProp3", NS2, "Qual" );
+        // 	meta.DeleteQualifier ( NS1, "QualProp4", kXMP_NS_XML, "lang" );
+
+        // 	DumpXMPObj ( log, meta, "Delete QualProp1/?ns2:Qual1,
+        // QualProp2/?xml:lang, QualProp3:/ns2:Qual, and
+        // QualProp4/?xml:lang" );
+
+        // 	meta.DeleteProperty ( NS1, "Bag" );
+        // 	meta.DeleteProperty ( NS1, "Struct" );
+
+        // 	DumpXMPObj ( log, meta, "Delete all of Bag and Struct" );
+    }
 
     // // --------------------------------------------------------------------------------------------
     // // Localized text set/get methods
