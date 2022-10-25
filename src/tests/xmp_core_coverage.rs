@@ -439,31 +439,27 @@ fn xmp_core_coverage() {
     println!("RegisterNamespace nsx = {}", nsx_prefix);
     assert_eq!(nsx_prefix, "ns2:");
 
-    // tmpStr1.erase();
-    // ok = SXMPMeta::GetNamespacePrefix ( NS1, &tmpStr1 );
-    // fprintf ( log, "GetNamespacePrefix ns1 : %s, %s\n", FoundOrNot ( ok ),
-    // tmpStr1.c_str() );
+    let ns1_prefix = XmpMeta::namespace_prefix(NS1);
+    println!("namespace_prefix(ns1) = {:#?}", ns1_prefix);
+    assert_eq!(ns1_prefix, Some("ns1:".to_owned()));
 
-    // tmpStr1.erase();
-    // ok = SXMPMeta::GetNamespaceURI ( "ns1", &tmpStr1 );
-    // fprintf ( log, "GetNamespaceURI ns1 : %s, %s\n", FoundOrNot ( ok ),
-    // tmpStr1.c_str() );
+    let ns1_uri = XmpMeta::namespace_uri("ns1");
+    println!("namespace_uri(ns1) = {:#?}", ns1_uri);
+    assert_eq!(ns1_uri, Some(NS1.to_owned()));
 
-    // tmpStr1.erase();
-    // ok = SXMPMeta::GetNamespacePrefix ( "bogus", &tmpStr1 );
-    // fprintf ( log, "GetNamespacePrefix bogus : %s\n", FoundOrNot ( ok ) );
+    let bogus_prefix = XmpMeta::namespace_prefix("bogus");
+    println!("namespace_prefix(bogus) = {:#?}", bogus_prefix);
+    assert_eq!(bogus_prefix, None);
 
-    // tmpStr1.erase();
-    // ok = SXMPMeta::GetNamespaceURI ( "bogus", &tmpStr1 );
-    // fprintf ( log, "GetNamespaceURI bogus : %s\n", FoundOrNot ( ok ) );
+    let bogus_uri = XmpMeta::namespace_uri("bogus");
+    println!("namespace_prefix(bogus) = {:#?}", bogus_uri);
+    assert_eq!(bogus_uri, None);
 
-    // SXMPMeta::DumpNamespaces ( DumpToFile, log );
+    println!("{}", XmpMeta::debug_dump_namespaces());
 
-    // #if 0
-    // 	SXMPMeta::DeleteNamespace ( NS2 );
-    // 	SXMPMeta::DumpNamespaces ( DumpToFile, log );
-    // 	(void) SXMPMeta::RegisterNamespace ( NS2, "ns2", 0 );
-    // #endif
+    // NOTE: Delete namespace API not ported.
+
+    //-------------------------------------------------------------------------
 
     // // --------------------------------------------------------------------------------------------
     // // Basic set/get methods
