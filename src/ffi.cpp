@@ -353,6 +353,50 @@ extern "C" {
         return NULL;
     }
 
+    const char* CXmpMetaGetNamespacePrefix(CXmpError* outError,
+                                           const char* namespaceURI) {
+        #ifndef NOOP_FFI
+            init_xmp();
+
+            try {
+                std::string outPrefix;
+                if (SXMPMeta::GetNamespacePrefix(namespaceURI, &outPrefix)) {
+                    return copyStringForResult(outPrefix);
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
+    const char* CXmpMetaGetNamespaceURI(CXmpError* outError,
+                                        const char* namespacePrefix) {
+        #ifndef NOOP_FFI
+            init_xmp();
+
+            try {
+                std::string outURI;
+                if (SXMPMeta::GetNamespaceURI(namespacePrefix, &outURI)) {
+                    return copyStringForResult(outURI);
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
     void CXmpDumpNamespaces(void* rustString, XMP_TextOutputProc callback) {
         #ifndef NOOP_FFI
             init_xmp();

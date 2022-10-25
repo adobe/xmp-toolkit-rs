@@ -111,9 +111,6 @@ impl XmpMeta {
     ///
     /// Returns the prefix actually registered for this URI.
     pub fn register_namespace(namespace_uri: &str, suggested_prefix: &str) -> XmpResult<String> {
-        // These .unwrap() calls are deemed unlikely to panic as this
-        // function is typically called with known, standardized strings
-        // in the ASCII space.
         let c_ns = CString::new(namespace_uri).unwrap_or_default();
         let c_sp = CString::new(suggested_prefix).unwrap_or_default();
 
@@ -129,6 +126,42 @@ impl XmpMeta {
             XmpError::raise_from_c(&err)?;
 
             Ok(result.as_string())
+        }
+    }
+
+    /// Returns the prefix for a registered namespace URI if it exists.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace_uri`: The URI for the namespace. Must be a valid XML URI.
+    pub fn namespace_prefix(namespace_uri: &str) -> Option<String> {
+        let c_ns = CString::new(namespace_uri).unwrap_or_default();
+
+        unsafe {
+            let mut err = ffi::CXmpError::default();
+
+            let result =
+                CXmpString::from_ptr(ffi::CXmpMetaGetNamespacePrefix(&mut err, c_ns.as_ptr()));
+
+            result.map(|s| s)
+        }
+    }
+
+    /// Returns the URL for a registered namespace prefix if it exists.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace_prefix`: The prefix for the namespace.
+    pub fn namespace_uri(namespace_prefix: &str) -> Option<String> {
+        let c_prefix = CString::new(namespace_prefix).unwrap_or_default();
+
+        unsafe {
+            let mut err = ffi::CXmpError::default();
+
+            let result =
+                CXmpString::from_ptr(ffi::CXmpMetaGetNamespaceURI(&mut err, c_prefix.as_ptr()));
+
+            result.map(|s| s)
         }
     }
 

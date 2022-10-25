@@ -167,6 +167,40 @@ mod register_namespace {
     }
 }
 
+mod namespace_prefix {
+    use crate::{xmp_ns, XmpMeta};
+
+    #[test]
+    fn exists() {
+        assert_eq!(
+            XmpMeta::namespace_prefix(xmp_ns::XMP),
+            Some("xmp:".to_owned())
+        );
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        assert_eq!(
+            XmpMeta::namespace_prefix("zzz:http://ns.adobe.com/xap/1.0/"),
+            None
+        );
+    }
+}
+
+mod namespace_uri {
+    use crate::{xmp_ns, XmpMeta};
+
+    #[test]
+    fn exists() {
+        assert_eq!(XmpMeta::namespace_uri("xmp:"), Some(xmp_ns::XMP.to_owned()));
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        assert_eq!(XmpMeta::namespace_uri("zzz:"), None);
+    }
+}
+
 mod debug_dump_namespaces {
     use crate::XmpMeta;
 
