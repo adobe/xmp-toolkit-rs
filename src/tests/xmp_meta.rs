@@ -1367,6 +1367,136 @@ mod set_property_date {
     }
 }
 
+mod append_array_item {
+    use crate::{xmp_ns, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::default();
+
+        m.append_array_item(
+            xmp_ns::DC,
+            &XmpValue::from("creator").set_is_ordered(true),
+            &XmpValue::from("Author 1"),
+        )
+        .unwrap();
+
+        m.append_array_item(
+            xmp_ns::DC,
+            &XmpValue::from("creator").set_is_ordered(true),
+            &XmpValue::from("Author 2"),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.property(xmp_ns::DC, "creator").unwrap(),
+            XmpValue {
+                value: "".to_owned(),
+                options: xmp_prop::VALUE_IS_ARRAY | xmp_prop::ARRAY_IS_ORDERED
+            }
+        );
+
+        let creators: Vec<XmpValue<String>> = m.property_array(xmp_ns::DC, "creator").collect();
+        println!("creators = {:#?}", creators);
+
+        let mut creators_iter = creators.iter();
+
+        let creator = creators_iter.next().unwrap();
+        assert_eq!(creator.value, "Author 1");
+        assert_eq!(creator.options, 0);
+
+        let creator = creators_iter.next().unwrap();
+        assert_eq!(creator.value, "Author 2");
+        assert_eq!(creator.options, 0);
+
+        assert_eq!(creators_iter.next(), None);
+    }
+
+    #[test]
+    fn item_options() {
+        let mut m = XmpMeta::default();
+
+        m.append_array_item(
+            xmp_ns::DC,
+            &XmpValue::from("creator").set_is_ordered(true),
+            &XmpValue::from("Author 1"),
+        )
+        .unwrap();
+
+        m.append_array_item(
+            xmp_ns::DC,
+            &XmpValue::from("creator").set_is_ordered(true),
+            &XmpValue::from("Author 2").set_is_uri(true),
+        )
+        .unwrap();
+
+        let creators: Vec<XmpValue<String>> = m.property_array(xmp_ns::DC, "creator").collect();
+        println!("creators = {:#?}", creators);
+
+        let mut creators_iter = creators.iter();
+
+        let creator = creators_iter.next().unwrap();
+        assert_eq!(creator.value, "Author 1");
+        assert_eq!(creator.options, 0);
+
+        let creator = creators_iter.next().unwrap();
+        assert_eq!(creator.value, "Author 2");
+        assert_eq!(creator.options, xmp_prop::VALUE_IS_URI);
+
+        assert_eq!(creators_iter.next(), None);
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .append_array_item(
+                xmp_ns::DC,
+                &XmpValue::from("creator").set_is_ordered(true),
+                &XmpValue::from("Author 1"),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
+    fn error_empty_array_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .append_array_item(
+                xmp_ns::DC,
+                &XmpValue::from("").set_is_ordered(true),
+                &XmpValue::from("Author 1"),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadXPath);
+        assert_eq!(err.debug_message, "Empty array name");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .append_array_item(
+                xmp_ns::DC,
+                &XmpValue::from("x\0x").set_is_ordered(true),
+                &XmpValue::from("Author 1"),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
+    }
+}
+
 mod localized_text {
     use std::str::FromStr;
 
