@@ -306,6 +306,16 @@ extern "C" {
         options: u32,
     );
 
+    pub(crate) fn CXmpMetaAppendArrayItem(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        array_name: *const c_char,
+        array_options: u32,
+        item_value: *const c_char,
+        item_options: u32,
+    );
+
     pub(crate) fn CXmpMetaDoesPropertyExist(
         meta: *const CXmpMeta,
         schema_ns: *const c_char,

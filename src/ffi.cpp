@@ -679,6 +679,27 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaAppendArrayItem(CXmpMeta* m,
+                                 CXmpError* outError,
+                                 const char* schemaNS,
+                                 const char* arrayName,
+                                 AdobeXMPCommon::uint32 arrayOptions,
+                                 const char* itemValue,
+                                 AdobeXMPCommon::uint32 itemOptions) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.AppendArrayItem(schemaNS, arrayName, arrayOptions, itemValue, itemOptions);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
+
     const char* CXmpMetaGetStructField(CXmpMeta* m,
                                        CXmpError* outError,
                                        const char* schemaNS,
