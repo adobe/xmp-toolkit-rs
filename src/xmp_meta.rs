@@ -784,6 +784,54 @@ impl XmpMeta {
         }
     }
 
+    /// Adds an item to an array, creating the array if necessary.
+    ///
+    /// This function simplifies construction of an array by not requiring
+    /// that you pre-create an empty array. The array that is assigned is
+    /// created automatically if it does not yet exist. If the array exists,
+    /// it must have the form specified by the flags on `array_name`.
+    ///
+    /// Each call appends a new item to the array.
+    ///
+    /// Use `XmpMeta::compose_array_item_path()` to create a complex path.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `array_name`: See [Accessing
+    ///   properties](#accessing-properties). NOTE: `array_name` is an
+    ///   `XmpValue<String>` which contains any necessary flags for the array.
+    /// * `item_value`: Contains value and flags for the item to be added to the
+    ///   array.
+    pub fn append_array_item(
+        &mut self,
+        namespace: &str,
+        array_name: &XmpValue<String>,
+        item_value: &XmpValue<String>,
+    ) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_array_name = CString::new(array_name.value.as_bytes())?;
+            let c_item_value = CString::new(item_value.value.as_bytes())?;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaAppendArrayItem(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_array_name.as_ptr(),
+                    array_name.options,
+                    c_item_value.as_ptr(),
+                    item_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
+
     /// Retrieves information about a selected item from an alt-text array.
     ///
     /// Localized text properties are stored in alt-text arrays. They allow
