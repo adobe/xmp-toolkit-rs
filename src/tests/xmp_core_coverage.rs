@@ -22,7 +22,7 @@
 
 use std::str::FromStr;
 
-use crate::{xmp_ns, XmpMeta, XmpValue};
+use crate::{xmp_ns, xmp_value::xmp_prop, XmpMeta, XmpValue};
 
 const NS1: &str = "ns:test1/";
 const NS2: &str = "ns:test2/";
@@ -479,16 +479,66 @@ fn xmp_core_coverage() {
         )
         .unwrap();
 
+        meta.append_array_item(
+            NS1,
+            &XmpValue::from("Bag").set_is_array(true),
+            &"BagItem value".into(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            meta.property(NS1, "Bag").unwrap(),
+            XmpValue {
+                value: "".to_owned(),
+                options: xmp_prop::VALUE_IS_ARRAY
+            }
+        );
+
+        let bag: Vec<XmpValue<String>> = meta.property_array(NS1, "Bag").collect();
+        assert_eq!(
+            bag,
+            [XmpValue {
+                value: "BagItem value".to_owned(),
+                options: 0
+            }]
+        );
+
+        meta.append_array_item(
+            NS1,
+            &XmpValue::from("ns1:Seq").set_is_ordered(true),
+            &"SeqItem value".into(),
+        )
+        .unwrap();
+
+        let seq: Vec<XmpValue<String>> = meta.property_array(NS1, "ns1:Seq").collect();
+        assert_eq!(
+            seq,
+            [XmpValue {
+                value: "SeqItem value".to_owned(),
+                options: 0
+            }]
+        );
+
+        meta.append_array_item(
+            NS1,
+            &XmpValue::from("ns1:Alt").set_is_alternate(true),
+            &"AltItem value".into(),
+        )
+        .unwrap();
+
+        let alt: Vec<XmpValue<String>> = meta.property_array(NS1, "ns1:Alt").collect();
+        assert_eq!(
+            alt,
+            [XmpValue {
+                value: "AltItem value".to_owned(),
+                options: 0
+            }]
+        );
+
         // int				i;
         // bool			ok;
         // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
         // XMP_OptionBits	options;
-
-        // 	tmpStr1 = "BagItem value";
-        // 	meta.AppendArrayItem ( NS1, "Bag", kXMP_PropValueIsArray, tmpStr1 );
-        // 	meta.AppendArrayItem ( NS1, "ns1:Seq", kXMP_PropArrayIsOrdered,
-        // "SeqItem value" ); 	meta.AppendArrayItem ( NS1, "ns1:Alt",
-        // kXMP_PropArrayIsAlternate, "AltItem value" );
 
         // 	tmpStr1 = "Field1 value";
         // 	meta.SetStructField ( NS1, "Struct", NS2, "Field1", tmpStr1 );
