@@ -177,6 +177,16 @@ extern "C" {
         suggested_prefix: *const c_char,
     ) -> *const c_char;
 
+    pub(crate) fn CXmpMetaGetNamespacePrefix(
+        out_error: *mut CXmpError,
+        namespace_uri: *const c_char,
+    ) -> *const c_char;
+
+    pub(crate) fn CXmpMetaGetNamespaceURI(
+        out_error: *mut CXmpError,
+        namespace_prefix: *const c_char,
+    ) -> *const c_char;
+
     pub(crate) fn CXmpDumpNamespaces(out_string: *mut c_void, callback: CXmpTextOutputProc);
 
     pub(crate) fn CXmpMetaGetProperty(
