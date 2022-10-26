@@ -832,6 +832,59 @@ impl XmpMeta {
         }
     }
 
+    /// Creates or sets the value of a field within a nested structure,
+    /// using a string value.
+    ///
+    /// Use this function to set a value within an existing structure,
+    /// create a new field within an existing structure, or create an
+    /// empty structure of any depth. If you set a field in a structure
+    /// that does not exist, the structure is automatically created.
+    ///
+    /// Use [`XmpMeta::compose_struct_field_path()`] to create a complex path.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `struct_name`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    /// * `item_value`: Contains value and flags for the item to be added to the
+    ///   array.
+    pub fn set_struct_field(
+        &mut self,
+        namespace: &str,
+        struct_name: &str,
+        field_ns: &str,
+        field_name: &str,
+        item_value: &XmpValue<String>,
+    ) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let c_struct_ns = CString::new(namespace)?;
+            let c_struct_name = CString::new(struct_name.as_bytes())?;
+            let c_field_ns = CString::new(field_ns)?;
+            let c_field_name = CString::new(field_name.as_bytes())?;
+            let c_item_value = CString::new(item_value.value.as_bytes())?;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaSetStructField(
+                    m,
+                    &mut err,
+                    c_struct_ns.as_ptr(),
+                    c_struct_name.as_ptr(),
+                    c_field_ns.as_ptr(),
+                    c_field_name.as_ptr(),
+                    c_item_value.as_ptr(),
+                    item_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
+
     /// Retrieves information about a selected item from an alt-text array.
     ///
     /// Localized text properties are stored in alt-text arrays. They allow

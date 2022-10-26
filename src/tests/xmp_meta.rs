@@ -1497,6 +1497,138 @@ mod append_array_item {
     }
 }
 
+mod set_struct_field {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures, xmp_ns, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_str(fixtures::STRUCT_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            )
+            .unwrap(),
+            XmpValue {
+                value: "98110".to_owned(),
+                options: 0
+            }
+        );
+
+        m.set_struct_field(
+            xmp_ns::IPTC_CORE,
+            "CreatorContactInfo",
+            xmp_ns::IPTC_CORE,
+            "CiAdrPcode",
+            &XmpValue::from("95110"),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            )
+            .unwrap(),
+            XmpValue {
+                value: "95110".to_owned(),
+                options: 0
+            }
+        );
+    }
+
+    #[test]
+    fn item_options() {
+        let mut m = XmpMeta::from_str(fixtures::STRUCT_EXAMPLE).unwrap();
+
+        m.set_struct_field(
+            xmp_ns::IPTC_CORE,
+            "CreatorContactInfo",
+            xmp_ns::IPTC_CORE,
+            "CiAdrPcode",
+            &XmpValue::from("95110").set_is_uri(true),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            )
+            .unwrap(),
+            XmpValue {
+                value: "95110".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            }
+        );
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .set_struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode",
+                &XmpValue::from("95110"),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
+    fn error_empty_struct_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .set_struct_field(
+                xmp_ns::IPTC_CORE,
+                "",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode",
+                &XmpValue::from("95110"),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadXPath);
+        assert_eq!(err.debug_message, "Empty struct name");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .set_struct_field(
+                xmp_ns::IPTC_CORE,
+                "x\0x",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode",
+                &XmpValue::from("95110"),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
+    }
+}
+
 mod localized_text {
     use std::str::FromStr;
 

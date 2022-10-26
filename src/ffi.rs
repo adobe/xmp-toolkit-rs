@@ -316,6 +316,17 @@ extern "C" {
         item_options: u32,
     );
 
+    pub(crate) fn CXmpMetaSetStructField(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
+        item_value: *const c_char,
+        item_options: u32,
+    );
+
     pub(crate) fn CXmpMetaDoesPropertyExist(
         meta: *const CXmpMeta,
         schema_ns: *const c_char,
