@@ -535,16 +535,19 @@ fn xmp_core_coverage() {
             }]
         );
 
+        meta.set_struct_field(NS1, "Struct", NS2, "Field1", &"Field1 value".into())
+            .unwrap();
+
+        meta.set_struct_field(NS1, "ns1:Struct", NS2, "Field2", &"Field2 value".into())
+            .unwrap();
+
+        meta.set_struct_field(NS1, "ns1:Struct", NS2, "Field3", &"Field3 value".into())
+            .unwrap();
+
         // int				i;
         // bool			ok;
         // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
         // XMP_OptionBits	options;
-
-        // 	tmpStr1 = "Field1 value";
-        // 	meta.SetStructField ( NS1, "Struct", NS2, "Field1", tmpStr1 );
-        // 	meta.SetStructField ( NS1, "ns1:Struct", NS2, "Field2", "Field2
-        // value" ); 	meta.SetStructField ( NS1, "ns1:Struct", NS2,
-        // "Field3", "Field3 value" );
 
         // 	tmpStr1 = "BagItem 3";
         // 	meta.SetArrayItem ( NS1, "Bag", 1, tmpStr1 );
