@@ -699,7 +699,6 @@ extern "C" {
         #endif
     }
 
-
     const char* CXmpMetaGetStructField(CXmpMeta* m,
                                        CXmpError* outError,
                                        const char* schemaNS,
@@ -726,6 +725,28 @@ extern "C" {
         #endif
 
         return NULL;
+    }
+
+    void CXmpMetaSetStructField(CXmpMeta* m,
+                                CXmpError* outError,
+                                const char* schemaNS,
+                                const char* structName,
+                                const char* fieldNS,
+                                const char* fieldName,
+                                const char* itemValue,
+                                AdobeXMPCommon::uint32 itemOptions) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.SetStructField(schemaNS, structName, fieldNS, fieldName,
+                                    itemValue, itemOptions);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
     }
 
     int CXmpMetaDoesPropertyExist(CXmpMeta* m,
