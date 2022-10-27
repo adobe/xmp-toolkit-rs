@@ -171,6 +171,16 @@ extern "C" {
         buffer_size: u32,
     ) -> *mut CXmpMeta;
 
+    pub(crate) fn CXmpMetaSerializeToBuffer(
+        meta: *const CXmpMeta,
+        out_error: *mut CXmpError,
+        options: u32,
+        padding: u32,
+        newline: *const c_char,
+        indent: *const c_char,
+        base_indent: u32,
+    ) -> *const c_char;
+
     pub(crate) fn CXmpMetaRegisterNamespace(
         out_error: *mut CXmpError,
         namespace_uri: *const c_char,
