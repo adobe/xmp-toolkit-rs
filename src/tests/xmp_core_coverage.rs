@@ -290,11 +290,11 @@ const DATE_TIME_RDF: &str = r#"<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-
 // }	// FillDateTime
 
 fn write_major_label(title: &str) {
-    println!("");
+    println!();
     println!("// =============================================================================");
     println!("//  {}.", title);
     println!("// =============================================================================");
-    println!("");
+    println!();
 }
 
 // static void WriteMinorLabel ( FILE * log, const char * title )
