@@ -372,6 +372,13 @@ extern "C" {
         name: *const c_char,
     );
 
+    pub(crate) fn CXmpMetaComposeArrayItemPath(
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        array_name: *const c_char,
+        index: i32,
+    ) -> *const c_char;
+
     pub(crate) fn CXmpMetaComposeStructFieldPath(
         out_error: *mut CXmpError,
         schema_ns: *const c_char,
