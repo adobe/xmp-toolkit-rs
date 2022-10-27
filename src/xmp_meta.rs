@@ -1015,9 +1015,10 @@ impl XmpMeta {
     ///
     /// * `array_ns` and `array_path`: See [Accessing
     ///   properties](#accessing-properties).
-    /// * `item_index`: The index of the desired item. Use [`LAST_ITEM`] to
-    ///   specify the last existing array item. **IMPORTANT:** Indices in XMP
-    ///   are 1-based, not zero-based as in most of Rust.
+    /// * `item_index`: The index of the desired item. Use
+    ///   [`XmpMeta::LAST_ITEM`] to specify the last existing array item.
+    ///   **IMPORTANT:** Indices in XMP are 1-based, not zero-based as in most
+    ///   of Rust.
     ///
     /// ## Return
     ///
