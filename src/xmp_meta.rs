@@ -58,6 +58,10 @@ impl Drop for XmpMeta {
 }
 
 impl XmpMeta {
+    /// Special index value which references the last item in an array,
+    /// regardless of the array index.
+    pub const LAST_ITEM: i32 = -1;
+
     /// Creates a new, empty metadata struct.
     ///
     /// An error result from this function is unlikely but possible
@@ -1002,6 +1006,44 @@ impl XmpMeta {
             }
         } else {
             None
+        }
+    }
+
+    /// Composes the path expression for an item in an array.
+    ///
+    /// ## Arguments
+    ///
+    /// * `array_ns` and `array_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `item_index`: The index of the desired item. Use
+    ///   [`XmpMeta::LAST_ITEM`] to specify the last existing array item.
+    ///   **IMPORTANT:** Indices in XMP are 1-based, not zero-based as in most
+    ///   of Rust.
+    ///
+    /// ## Return
+    ///
+    /// If successful, the returned string is in the form
+    /// `array_name[array_index]`.
+    pub fn compose_array_item_path(
+        array_ns: &str,
+        array_path: &str,
+        index: i32,
+    ) -> XmpResult<String> {
+        let c_array_ns = CString::new(array_ns).unwrap_or_default();
+        let c_array_name = CString::new(array_path).unwrap_or_default();
+
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            let result = CXmpString::from_ptr(ffi::CXmpMetaComposeArrayItemPath(
+                &mut err,
+                c_array_ns.as_ptr(),
+                c_array_name.as_ptr(),
+                index,
+            ));
+
+            XmpError::raise_from_c(&err)?;
+            Ok(result.as_string())
         }
     }
 
