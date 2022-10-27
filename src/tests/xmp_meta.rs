@@ -1790,6 +1790,43 @@ mod name {
     }
 }
 
+mod compose_array_index_path {
+    use crate::{xmp_ns, XmpErrorType, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        assert_eq!(
+            XmpMeta::compose_array_item_path(xmp_ns::XMP, "ArrayName", 4).unwrap(),
+            "ArrayName[4]"
+        );
+    }
+
+    #[test]
+    fn last_item() {
+        assert_eq!(
+            XmpMeta::compose_array_item_path(xmp_ns::XMP, "ArrayName", XmpMeta::LAST_ITEM).unwrap(),
+            "ArrayName[last()]"
+        );
+    }
+
+    #[test]
+    fn zero_index() {
+        // This isn't technically allowed, but C++ XMP Toolkit doesn't flag it.
+        assert_eq!(
+            XmpMeta::compose_array_item_path(xmp_ns::XMP, "ArrayName", 0).unwrap(),
+            "ArrayName[0]"
+        );
+    }
+
+    #[test]
+    fn negative_index() {
+        let err = XmpMeta::compose_array_item_path(xmp_ns::XMP, "ArrayName", -4).unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadParam);
+        assert_eq!(err.debug_message, "Array index out of bounds");
+    }
+}
+
 mod compose_struct_field_path {
     use crate::{xmp_ns, XmpMeta};
 

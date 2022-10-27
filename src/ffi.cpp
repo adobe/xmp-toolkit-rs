@@ -882,6 +882,30 @@ extern "C" {
         #endif
     }
 
+    const char* CXmpMetaComposeArrayItemPath(CXmpError* outError,
+                                             const char* schemaNS,
+                                             const char* arrayName,
+                                             AdobeXMPCommon::int32 index) {
+        #ifndef NOOP_FFI
+            try {
+                std::string resultPath;
+                SXMPUtils::ComposeArrayItemPath(schemaNS,
+                                                arrayName,
+                                                index,
+                                                &resultPath);
+
+                return copyStringForResult(resultPath);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
 
     const char* CXmpMetaComposeStructFieldPath(CXmpError* outError,
                                                const char* schemaNS,
