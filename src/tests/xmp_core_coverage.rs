@@ -11,7 +11,8 @@
 // specific language governing permissions and limitations under
 // each license.
 
-// This file is an adaptation of the file XMPCoreCoverage.cpp.
+// This file is an adaptation of the file XMPCoreCoverage.cpp
+// from the C++ XMP Toolkit.
 
 // Demonstrates syntax and usage by exercising most of the API
 // functions of XMPCore Toolkit SDK component, using a sample
@@ -20,7 +21,7 @@
 
 #![allow(dead_code)] // TEMPORARY while in development
 
-use std::str::FromStr;
+use std::{str::FromStr, string::ToString};
 
 use crate::{xmp_ns, xmp_value::xmp_prop, XmpMeta, XmpValue};
 
@@ -415,10 +416,14 @@ fn xmp_core_coverage() {
             "meta2:original"
         );
 
+        assert_eq!(meta2.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kRDFCoverage\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\" xmlns:xmpMM=\"http://ns.adobe.com/xap/1.0/mm/\"> <ns1:SimpleProp1>Simple1 value</ns1:SimpleProp1> <ns1:SimpleProp2 xml:lang=\"x-default\">Simple2 value</ns1:SimpleProp2> <ns1:ArrayProp1> <rdf:Bag> <rdf:li>Item1.1 value</rdf:li> <rdf:li>Item1.2 value</rdf:li> </rdf:Bag> </ns1:ArrayProp1> <ns1:ArrayProp2> <rdf:Alt> <rdf:li xml:lang=\"x-one\">Item2.1 value</rdf:li> <rdf:li xml:lang=\"x-two\">Item2.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp2> <ns1:ArrayProp3> <rdf:Alt> <rdf:li xml:lang=\"x-one\">Item3.1 value</rdf:li> <rdf:li>Item3.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp3> <ns1:ArrayProp4> <rdf:Alt> <rdf:li>Item4.1 value</rdf:li> <rdf:li xml:lang=\"x-two\">Item4.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp4> <ns1:ArrayProp5> <rdf:Alt> <rdf:li xml:lang=\"x-xxx\">Item5.1 value</rdf:li> <rdf:li xml:lang=\"x-xxx\">Item5.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp5> <ns1:StructProp rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:StructProp> <ns1:QualProp1 rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp1> <ns1:QualProp2 xml:lang=\"x-default\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp2> <ns1:QualProp3 xml:lang=\"x-default\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp3> <ns1:QualProp4 xml:lang=\"x-default\" rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:QualProp4> <ns1:QualProp5 xml:lang=\"x-default\"> <rdf:Bag> <rdf:li>Item1.1 value</rdf:li> <rdf:li>Item1.2 value</rdf:li> </rdf:Bag> </ns1:QualProp5> <ns2:NestedStructProp rdf:parseType=\"Resource\"> <ns1:Outer rdf:parseType=\"Resource\"> <ns1:Middle rdf:parseType=\"Resource\"> <ns1:Inner rdf:parseType=\"Resource\"> <ns1:Field1>Field1 value</ns1:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:Inner> </ns1:Middle> </ns1:Outer> </ns2:NestedStructProp> <xmpMM:InstanceID>meta2:original</xmpMM:InstanceID> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+
         assert_eq!(
             meta4.property(xmp_ns::XMP_MM, "InstanceID").unwrap().value,
             "meta4:Clone"
         );
+
+        assert_eq!(meta4.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kRDFCoverage\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\" xmlns:xmpMM=\"http://ns.adobe.com/xap/1.0/mm/\"> <ns1:SimpleProp1>Simple1 value</ns1:SimpleProp1> <ns1:SimpleProp2 xml:lang=\"x-default\">Simple2 value</ns1:SimpleProp2> <ns1:ArrayProp1> <rdf:Bag> <rdf:li>Item1.1 value</rdf:li> <rdf:li>Item1.2 value</rdf:li> </rdf:Bag> </ns1:ArrayProp1> <ns1:ArrayProp2> <rdf:Alt> <rdf:li xml:lang=\"x-one\">Item2.1 value</rdf:li> <rdf:li xml:lang=\"x-two\">Item2.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp2> <ns1:ArrayProp3> <rdf:Alt> <rdf:li xml:lang=\"x-one\">Item3.1 value</rdf:li> <rdf:li>Item3.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp3> <ns1:ArrayProp4> <rdf:Alt> <rdf:li>Item4.1 value</rdf:li> <rdf:li xml:lang=\"x-two\">Item4.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp4> <ns1:ArrayProp5> <rdf:Alt> <rdf:li xml:lang=\"x-xxx\">Item5.1 value</rdf:li> <rdf:li xml:lang=\"x-xxx\">Item5.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp5> <ns1:StructProp rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:StructProp> <ns1:QualProp1 rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp1> <ns1:QualProp2 xml:lang=\"x-default\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp2> <ns1:QualProp3 xml:lang=\"x-default\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp3> <ns1:QualProp4 xml:lang=\"x-default\" rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:QualProp4> <ns1:QualProp5 xml:lang=\"x-default\"> <rdf:Bag> <rdf:li>Item1.1 value</rdf:li> <rdf:li>Item1.2 value</rdf:li> </rdf:Bag> </ns1:QualProp5> <ns2:NestedStructProp rdf:parseType=\"Resource\"> <ns1:Outer rdf:parseType=\"Resource\"> <ns1:Middle rdf:parseType=\"Resource\"> <ns1:Inner rdf:parseType=\"Resource\"> <ns1:Field1>Field1 value</ns1:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:Inner> </ns1:Middle> </ns1:Outer> </ns2:NestedStructProp> <xmpMM:InstanceID>meta4:Clone</xmpMM:InstanceID> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
         println!("Clone and add instance ID = {:#?}", meta4);
 
@@ -472,6 +477,8 @@ fn xmp_core_coverage() {
         meta.set_property(NS1, "ns1:XMLProp", &"<PropValue/>".into())
             .unwrap();
 
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\"> <ns1:Prop>Prop value</ns1:Prop> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+
         meta.set_property(
             NS1,
             "ns1:URIProp",
@@ -493,6 +500,8 @@ fn xmp_core_coverage() {
                 options: xmp_prop::VALUE_IS_ARRAY
             }
         );
+
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\"> <ns1:Prop>Prop value</ns1:Prop> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Bag> <rdf:Bag> <rdf:li>BagItem value</rdf:li> </rdf:Bag> </ns1:Bag> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
         let bag: Vec<XmpValue<String>> = meta.property_array(NS1, "Bag").collect();
         assert_eq!(
@@ -543,6 +552,8 @@ fn xmp_core_coverage() {
 
         meta.set_struct_field(NS1, "ns1:Struct", NS2, "Field3", &"Field3 value".into())
             .unwrap();
+
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:Prop>Prop value</ns1:Prop> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Bag> <rdf:Bag> <rdf:li>BagItem value</rdf:li> </rdf:Bag> </ns1:Bag> <ns1:Seq> <rdf:Seq> <rdf:li>SeqItem value</rdf:li> </rdf:Seq> </ns1:Seq> <ns1:Alt> <rdf:Alt> <rdf:li>AltItem value</rdf:li> </rdf:Alt> </ns1:Alt> <ns1:Struct rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> <ns2:Field3>Field3 value</ns2:Field3> </ns1:Struct> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
         // int				i;
         // bool			ok;
