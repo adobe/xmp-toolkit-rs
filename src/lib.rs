@@ -29,7 +29,7 @@ mod xmp_value;
 pub use xmp_date_time::{XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
 pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
 pub use xmp_file::{OpenFileOptions, XmpFile};
-pub use xmp_meta::{ArrayProperty, XmpMeta};
+pub use xmp_meta::{ArrayProperty, ToStringOptions, XmpMeta};
 pub use xmp_value::XmpValue;
 
 #[cfg(test)]

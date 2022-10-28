@@ -22,7 +22,7 @@ use thiserror::Error;
 use crate::ffi::CXmpError;
 
 /// Describes error conditions returned by most XMP Toolkit operations.
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub struct XmpError {
     /// A selector for the specific error type.

@@ -1121,6 +1121,40 @@ impl XmpMeta {
             Err(no_cpp_toolkit())
         }
     }
+
+    /// Converts metadata in this XMP object into a string as RDF.
+    ///
+    /// This struct also implements [`std::fmt::Display`] which will provide
+    /// a reasonable default behavior via `XmpMeta::to_string()`.
+    ///
+    /// Use this function, together with [`ToStringOptions`] if you
+    /// need more control over output formats.
+    pub fn to_string_with_options(&self, options: ToStringOptions) -> XmpResult<String> {
+        if let Some(m) = self.m {
+            let c_newline = CString::new(options.newline).unwrap_or_default();
+            let c_indent = CString::new(options.indent).unwrap_or_default();
+
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                let result = CXmpString::from_ptr(ffi::CXmpMetaSerializeToBuffer(
+                    m,
+                    &mut err,
+                    options.options,
+                    options.padding,
+                    c_newline.as_ptr(),
+                    c_indent.as_ptr(),
+                    options.base_indent,
+                ));
+
+                XmpError::raise_from_c(&err)?;
+
+                Ok(result.as_string())
+            }
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
 }
 
 impl Clone for XmpMeta {
@@ -1165,6 +1199,20 @@ impl fmt::Debug for XmpMeta {
             write!(f, "{}", result)
         } else {
             write!(f, "(C++ XMP Toolkit unavailable)")
+        }
+    }
+}
+
+impl fmt::Display for XmpMeta {
+    /// Convert the XMP data model to RDF using a compact formatting.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self.to_string_with_options(
+            ToStringOptions::default()
+                .omit_packet_wrapper()
+                .omit_all_formatting(),
+        ) {
+            Ok(s) => write!(f, "{}", s.trim_end()),
+            Err(err) => write!(f, "ERROR ({:#?}): {}", err.error_type, err.debug_message),
         }
     }
 }
@@ -1243,5 +1291,147 @@ pub(crate) fn no_cpp_toolkit() -> XmpError {
     XmpError {
         error_type: XmpErrorType::NoCppToolkit,
         debug_message: "C++ XMP Toolkit not available".to_owned(),
+    }
+}
+
+/// Provides options for configuring the XMP serialization behavior
+/// provided by [`XmpMeta::to_string_with_options`].
+///
+/// Note that the Rust XMP Toolkit only provides UTF-8 string encodings.
+/// No API is provided for accessing UTF-16 or UTF-32 string encodings.
+///
+/// We would welcome a PR that adds UTF-16 or UTF-32 encoding if you need
+/// it, but we have no plans to implement this ourselves.
+#[derive(Clone, Default, Debug, Eq, PartialEq)]
+pub struct ToStringOptions {
+    pub(crate) padding: u32,
+    pub(crate) newline: String,
+    pub(crate) indent: String,
+    pub(crate) base_indent: u32,
+    pub(crate) options: u32,
+}
+
+impl ToStringOptions {
+    pub(crate) const EXACT_PACKET_LENGTH: u32 = 0x0200;
+    pub(crate) const INCLUDE_RDF_HASH: u32 = 0x2000;
+    pub(crate) const INCLUDE_THUMBNAIL_PAD: u32 = 0x0100;
+    pub(crate) const OMIT_ALL_FORMATTING: u32 = 0x0800;
+    pub(crate) const OMIT_PACKET_WRAPPER: u32 = 0x0010;
+    pub(crate) const OMIT_XMP_META_ELEMENT: u32 = 0x1000;
+    pub(crate) const READ_ONLY_PACKET: u32 = 0x0020;
+    pub(crate) const USE_CANONICAL_FORMAT: u32 = 0x0080;
+    pub(crate) const USE_COMPACT_FORMAT: u32 = 0x0040;
+
+    // NOTE: Not exposing API for non-UTF8 serializations for now.
+
+    /// Set the amount of padding to be added if a writeable XML packet is
+    /// created.
+    ///
+    /// If zero or this function is not called, an appropriate amount of padding
+    /// is computed.
+    pub fn set_padding(mut self, padding: u32) -> Self {
+        self.padding = padding;
+        self
+    }
+
+    /// Set the string to be used as a line terminator.
+    ///
+    /// If empty or this function is not called, defaults to
+    /// linefeed, U+000A, the standard XML newline.
+    pub fn set_newline(mut self, newline: String) -> Self {
+        self.newline = newline;
+        self
+    }
+
+    /// Set the string to be used for each level of indentation in the
+    /// serialized RDF.
+    ///
+    /// If empty or this function is not called, defaults to two ASCII spaces,
+    /// U+0020.
+    pub fn set_indent_string(mut self, indent: String) -> Self {
+        self.indent = indent;
+        self
+    }
+
+    /// Set the number of levels of indentation to be used for the outermost XML
+    /// element in the serialized RDF. This is convenient when embedding the
+    /// RDF in other text.
+    ///
+    /// If this function is not called, the outermost XML element will have
+    /// no indentation applied.
+    pub fn set_base_indent(mut self, base_indent: u32) -> Self {
+        self.base_indent = base_indent;
+        self
+    }
+
+    /// Do not include an XML packet wrapper.
+    ///
+    /// This can not be specified together with
+    /// [`ToStringOptions::read_only_packet()`],
+    /// [`ToStringOptions::include_thumbnail_pad()`], or
+    /// [`ToStringOptions::exact_packet_length()`].
+    pub fn omit_packet_wrapper(mut self) -> Self {
+        self.options |= Self::OMIT_PACKET_WRAPPER;
+        self
+    }
+
+    /// Create a read-only XML packet wapper.
+    ///
+    /// This can not be specified together with
+    /// [`ToStringOptions::omit_packet_wrapper()].
+    pub fn read_only_packet(mut self) -> Self {
+        self.options |= Self::READ_ONLY_PACKET;
+        self
+    }
+
+    /// Use a highly compact RDF syntax and layout.
+    pub fn use_compact_format(mut self) -> Self {
+        self.options |= Self::USE_COMPACT_FORMAT;
+        self
+    }
+
+    /// Use a canonical form of RDF.
+    pub fn use_canonical_format(mut self) -> Self {
+        self.options |= Self::USE_CANONICAL_FORMAT;
+        self
+    }
+
+    /// Include typical space for a JPEG thumbnail in the padding if
+    /// no `xmp:Thumbnails` property is present.
+    ///
+    /// This can not be specified together with
+    /// [`ToStringOptions::omit_packet_wrapper()].
+    pub fn include_thumbnail_pad(mut self) -> Self {
+        self.options |= Self::INCLUDE_THUMBNAIL_PAD;
+        self
+    }
+
+    /// The padding parameter provides the overall packet length.
+    /// The actual amount of padding is computed. An error is returned
+    /// if the packet exceeds this length with no padding.
+    ///
+    /// This can not be specified together with
+    /// [`ToStringOptions::omit_packet_wrapper()].
+    pub fn exact_packet_length(mut self) -> Self {
+        self.options |= Self::EXACT_PACKET_LENGTH;
+        self
+    }
+
+    /// Omit all formatting whitespace.
+    pub fn omit_all_formatting(mut self) -> Self {
+        self.options |= Self::OMIT_ALL_FORMATTING;
+        self
+    }
+
+    /// Omit the `x:xmpmeta` element surrounding the `rdf:RDF` element.
+    pub fn omit_xmp_meta_element(mut self) -> Self {
+        self.options |= Self::OMIT_XMP_META_ELEMENT;
+        self
+    }
+
+    /// Include a rdf `Hash` and `Merged` flag in `x:xmpmeta` element.
+    pub fn include_rdf_hash(mut self) -> Self {
+        self.options |= Self::INCLUDE_RDF_HASH;
+        self
     }
 }
