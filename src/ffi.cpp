@@ -330,6 +330,32 @@ extern "C" {
         return NULL;
     }
 
+    const char* CXmpMetaSerializeToBuffer(CXmpMeta* m,
+                                          CXmpError* outError,
+                                          AdobeXMPCommon::uint32 options,
+                                          AdobeXMPCommon::uint32 padding,
+                                          const char* newline,
+                                          const char* indent,
+                                          AdobeXMPCommon::uint32 baseIndent) {
+        #ifndef NOOP_FFI
+            init_xmp();
+
+            try {
+                std::string buffer;
+                m->m.SerializeToBuffer(&buffer, options, padding, newline, indent, baseIndent);
+                return copyStringForResult(buffer);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
     const char* CXmpMetaRegisterNamespace(CXmpError* outError,
                                           const char* namespaceURI,
                                           const char* suggestedPrefix) {
@@ -445,7 +471,6 @@ extern "C" {
 
         #ifndef NOOP_FFI
             try {
-                std::string propValue;
                 if (m->m.GetProperty_Bool(schemaNS, propName, outValue, outOptions)) {
                     return true;
                 }
