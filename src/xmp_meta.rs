@@ -1124,8 +1124,8 @@ impl XmpMeta {
 
     /// Converts metadata in this XMP object into a string as RDF.
     ///
-    /// This struct also implements [`Display`] which will provide
-    /// a reasonable default behavior via [`XmpMeta::to_string()`].
+    /// This struct also implements [`std::fmt::Display`] which will provide
+    /// a reasonable default behavior via `XmpMeta::to_string()`.
     ///
     /// Use this function, together with [`ToStringOptions`] if you
     /// need more control over output formats.
