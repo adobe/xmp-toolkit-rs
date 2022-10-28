@@ -1129,7 +1129,7 @@ impl XmpMeta {
     ///
     /// Use this function, together with [`ToStringOptions`] if you
     /// need more control over output formats.
-    pub fn to_string_with_options(self, options: ToStringOptions) -> XmpResult<String> {
+    pub fn to_string_with_options(&self, options: ToStringOptions) -> XmpResult<String> {
         if let Some(m) = self.m {
             let c_newline = CString::new(options.newline).unwrap_or_default();
             let c_indent = CString::new(options.indent).unwrap_or_default();
@@ -1199,6 +1199,20 @@ impl fmt::Debug for XmpMeta {
             write!(f, "{}", result)
         } else {
             write!(f, "(C++ XMP Toolkit unavailable)")
+        }
+    }
+}
+
+impl fmt::Display for XmpMeta {
+    /// Convert the XMP data model to RDF using a compact formatting.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self.to_string_with_options(
+            ToStringOptions::default()
+                .omit_packet_wrapper()
+                .omit_all_formatting(),
+        ) {
+            Ok(s) => write!(f, "{}", s.trim_end()),
+            Err(err) => write!(f, "ERROR ({:#?}): {}", err.error_type, err.debug_message),
         }
     }
 }
