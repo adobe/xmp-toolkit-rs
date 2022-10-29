@@ -788,6 +788,69 @@ impl XmpMeta {
         }
     }
 
+    /// Creates or sets the value of an item within an array.
+    ///
+    /// Items are accessed by an integer index, where the first item has index
+    /// 1. This function creates the item if necessary, but the array itself
+    /// must already exist. Use [`XmpMeta::append_array_item()`] to create
+    /// arrays. A new item is automatically appended if the index is the array
+    /// size plus 1.
+    ///
+    /// Use `XmpMeta::compose_array_item_path()` to create a complex path.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `array_name`: See [Accessing
+    ///   properties](#accessing-properties). NOTE: `array_name` is an
+    ///   `XmpValue<String>` which contains any necessary flags for the array.
+    /// * `item_placement`: Describes where to place the new item. See
+    ///   [`ItemPlacement`].
+    /// * `item_value`: Contains value and flags for the item to be added to the
+    ///   array.
+    pub fn set_array_item(
+        &mut self,
+        namespace: &str,
+        array_name: &str,
+        item_placement: ItemPlacement,
+        item_value: &XmpValue<String>,
+    ) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_array_name = CString::new(array_name)?;
+            let c_item_value = CString::new(item_value.value.as_bytes())?;
+            let mut err = ffi::CXmpError::default();
+
+            let mut options = item_value.options;
+            let item_index = match item_placement {
+                ItemPlacement::InsertAfterIndex(index) => {
+                    options |= 0x8000;
+                    index
+                }
+                ItemPlacement::InsertBeforeIndex(index) => {
+                    options |= 0x4000;
+                    index
+                }
+                ItemPlacement::ReplaceItemAtIndex(index) => index,
+            };
+
+            unsafe {
+                ffi::CXmpMetaSetArrayItem(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_array_name.as_ptr(),
+                    item_index,
+                    c_item_value.as_ptr(),
+                    options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
+
     /// Adds an item to an array, creating the array if necessary.
     ///
     /// This function simplifies construction of an array by not requiring
@@ -1434,4 +1497,19 @@ impl ToStringOptions {
         self.options |= Self::INCLUDE_RDF_HASH;
         self
     }
+}
+
+/// Describes how a new item should be placed relative to existing
+/// items in an array.
+///
+/// Use with [`XmpMeta::set_array_item`].
+pub enum ItemPlacement {
+    /// Insert before the item at the specified index.
+    InsertBeforeIndex(u32),
+
+    /// Insert after the item at the specified index.
+    InsertAfterIndex(u32),
+
+    /// Replace the item currently at the specified index.
+    ReplaceItemAtIndex(u32),
 }
