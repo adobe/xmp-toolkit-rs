@@ -118,3 +118,23 @@ pub(crate) const STRUCT_EXAMPLE: &str = r#"
         </rdf:RDF>
     </x:xmpmeta>
     "#;
+
+pub(crate) const ARRAY_EXAMPLE: &str = r#"
+        <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0-c000 1.000000, 0000/00/00-00:00:00">
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description rdf:about=""
+        xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:subject>
+        <rdf:Bag>
+            <rdf:li>purple</rdf:li>
+            <rdf:li>square</rdf:li>
+            <rdf:li>Stefan</rdf:li>
+            <rdf:li>XMP</rdf:li>
+            <rdf:li>XMPFiles</rdf:li>
+            <rdf:li>test</rdf:li>
+        </rdf:Bag>
+        </dc:subject>
+        </rdf:Description>
+        </rdf:RDF>
+        </x:xmpmeta>
+        "#;

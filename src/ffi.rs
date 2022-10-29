@@ -316,6 +316,16 @@ extern "C" {
         options: u32,
     );
 
+    pub(crate) fn CXmpMetaSetArrayItem(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        array_name: *const c_char,
+        item_index: u32,
+        item_value: *const c_char,
+        item_options: u32,
+    );
+
     pub(crate) fn CXmpMetaAppendArrayItem(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,
