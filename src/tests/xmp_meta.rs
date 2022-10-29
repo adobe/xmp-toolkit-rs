@@ -1565,6 +1565,217 @@ mod set_property_date {
     }
 }
 
+mod set_array_item {
+    use std::str::FromStr;
+
+    use crate::{
+        tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, ItemPlacement, XmpError, XmpErrorType,
+        XmpMeta, XmpValue,
+    };
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        m.set_array_item(
+            xmp_ns::DC,
+            "subject",
+            ItemPlacement::ReplaceItemAtIndex(3),
+            &XmpValue::from("Eric"),
+        )
+        .unwrap();
+
+        let subjects: Vec<String> = m
+            .property_array(xmp_ns::DC, "subject")
+            .map(|v| {
+                assert!(v.options == 0);
+                v.value
+            })
+            .collect();
+
+        println!("subjects = {:#?}", subjects);
+
+        assert_eq!(
+            subjects,
+            ["purple", "square", "Eric", "XMP", "XMPFiles", "test"]
+        );
+    }
+
+    #[test]
+    fn insert_after_index() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        m.set_array_item(
+            xmp_ns::DC,
+            "subject",
+            ItemPlacement::InsertAfterIndex(3),
+            &XmpValue::from("Eric"),
+        )
+        .unwrap();
+
+        let subjects: Vec<String> = m
+            .property_array(xmp_ns::DC, "subject")
+            .map(|v| {
+                assert!(v.options == 0);
+                v.value
+            })
+            .collect();
+
+        println!("subjects = {:#?}", subjects);
+
+        assert_eq!(
+            subjects,
+            ["purple", "square", "Stefan", "Eric", "XMP", "XMPFiles", "test"]
+        );
+    }
+
+    #[test]
+    fn insert_before_index() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        m.set_array_item(
+            xmp_ns::DC,
+            "subject",
+            ItemPlacement::InsertBeforeIndex(3),
+            &XmpValue::from("Eric"),
+        )
+        .unwrap();
+
+        let subjects: Vec<String> = m
+            .property_array(xmp_ns::DC, "subject")
+            .map(|v| {
+                assert!(v.options == 0);
+                v.value
+            })
+            .collect();
+
+        println!("subjects = {:#?}", subjects);
+
+        assert_eq!(
+            subjects,
+            ["purple", "square", "Eric", "Stefan", "XMP", "XMPFiles", "test"]
+        );
+    }
+
+    #[test]
+    fn item_options() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        m.set_array_item(
+            xmp_ns::DC,
+            "subject",
+            ItemPlacement::ReplaceItemAtIndex(3),
+            &XmpValue::from("Eric").set_is_uri(true),
+        )
+        .unwrap();
+
+        let subjects: Vec<XmpValue<String>> = m.property_array(xmp_ns::DC, "subject").collect();
+
+        println!("subjects = {:#?}", subjects);
+
+        assert_eq!(
+            subjects,
+            [
+                XmpValue {
+                    value: "purple".to_owned(),
+                    options: 0
+                },
+                XmpValue {
+                    value: "square".to_owned(),
+                    options: 0
+                },
+                XmpValue {
+                    value: "Eric".to_owned(),
+                    options: xmp_prop::VALUE_IS_URI
+                },
+                XmpValue {
+                    value: "XMP".to_owned(),
+                    options: 0
+                },
+                XmpValue {
+                    value: "XMPFiles".to_owned(),
+                    options: 0
+                },
+                XmpValue {
+                    value: "test".to_owned(),
+                    options: 0
+                }
+            ]
+        );
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .set_array_item(
+                xmp_ns::DC,
+                "subject",
+                ItemPlacement::ReplaceItemAtIndex(3),
+                &XmpValue::from("Eric"),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
+    fn error_empty_array_name() {
+        let mut m = XmpMeta::default();
+
+        assert_eq!(
+            m.set_array_item(
+                xmp_ns::DC,
+                "",
+                ItemPlacement::ReplaceItemAtIndex(3),
+                &"Eric".into(),
+            ),
+            Err(XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Empty array name".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::default();
+
+        assert_eq!(
+            m.set_array_item(
+                xmp_ns::DC,
+                "x\0x",
+                ItemPlacement::ReplaceItemAtIndex(3),
+                &XmpValue::from("Author 1"),
+            ),
+            Err(XmpError {
+                error_type: XmpErrorType::NulInRustString,
+                debug_message: "Unable to convert to C string because a NUL byte was found"
+                    .to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_zero_index() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.set_array_item(
+                xmp_ns::DC,
+                "subject",
+                ItemPlacement::ReplaceItemAtIndex(0),
+                &XmpValue::from("Author 1"),
+            ),
+            Err(XmpError {
+                error_type: XmpErrorType::BadIndex,
+                debug_message: "Array index out of bounds".to_owned()
+            })
+        );
+    }
+}
+
 mod append_array_item {
     use crate::{xmp_ns, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
 
