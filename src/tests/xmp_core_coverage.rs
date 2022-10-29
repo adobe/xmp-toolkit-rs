@@ -23,7 +23,7 @@
 
 use std::{str::FromStr, string::ToString};
 
-use crate::{xmp_ns, xmp_value::xmp_prop, XmpMeta, XmpValue};
+use crate::{xmp_ns, xmp_value::xmp_prop, ItemPlacement, ToStringOptions, XmpMeta, XmpValue};
 
 const NS1: &str = "ns:test1/";
 const NS2: &str = "ns:test2/";
@@ -555,26 +555,71 @@ fn xmp_core_coverage() {
 
         assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:Prop>Prop value</ns1:Prop> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Bag> <rdf:Bag> <rdf:li>BagItem value</rdf:li> </rdf:Bag> </ns1:Bag> <ns1:Seq> <rdf:Seq> <rdf:li>SeqItem value</rdf:li> </rdf:Seq> </ns1:Seq> <ns1:Alt> <rdf:Alt> <rdf:li>AltItem value</rdf:li> </rdf:Alt> </ns1:Alt> <ns1:Struct rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> <ns2:Field3>Field3 value</ns2:Field3> </ns1:Struct> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
+        meta.set_array_item(
+            NS1,
+            "Bag",
+            ItemPlacement::ReplaceItemAtIndex(1),
+            &"BagItem 3".into(),
+        )
+        .unwrap();
+
+        meta.set_array_item(
+            NS1,
+            "ns1:Bag",
+            ItemPlacement::InsertBeforeIndex(1),
+            &"BagItem 1".into(),
+        )
+        .unwrap();
+
+        meta.set_array_item(
+            NS1,
+            "ns1:Bag",
+            ItemPlacement::InsertAfterIndex(1),
+            &"BagItem 2".into(),
+        )
+        .unwrap();
+
+        meta.append_array_item(NS1, &"Bag".into(), &"BagItem 4".into())
+            .unwrap();
+
+        let bag_contents: Vec<XmpValue<String>> = meta.property_array(NS1, "Bag").collect();
+        println!("bag_contents = {:#?}", bag_contents);
+
+        assert_eq!(
+            bag_contents,
+            [
+                XmpValue {
+                    value: "BagItem 1".to_owned(),
+                    options: 0
+                },
+                XmpValue {
+                    value: "BagItem 2".to_owned(),
+                    options: 0
+                },
+                XmpValue {
+                    value: "BagItem 3".to_owned(),
+                    options: 0
+                },
+                XmpValue {
+                    value: "BagItem 4".to_owned(),
+                    options: 0
+                }
+            ]
+        );
+
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:Prop>Prop value</ns1:Prop> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Bag> <rdf:Bag> <rdf:li>BagItem 1</rdf:li> <rdf:li>BagItem 2</rdf:li> <rdf:li>BagItem 3</rdf:li> <rdf:li>BagItem 4</rdf:li> </rdf:Bag> </ns1:Bag> <ns1:Seq> <rdf:Seq> <rdf:li>SeqItem value</rdf:li> </rdf:Seq> </ns1:Seq> <ns1:Alt> <rdf:Alt> <rdf:li>AltItem value</rdf:li> </rdf:Alt> </ns1:Alt> <ns1:Struct rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> <ns2:Field3>Field3 value</ns2:Field3> </ns1:Struct> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+
+        println!("A few basic Set... calls = {:#?}", meta);
+
+        assert_eq!(meta.to_string_with_options(ToStringOptions::default().omit_packet_wrapper()).unwrap(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n      <rdf:Description rdf:about=\"\"\n            xmlns:ns1=\"ns:test1/\"\n            xmlns:ns2=\"ns:test2/\">\n         <ns1:Prop>Prop value</ns1:Prop>\n         <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp>\n         <ns1:URIProp rdf:resource=\"URI:value/\"/>\n         <ns1:Bag>\n            <rdf:Bag>\n               <rdf:li>BagItem 1</rdf:li>\n               <rdf:li>BagItem 2</rdf:li>\n               <rdf:li>BagItem 3</rdf:li>\n               <rdf:li>BagItem 4</rdf:li>\n            </rdf:Bag>\n         </ns1:Bag>\n         <ns1:Seq>\n            <rdf:Seq>\n               <rdf:li>SeqItem value</rdf:li>\n            </rdf:Seq>\n         </ns1:Seq>\n         <ns1:Alt>\n            <rdf:Alt>\n               <rdf:li>AltItem value</rdf:li>\n            </rdf:Alt>\n         </ns1:Alt>\n         <ns1:Struct rdf:parseType=\"Resource\">\n            <ns2:Field1>Field1 value</ns2:Field1>\n            <ns2:Field2>Field2 value</ns2:Field2>\n            <ns2:Field3>Field3 value</ns2:Field3>\n         </ns1:Struct>\n      </rdf:Description>\n   </rdf:RDF>\n</x:xmpmeta>\n");
+
+        // 	fprintf ( log, "CountArrayItems Bag = %d\n", meta.CountArrayItems (
+        // NS1, "Bag" ) );
+
         // int				i;
         // bool			ok;
         // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
         // XMP_OptionBits	options;
-
-        // 	tmpStr1 = "BagItem 3";
-        // 	meta.SetArrayItem ( NS1, "Bag", 1, tmpStr1 );
-        // 	meta.SetArrayItem ( NS1, "ns1:Bag", 1, "BagItem 1",
-        // kXMP_InsertBeforeItem ); 	meta.SetArrayItem ( NS1, "ns1:Bag",
-        // 1, "BagItem 2", kXMP_InsertAfterItem ); 	meta.AppendArrayItem
-        // ( NS1, "Bag", 0, "BagItem 4" );
-
-        // 	DumpXMPObj ( log, meta, "A few basic Set... calls" );
-
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper );
-        // 	fprintf ( log, "\n%s\n", tmpStr1.c_str() );
-
-        // 	fprintf ( log, "CountArrayItems Bag = %d\n", meta.CountArrayItems (
-        // NS1, "Bag" ) );
 
         // 	meta.SetProperty ( NS1, "QualProp1", "Prop value" );
         // 	meta.SetQualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
