@@ -983,6 +983,57 @@ impl XmpMeta {
         }
     }
 
+    /// Creates or sets a qualifier attached to a property.
+    ///
+    /// Use this to set a value for an existing qualifier, or create a new
+    /// qualifier.
+    ///
+    /// Use [`XmpMeta::compose_qualifier_path()`] to create a complex path.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `prop_name`: See [Accessing
+    ///   properties](#accessing-properties). The name of the property to which
+    ///   the qualifier is attached.
+    /// * `qual_ns` and `qual_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.) Specifies the qualifier.
+    /// * `qual_value`: Contains value and flags for the qualifier to be added
+    ///   to the property.
+    pub fn set_qualifier(
+        &mut self,
+        namespace: &str,
+        prop_name: &str,
+        qual_ns: &str,
+        qual_name: &str,
+        qual_value: &XmpValue<String>,
+    ) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let c_struct_ns = CString::new(namespace)?;
+            let c_prop_name = CString::new(prop_name.as_bytes())?;
+            let c_qual_ns = CString::new(qual_ns)?;
+            let c_qual_name = CString::new(qual_name.as_bytes())?;
+            let c_qual_value = CString::new(qual_value.value.as_bytes())?;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaSetQualifier(
+                    m,
+                    &mut err,
+                    c_struct_ns.as_ptr(),
+                    c_prop_name.as_ptr(),
+                    c_qual_ns.as_ptr(),
+                    c_qual_name.as_ptr(),
+                    c_qual_value.as_ptr(),
+                    qual_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
+
     /// Retrieves information about a selected item from an alt-text array.
     ///
     /// Localized text properties are stored in alt-text arrays. They allow

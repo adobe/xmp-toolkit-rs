@@ -817,6 +817,28 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaSetQualifier(CXmpMeta* m,
+                              CXmpError* outError,
+                              const char* schemaNS,
+                              const char* propName,
+                              const char* qualNS,
+                              const char* qualName,
+                              const char* qualValue,
+                              AdobeXMPCommon::uint32 qualOptions) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.SetQualifier(schemaNS, propName, qualNS, qualName,
+                                  qualValue, qualOptions);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     int CXmpMetaDoesPropertyExist(CXmpMeta* m,
                                   const char* schemaNS,
                                   const char* propName) {
