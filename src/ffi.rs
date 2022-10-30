@@ -336,6 +336,14 @@ extern "C" {
         item_options: u32,
     );
 
+    pub(crate) fn CXmpMetaCountArrayItems(
+        meta: *const CXmpMeta,
+        out_error: *mut CXmpError,
+        array_ns: *const c_char,
+        array_name: *const c_char,
+        count: *mut u32,
+    ) -> bool;
+
     pub(crate) fn CXmpMetaSetStructField(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,
