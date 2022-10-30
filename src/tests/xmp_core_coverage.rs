@@ -613,13 +613,7 @@ fn xmp_core_coverage() {
 
         assert_eq!(meta.to_string_with_options(ToStringOptions::default().omit_packet_wrapper()).unwrap(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n      <rdf:Description rdf:about=\"\"\n            xmlns:ns1=\"ns:test1/\"\n            xmlns:ns2=\"ns:test2/\">\n         <ns1:Prop>Prop value</ns1:Prop>\n         <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp>\n         <ns1:URIProp rdf:resource=\"URI:value/\"/>\n         <ns1:Bag>\n            <rdf:Bag>\n               <rdf:li>BagItem 1</rdf:li>\n               <rdf:li>BagItem 2</rdf:li>\n               <rdf:li>BagItem 3</rdf:li>\n               <rdf:li>BagItem 4</rdf:li>\n            </rdf:Bag>\n         </ns1:Bag>\n         <ns1:Seq>\n            <rdf:Seq>\n               <rdf:li>SeqItem value</rdf:li>\n            </rdf:Seq>\n         </ns1:Seq>\n         <ns1:Alt>\n            <rdf:Alt>\n               <rdf:li>AltItem value</rdf:li>\n            </rdf:Alt>\n         </ns1:Alt>\n         <ns1:Struct rdf:parseType=\"Resource\">\n            <ns2:Field1>Field1 value</ns2:Field1>\n            <ns2:Field2>Field2 value</ns2:Field2>\n            <ns2:Field3>Field3 value</ns2:Field3>\n         </ns1:Struct>\n      </rdf:Description>\n   </rdf:RDF>\n</x:xmpmeta>\n");
 
-        // 	fprintf ( log, "CountArrayItems Bag = %d\n", meta.CountArrayItems (
-        // NS1, "Bag" ) );
-
-        // int				i;
-        // bool			ok;
-        // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
-        // XMP_OptionBits	options;
+        assert_eq!(meta.array_len(NS1, "Bag"), 4);
 
         // 	meta.SetProperty ( NS1, "QualProp1", "Prop value" );
         // 	meta.SetQualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
@@ -627,6 +621,11 @@ fn xmp_core_coverage() {
         // kXMP_PropIsQualifier );	invalid 	meta.SetProperty ( NS1,
         // "QualProp1/?ns2:Qual3", "Qual3 value" ); 	meta.SetProperty ( NS1,
         // "QualProp1/?xml:lang", "x-qual" );
+
+        // int				i;
+        // bool			ok;
+        // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
+        // XMP_OptionBits	options;
 
         // 	meta.SetProperty ( NS1, "QualProp2", "Prop value" );
         // 	meta.SetQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang", "en-us" );
