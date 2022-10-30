@@ -744,6 +744,29 @@ extern "C" {
         #endif
     }
 
+	bool CXmpMetaCountArrayItems(CXmpMeta* m,
+                                 CXmpError* outError,
+                                 const char* arrayNS,
+                                 const char* arrayName,
+                                 AdobeXMPCommon::uint32* outValue) {
+        *outValue = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                *outValue = m->m.CountArrayItems(arrayNS, arrayName);
+                return true;
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+
     const char* CXmpMetaGetStructField(CXmpMeta* m,
                                        CXmpError* outError,
                                        const char* schemaNS,

@@ -899,6 +899,37 @@ impl XmpMeta {
         }
     }
 
+    /// Reports the number of items currently defined in an array.
+    ///
+    /// ## Arguments
+    ///
+    /// * `array_ns` and `array_name`: See [Accessing
+    ///   properties](#accessing-properties).
+    ///
+    /// If any error occurs (for instance, the array does not exist),
+    /// this function will return 0.
+    pub fn array_len(&self, array_ns: &str, array_name: &str) -> usize {
+        let mut result: u32 = 0;
+
+        if let Some(m) = self.m {
+            let c_array_ns = CString::new(array_ns).unwrap_or_default();
+            let c_array_name = CString::new(array_name.as_bytes()).unwrap_or_default();
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaCountArrayItems(
+                    m,
+                    &mut err,
+                    c_array_ns.as_ptr(),
+                    c_array_name.as_ptr(),
+                    &mut result,
+                );
+            }
+        }
+
+        result as usize
+    }
+
     /// Creates or sets the value of a field within a nested structure,
     /// using a string value.
     ///
