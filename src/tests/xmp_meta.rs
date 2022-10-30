@@ -2373,6 +2373,19 @@ mod compose_array_index_path {
     }
 }
 
+mod compose_qualifier_path {
+    use crate::{xmp_ns, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        assert_eq!(
+            XmpMeta::compose_qualifier_path(xmp_ns::XMP, "PropName", xmp_ns::XMP, "QualName")
+                .unwrap(),
+            "PropName/?xmp:QualName"
+        );
+    }
+}
+
 mod compose_struct_field_path {
     use crate::{xmp_ns, XmpMeta};
 

@@ -418,6 +418,14 @@ extern "C" {
         index: i32,
     ) -> *const c_char;
 
+    pub(crate) fn CXmpMetaComposeQualifierPath(
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        qual_ns: *const c_char,
+        qual_name: *const c_char,
+    ) -> *const c_char;
+
     pub(crate) fn CXmpMetaComposeStructFieldPath(
         out_error: *mut CXmpError,
         schema_ns: *const c_char,
