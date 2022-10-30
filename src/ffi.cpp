@@ -975,6 +975,33 @@ extern "C" {
         return NULL;
     }
 
+    const char* CXmpMetaComposeQualifierPath(CXmpError* outError,
+                                             const char* schemaNS,
+                                             const char* structName,
+                                             const char* qualNS,
+                                             const char* qualName) {
+        #ifndef NOOP_FFI
+            try {
+                std::string resultPath;
+                SXMPUtils::ComposeQualifierPath(schemaNS,
+                                                structName,
+                                                qualNS,
+                                                qualName,
+                                                &resultPath);
+
+                return copyStringForResult(resultPath);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
     const char* CXmpMetaComposeStructFieldPath(CXmpError* outError,
                                                const char* schemaNS,
                                                const char* structName,

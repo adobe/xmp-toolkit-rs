@@ -1141,6 +1141,46 @@ impl XmpMeta {
         }
     }
 
+    /// Composes the path expression for a qualifier.
+    ///
+    /// ## Arguments
+    ///
+    /// * `schema_ns` and `prop_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `qual_ns` and `qual_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    ///
+    /// ## Return
+    ///
+    /// If successful, the returned string is in the form
+    /// `schema_ns:prop_name/?qual_ns:qual_name`.
+    pub fn compose_qualifier_path(
+        schema_ns: &str,
+        prop_path: &str,
+        qual_ns: &str,
+        qual_name: &str,
+    ) -> XmpResult<String> {
+        let c_schema_ns = CString::new(schema_ns).unwrap_or_default();
+        let c_prop_name = CString::new(prop_path).unwrap_or_default();
+        let c_qual_ns = CString::new(qual_ns).unwrap_or_default();
+        let c_qual_name = CString::new(qual_name).unwrap_or_default();
+
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            let result = CXmpString::from_ptr(ffi::CXmpMetaComposeQualifierPath(
+                &mut err,
+                c_schema_ns.as_ptr(),
+                c_prop_name.as_ptr(),
+                c_qual_ns.as_ptr(),
+                c_qual_name.as_ptr(),
+            ));
+
+            XmpError::raise_from_c(&err)?;
+            Ok(result.as_string())
+        }
+    }
+
     /// Composes the path expression for a field in a struct.
     ///
     /// ## Arguments
