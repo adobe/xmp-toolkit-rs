@@ -467,7 +467,7 @@ fn xmp_core_coverage() {
     //-------------------------------------------------------------------------
 
     {
-        write_major_label("Test SetProperty and related methods");
+        write_major_label("Test set_property and related methods");
 
         let mut meta = XmpMeta::default();
 
@@ -615,47 +615,83 @@ fn xmp_core_coverage() {
 
         assert_eq!(meta.array_len(NS1, "Bag"), 4);
 
-        // 	meta.SetProperty ( NS1, "QualProp1", "Prop value" );
-        // 	meta.SetQualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
-        // 	// *** meta.SetProperty ( NS1, "QualProp1/Qual2", "Qual2 value",
-        // kXMP_PropIsQualifier );	invalid 	meta.SetProperty ( NS1,
-        // "QualProp1/?ns2:Qual3", "Qual3 value" ); 	meta.SetProperty ( NS1,
-        // "QualProp1/?xml:lang", "x-qual" );
+        meta.set_property(NS1, "QualProp1", &"Prop value".into())
+            .unwrap();
+
+        meta.set_qualifier(NS1, "QualProp1", NS2, "Qual1", &"Qual1 value".into())
+            .unwrap();
+
+        // meta.setProperty ( NS1, "QualProp1/Qual2", "Qual2 value",
+        // kXMP_PropIsQualifier ); ^^ is invalid in C++; can't construct this in
+        // Rust. (There is no setter for kXMP_PropIsQualifier.)
+
+        meta.set_property(NS1, "QualProp1/?ns2:Qual3", &"Qual3 value".into())
+            .unwrap();
+        meta.set_property(NS1, "QualProp1/?xml:lang", &"x-qual".into())
+            .unwrap();
+
+        meta.set_property(NS1, "QualProp2", &"Prop value".into())
+            .unwrap();
+        meta.set_qualifier(NS1, "QualProp2", xmp_ns::XML, "lang", &"en-us".into())
+            .unwrap();
+
+        // meta.setProperty ( NS1, "QualProp2/xml:lang", "x-field", kXMP_PropIsQualifier
+        // ); ^^ is invalid in C++; can't construct this in Rust. (There is no
+        // setter for kXMP_PropIsQualifier.)
+
+        meta.set_property(NS1, "QualProp2/@xml:lang", &"x-attr".into())
+            .unwrap();
+        meta.set_property(NS1, "QualProp3", &"Prop value".into())
+            .unwrap();
+
+        meta.set_qualifier(
+            NS1,
+            "ns1:QualProp3",
+            xmp_ns::XML,
+            "xml:lang",
+            &"en-us".into(),
+        )
+        .unwrap();
+
+        meta.set_qualifier(NS1, "ns1:QualProp3", NS2, "ns2:Qual", &"Qual value".into())
+            .unwrap();
+
+        meta.set_property(NS1, "QualProp4", &"Prop value".into())
+            .unwrap();
+        meta.set_qualifier(NS1, "QualProp4", NS2, "Qual", &"Qual value".into())
+            .unwrap();
+        meta.set_qualifier(NS1, "QualProp4", xmp_ns::XML, "lang", &"en-us".into())
+            .unwrap();
+
+        println!("Add some qualifiers = {:#?}", meta);
+
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:Prop>Prop value</ns1:Prop> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Bag> <rdf:Bag> <rdf:li>BagItem 1</rdf:li> <rdf:li>BagItem 2</rdf:li> <rdf:li>BagItem 3</rdf:li> <rdf:li>BagItem 4</rdf:li> </rdf:Bag> </ns1:Bag> <ns1:Seq> <rdf:Seq> <rdf:li>SeqItem value</rdf:li> </rdf:Seq> </ns1:Seq> <ns1:Alt> <rdf:Alt> <rdf:li>AltItem value</rdf:li> </rdf:Alt> </ns1:Alt> <ns1:Struct rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> <ns2:Field3>Field3 value</ns2:Field3> </ns1:Struct> <ns1:QualProp1 xml:lang=\"x-qual\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual1>Qual1 value</ns2:Qual1> <ns2:Qual3>Qual3 value</ns2:Qual3> </ns1:QualProp1> <ns1:QualProp2 xml:lang=\"x-attr\">Prop value</ns1:QualProp2> <ns1:QualProp3 xml:lang=\"en-US\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp3> <ns1:QualProp4 xml:lang=\"en-US\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp4> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+
+        assert_eq!(
+            meta.to_string_with_options(ToStringOptions::default().omit_packet_wrapper())
+                .unwrap(),
+            "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n      <rdf:Description rdf:about=\"\"\n            xmlns:ns1=\"ns:test1/\"\n            xmlns:ns2=\"ns:test2/\">\n         <ns1:Prop>Prop value</ns1:Prop>\n         <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp>\n         <ns1:URIProp rdf:resource=\"URI:value/\"/>\n         <ns1:Bag>\n            <rdf:Bag>\n               <rdf:li>BagItem 1</rdf:li>\n               <rdf:li>BagItem 2</rdf:li>\n               <rdf:li>BagItem 3</rdf:li>\n               <rdf:li>BagItem 4</rdf:li>\n            </rdf:Bag>\n         </ns1:Bag>\n         <ns1:Seq>\n            <rdf:Seq>\n               <rdf:li>SeqItem value</rdf:li>\n            </rdf:Seq>\n         </ns1:Seq>\n         <ns1:Alt>\n            <rdf:Alt>\n               <rdf:li>AltItem value</rdf:li>\n            </rdf:Alt>\n         </ns1:Alt>\n         <ns1:Struct rdf:parseType=\"Resource\">\n            <ns2:Field1>Field1 value</ns2:Field1>\n            <ns2:Field2>Field2 value</ns2:Field2>\n            <ns2:Field3>Field3 value</ns2:Field3>\n         </ns1:Struct>\n         <ns1:QualProp1 xml:lang=\"x-qual\" rdf:parseType=\"Resource\">\n            <rdf:value>Prop value</rdf:value>\n            <ns2:Qual1>Qual1 value</ns2:Qual1>\n            <ns2:Qual3>Qual3 value</ns2:Qual3>\n         </ns1:QualProp1>\n         <ns1:QualProp2 xml:lang=\"x-attr\">Prop value</ns1:QualProp2>\n         <ns1:QualProp3 xml:lang=\"en-US\" rdf:parseType=\"Resource\">\n            <rdf:value>Prop value</rdf:value>\n            <ns2:Qual>Qual value</ns2:Qual>\n         </ns1:QualProp3>\n         <ns1:QualProp4 xml:lang=\"en-US\" rdf:parseType=\"Resource\">\n            <rdf:value>Prop value</rdf:value>\n            <ns2:Qual>Qual value</ns2:Qual>\n         </ns1:QualProp4>\n      </rdf:Description>\n   </rdf:RDF>\n</x:xmpmeta>\n"
+        );
+
+        meta.set_property(NS1, "QualProp1", &"new value".into())
+            .unwrap();
+        meta.set_property(NS1, "QualProp2", &"new value".into())
+            .unwrap();
+        meta.set_property(NS1, "QualProp3", &"new value".into())
+            .unwrap();
+        meta.set_property(NS1, "QualProp4", &"new value".into())
+            .unwrap();
+
+        println!("Change values and keep qualifiers = {:#?}", meta);
+
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:Prop>Prop value</ns1:Prop> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Bag> <rdf:Bag> <rdf:li>BagItem 1</rdf:li> <rdf:li>BagItem 2</rdf:li> <rdf:li>BagItem 3</rdf:li> <rdf:li>BagItem 4</rdf:li> </rdf:Bag> </ns1:Bag> <ns1:Seq> <rdf:Seq> <rdf:li>SeqItem value</rdf:li> </rdf:Seq> </ns1:Seq> <ns1:Alt> <rdf:Alt> <rdf:li>AltItem value</rdf:li> </rdf:Alt> </ns1:Alt> <ns1:Struct rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> <ns2:Field3>Field3 value</ns2:Field3> </ns1:Struct> <ns1:QualProp1 xml:lang=\"x-qual\" rdf:parseType=\"Resource\"> <rdf:value>new value</rdf:value> <ns2:Qual1>Qual1 value</ns2:Qual1> <ns2:Qual3>Qual3 value</ns2:Qual3> </ns1:QualProp1> <ns1:QualProp2 xml:lang=\"x-attr\">new value</ns1:QualProp2> <ns1:QualProp3 xml:lang=\"en-US\" rdf:parseType=\"Resource\"> <rdf:value>new value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp3> <ns1:QualProp4 xml:lang=\"en-US\" rdf:parseType=\"Resource\"> <rdf:value>new value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp4> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+
+        //-------------------------------------------------------------------------
 
         // int				i;
         // bool			ok;
         // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
         // XMP_OptionBits	options;
-
-        // 	meta.SetProperty ( NS1, "QualProp2", "Prop value" );
-        // 	meta.SetQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang", "en-us" );
-        // 	// *** meta.SetProperty ( NS1, "QualProp2/xml:lang", "x-field",
-        // kXMP_PropIsQualifier );	invalid 	meta.SetProperty ( NS1,
-        // "QualProp2/@xml:lang", "x-attr" );
-
-        // 	meta.SetProperty ( NS1, "QualProp3", "Prop value" );
-        // 	meta.SetQualifier ( NS1, "ns1:QualProp3", kXMP_NS_XML, "xml:lang",
-        // "en-us" ); 	meta.SetQualifier ( NS1, "ns1:QualProp3", NS2,
-        // "ns2:Qual", "Qual value" );
-
-        // 	meta.SetProperty ( NS1, "QualProp4", "Prop value" );
-        // 	tmpStr1 = "Qual value";
-        // 	meta.SetQualifier ( NS1, "QualProp4", NS2, "Qual", tmpStr1 );
-        // 	meta.SetQualifier ( NS1, "QualProp4", kXMP_NS_XML, "lang", "en-us" );
-
-        // 	DumpXMPObj ( log, meta, "Add some qualifiers" );
-
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper );
-        // 	fprintf ( log, "\n%s\n", tmpStr1.c_str() );
-
-        // 	meta.SetProperty ( NS1, "QualProp1", "new value" );
-        // 	meta.SetProperty ( NS1, "QualProp2", "new value" );
-        // 	meta.SetProperty ( NS1, "QualProp3", "new value" );
-        // 	meta.SetProperty ( NS1, "QualProp4", "new value" );
-        // 	DumpXMPObj ( log, meta, "Change values and keep qualifiers" );
-
-        // 	// ----------------------------------------------------------------------------------------
 
         // 	write_major_label("Test GetProperty and related methods" );
 
@@ -664,19 +700,22 @@ fn xmp_core_coverage() {
         // 	meta.DeleteProperty ( NS1, "ns1:QualProp3" );
         // 	meta.DeleteProperty ( NS1, "QualProp4" );
 
-        // 	meta.SetProperty ( NS1, "QualProp1", "Prop value" );
-        // 	meta.SetQualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
+        // 	meta.set_property ( NS1, "QualProp1", "Prop value" );
+        // 	meta.set_qualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
 
-        // 	meta.SetProperty ( NS1, "QualProp2", "Prop value" );
-        // 	meta.SetQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang", "en-us" );
+        // 	meta.set_property ( NS1, "QualProp2", "Prop value" );
+        // 	meta.set_qualifier ( NS1, "QualProp2", xmp_ns::XML, "lang", "en-us"
+        // );
 
-        // 	meta.SetProperty ( NS1, "QualProp3", "Prop value" );
-        // 	meta.SetQualifier ( NS1, "QualProp3", kXMP_NS_XML, "lang", "en-us" );
-        // 	meta.SetQualifier ( NS1, "QualProp3", NS2, "Qual", "Qual value" );
+        // 	meta.set_property ( NS1, "QualProp3", "Prop value" );
+        // 	meta.set_qualifier ( NS1, "QualProp3", xmp_ns::XML, "lang", "en-us"
+        // ); 	meta.set_qualifier ( NS1, "QualProp3", NS2, "Qual", "Qual
+        // value" );
 
-        // 	meta.SetProperty ( NS1, "QualProp4", "Prop value" );
-        // 	meta.SetQualifier ( NS1, "QualProp4", NS2, "Qual", "Qual value" );
-        // 	meta.SetQualifier ( NS1, "QualProp4", kXMP_NS_XML, "lang", "en-us" );
+        // 	meta.set_property ( NS1, "QualProp4", "Prop value" );
+        // 	meta.set_qualifier ( NS1, "QualProp4", NS2, "Qual", "Qual value" );
+        // 	meta.set_qualifier ( NS1, "QualProp4", xmp_ns::XML, "lang", "en-us"
+        // );
 
         // 	DumpXMPObj ( log, meta, "XMP object" );
         // 	fprintf ( log, "\n" );
@@ -776,7 +815,7 @@ fn xmp_core_coverage() {
         // ); 	}
 
         // 	tmpStr1.erase();
-        // 	ok = meta.GetQualifier ( NS1, "ns1:QualProp3", kXMP_NS_XML,
+        // 	ok = meta.GetQualifier ( NS1, "ns1:QualProp3", xmp_ns::XML,
         // "xml:lang", &tmpStr1, &options ); 	fprintf ( log,
         // "GetQualifier ns1:QualProp3 : %s, \"%s\", 0x%X\n", FoundOrNot
         // ( ok ), tmpStr1.c_str(), options );
@@ -884,7 +923,7 @@ fn xmp_core_coverage() {
         // 	fprintf ( log, "DoesQualifierExist ns1:QualProp1/?ns2:Qual1 : %s\n",
         // YesOrNo ( ok ) );
 
-        // 	ok = meta.DoesQualifierExist ( NS1, "QualProp2", kXMP_NS_XML, "lang"
+        // 	ok = meta.DoesQualifierExist ( NS1, "QualProp2", xmp_ns::XML, "lang"
         // ); 	fprintf ( log, "DoesQualifierExist ns1:QualProp2/?xml:lang
         // : %s\n", YesOrNo ( ok ) );
 
@@ -933,9 +972,9 @@ fn xmp_core_coverage() {
         // 	DumpXMPObj ( log, meta, "Delete Prop, Bag[2], and Struct1/Field1" );
 
         // 	meta.DeleteQualifier ( NS1, "QualProp1", NS2, "Qual1" );
-        // 	meta.DeleteQualifier ( NS1, "QualProp2", kXMP_NS_XML, "lang" );
+        // 	meta.DeleteQualifier ( NS1, "QualProp2", xmp_ns::XML, "lang" );
         // 	meta.DeleteQualifier ( NS1, "QualProp3", NS2, "Qual" );
-        // 	meta.DeleteQualifier ( NS1, "QualProp4", kXMP_NS_XML, "lang" );
+        // 	meta.DeleteQualifier ( NS1, "QualProp4", xmp_ns::XML, "lang" );
 
         // 	DumpXMPObj ( log, meta, "Delete QualProp1/?ns2:Qual1,
         // QualProp2/?xml:lang, QualProp3:/ns2:Qual, and
@@ -993,24 +1032,24 @@ fn xmp_core_coverage() {
     // 	double		floatValue;
     // 	char		dateName [8];
 
-    // 	write_major_label("Test SetProperty... and GetProperty... methods
+    // 	write_major_label("Test set_property... and GetProperty... methods
     // (set/get with binary values)" );
 
     // 	FillDateTime ( &dateValue, 2000, 1, 2, 3, 4, 5, true, true, false, 0, 0, 0, 0
     // );
 
-    // 	meta.SetProperty_Bool ( NS1, "Bool0", false );
-    // 	meta.SetProperty_Bool ( NS1, "Bool1", true );
-    // 	meta.SetProperty_Int ( NS1, "Int", 42 );
-    // 	meta.SetProperty_Float ( NS1, "Float", 4.2 );
+    // 	meta.set_property_Bool ( NS1, "Bool0", false );
+    // 	meta.set_property_Bool ( NS1, "Bool1", true );
+    // 	meta.set_property_Int ( NS1, "Int", 42 );
+    // 	meta.set_property_Float ( NS1, "Float", 4.2 );
 
-    // 	meta.SetProperty_Date ( NS1, "Date10", dateValue );
+    // 	meta.set_property_Date ( NS1, "Date10", dateValue );
     // 	dateValue.tzSign = 1; dateValue.tzHour = 6; dateValue.tzMinute = 7;
-    // 	meta.SetProperty_Date ( NS1, "Date11", dateValue );
+    // 	meta.set_property_Date ( NS1, "Date11", dateValue );
     // 	dateValue.tzSign = -1;
-    // 	meta.SetProperty_Date ( NS1, "Date12", dateValue );
+    // 	meta.set_property_Date ( NS1, "Date12", dateValue );
     // 	dateValue.nanoSecond = 9;
-    // 	meta.SetProperty_Date ( NS1, "Date13", dateValue );
+    // 	meta.set_property_Date ( NS1, "Date13", dateValue );
 
     // 	DumpXMPObj ( log, meta, "A few basic binary Set... calls" );
 
@@ -1042,7 +1081,7 @@ fn xmp_core_coverage() {
     // dateValue.month, dateValue.day, dateValue.hour, dateValue.minute,
     // dateValue.second, 				  dateValue.tzSign, dateValue.tzHour,
     // dateValue.tzMinute, dateValue.nanoSecond, options );
-    // 		meta.SetProperty_Date ( NS2, dateName, dateValue );
+    // 		meta.set_property_Date ( NS2, dateName, dateValue );
     // 	}
 
     // 	DumpXMPObj ( log, meta, "Get and re-set the dates" );
@@ -1129,9 +1168,9 @@ fn xmp_core_coverage() {
 
     // 	SXMPMeta meta ( NEWLINE_RDF, kXMP_UseNullTermination );
 
-    // 	meta.SetProperty ( NS2, "HasCR", kValueWithCR );
-    // 	meta.SetProperty ( NS2, "HasLF", kValueWithLF );
-    // 	meta.SetProperty ( NS2, "HasCRLF", kValueWithCRLF );
+    // 	meta.set_property ( NS2, "HasCR", kValueWithCR );
+    // 	meta.set_property ( NS2, "HasLF", kValueWithLF );
+    // 	meta.set_property ( NS2, "HasCRLF", kValueWithCRLF );
 
     // 	tmpStr1.erase();
     // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper );
@@ -1159,8 +1198,8 @@ fn xmp_core_coverage() {
     // 	write_major_label("Test serialization with various options" );
 
     // 	SXMPMeta meta ( SIMPLE_RDF, strlen(SIMPLE_RDF) );
-    // 	meta.SetProperty ( NS2, "Another", "Something in another schema" );
-    // 	meta.SetProperty ( NS2, "Yet/pdf:More", "Yet more in another schema" );
+    // 	meta.set_property ( NS2, "Another", "Something in another schema" );
+    // 	meta.set_property ( NS2, "Yet/pdf:More", "Yet more in another schema" );
 
     // 	DumpXMPObj ( log, meta, "Parse simple RDF, serialize with various options" );
 
@@ -1184,15 +1223,15 @@ fn xmp_core_coverage() {
     // 	{
     // 		SXMPMeta meta2;
 
-    // 		meta2.SetProperty ( kXMP_NS_PDF, "Author", "PDF Author" );
+    // 		meta2.set_property ( kXMP_NS_PDF, "Author", "PDF Author" );
 
     // 		tmpStr1.erase();
     // 		meta2.SerializeToBuffer ( &tmpStr1, kXMP_ReadOnlyPacket );
     // 		WriteMinorLabel ( log, "Read-only serialize with alias comments" );
     // 		fprintf ( log, "%s\n", tmpStr1.c_str() );
 
-    // 		meta2.SetProperty ( kXMP_NS_PDF, "Actual", "PDF Actual" );
-    // 		meta2.SetProperty ( kXMP_NS_XMP, "Actual", "XMP Actual" );
+    // 		meta2.set_property ( kXMP_NS_PDF, "Actual", "PDF Actual" );
+    // 		meta2.set_property ( kXMP_NS_XMP, "Actual", "XMP Actual" );
 
     // 		tmpStr1.erase();
     // 		meta2.SerializeToBuffer ( &tmpStr1, kXMP_ReadOnlyPacket );
@@ -1275,9 +1314,9 @@ fn xmp_core_coverage() {
     // 	SXMPMeta meta ( RDF_COVERAGE, strlen ( RDF_COVERAGE ) );
     // 	XMP_OptionBits opt2;
 
-    // 	meta.SetProperty ( NS2, "Prop", "Prop value" );
+    // 	meta.set_property ( NS2, "Prop", "Prop value" );
 
-    // 	meta.SetProperty ( NS2, "Bag", 0, kXMP_PropValueIsArray );
+    // 	meta.set_property ( NS2, "Bag", 0, kXMP_PropValueIsArray );
     // 	meta.SetArrayItem ( NS2, "Bag", 1, "BagItem 2" );
     // 	meta.SetArrayItem ( NS2, "Bag", 1, "BagItem 1", kXMP_InsertBeforeItem );
     // 	meta.SetArrayItem ( NS2, "Bag", 2, "BagItem 3", kXMP_InsertAfterItem );
@@ -1517,10 +1556,10 @@ fn xmp_core_coverage() {
     // 	{
     // 		SXMPMeta meta;
 
-    // 		meta.SetProperty ( kXMP_NS_PDF, "Author", "PDF Author" );
-    // 		meta.SetProperty ( kXMP_NS_PDF, "PDFProp", "PDF Prop" );
-    // 		meta.SetProperty ( kXMP_NS_XMP, "XMPProp", "XMP Prop" );
-    // 		meta.SetProperty ( kXMP_NS_DC, "DCProp", "DC Prop" );
+    // 		meta.set_property ( kXMP_NS_PDF, "Author", "PDF Author" );
+    // 		meta.set_property ( kXMP_NS_PDF, "PDFProp", "PDF Prop" );
+    // 		meta.set_property ( kXMP_NS_XMP, "XMPProp", "XMP Prop" );
+    // 		meta.set_property ( kXMP_NS_DC, "DCProp", "DC Prop" );
 
     // 		SXMPIterator iter1 ( meta );
     // 		WriteMinorLabel ( log, "Iterate without showing aliases" );
@@ -1555,7 +1594,7 @@ fn xmp_core_coverage() {
     // 	tmpStr1.erase();
     // 	SXMPUtils::ComposeArrayItemPath ( NS1, "ArrayProp", 2, &tmpStr1 );
     // 	fprintf ( log, "ComposeArrayItemPath ns1:ArrayProp[2] : %s\n",
-    // tmpStr1.c_str() ); 	meta.SetProperty ( NS1, tmpStr1.c_str(), "new
+    // tmpStr1.c_str() ); 	meta.set_property ( NS1, tmpStr1.c_str(), "new
     // ns1:ArrayProp[2] value" );
 
     // 	fprintf ( log, "\n" );
@@ -1563,28 +1602,28 @@ fn xmp_core_coverage() {
     // 	tmpStr1.erase();
     // 	SXMPUtils::ComposeStructFieldPath ( NS1, "StructProp", NS2, "Field3",
     // &tmpStr1 ); 	fprintf ( log, "ComposeStructFieldPath
-    // ns1:StructProp/ns2:Field3 : %s\n", tmpStr1.c_str() ); 	meta.SetProperty (
+    // ns1:StructProp/ns2:Field3 : %s\n", tmpStr1.c_str() ); 	meta.set_property (
     // NS1, tmpStr1.c_str(), "new ns1:StructProp/ns2:Field3 value" );
 
     // 	tmpStr1.erase();
     // 	SXMPUtils::ComposeQualifierPath ( NS1, "QualProp", NS2, "Qual", &tmpStr1 );
     // 	fprintf ( log, "ComposeQualifierPath ns1:QualProp/?ns2:Qual : %s\n",
-    // tmpStr1.c_str() ); 	meta.SetProperty ( NS1, tmpStr1.c_str(), "new
+    // tmpStr1.c_str() ); 	meta.set_property ( NS1, tmpStr1.c_str(), "new
     // ns1:QualProp/?ns2:Qual value" );
 
     // 	fprintf ( log, "\n" );
 
     // 	tmpStr1.erase();
-    // 	SXMPUtils::ComposeQualifierPath ( NS1, "AltTextProp", kXMP_NS_XML, "lang",
+    // 	SXMPUtils::ComposeQualifierPath ( NS1, "AltTextProp", xmp_ns::XML, "lang",
     // &tmpStr1 ); 	fprintf ( log, "ComposeQualifierPath
-    // ns1:AltTextProp/?xml:lang : %s\n", tmpStr1.c_str() ); 	meta.SetProperty (
+    // ns1:AltTextProp/?xml:lang : %s\n", tmpStr1.c_str() ); 	meta.set_property (
     // NS1, tmpStr1.c_str(), "new ns1:AltTextProp/?xml:lang value" );
 
     // 	tmpStr1.erase();
     // 	tmpStr2 = "x-two";
     // 	SXMPUtils::ComposeLangSelector ( NS1, "AltTextProp", tmpStr2, &tmpStr1 );
     // 	fprintf ( log, "ComposeLangSelector ns1:AltTextProp['x-two'] : %s\n",
-    // tmpStr1.c_str() ); 	meta.SetProperty ( NS1, tmpStr1.c_str(), "new
+    // tmpStr1.c_str() ); 	meta.set_property ( NS1, tmpStr1.c_str(), "new
     // ns1:AltTextProp['x-two'] value" );
 
     // 	fprintf ( log, "\n" );
@@ -1611,7 +1650,7 @@ fn xmp_core_coverage() {
     // 	SXMPUtils::ComposeStructFieldPath ( NS1, tmpStr1.c_str(), NS2, "Field2",
     // &tmpStr2 );
     // 	fprintf ( log, "ComposeStructFieldPath ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2 : %s\n", tmpStr2.c_str() );
-    // 	meta.SetProperty ( NS1, tmpStr2.c_str(), "new
+    // 	meta.set_property ( NS1, tmpStr2.c_str(), "new
     // ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2 value" );
 
     // 	DumpXMPObj ( log, meta, "Modified simple RDF" );
@@ -1864,7 +1903,7 @@ fn xmp_core_coverage() {
 
     // 	SXMPMeta meta1 ( SIMPLE_RDF, strlen(SIMPLE_RDF) );
 
-    // 	meta1.SetProperty ( NS2, "Prop", "value" );
+    // 	meta1.set_property ( NS2, "Prop", "value" );
     // 	DumpXMPObj ( log, meta1, "Parse simple RDF, add ns2:Prop" );
 
     // 	SXMPUtils::RemoveProperties ( &meta1, NS1, "ArrayOfStructProp" );
@@ -1873,8 +1912,8 @@ fn xmp_core_coverage() {
     // 	SXMPUtils::RemoveProperties ( &meta1, NS1 );
     // 	DumpXMPObj ( log, meta1, "Remove all of ns1:" );
 
-    // 	meta1.SetProperty ( kXMP_NS_XMP, "CreatorTool", "XMPCoverage" );
-    // 	meta1.SetProperty ( kXMP_NS_XMP, "Nickname", "TXMP test" );
+    // 	meta1.set_property ( kXMP_NS_XMP, "CreatorTool", "XMPCoverage" );
+    // 	meta1.set_property ( kXMP_NS_XMP, "Nickname", "TXMP test" );
     // 	DumpXMPObj ( log, meta1, "Set xmp:CreatorTool (internal) and xmp:Nickname
     // (external)" );
 
@@ -1884,38 +1923,38 @@ fn xmp_core_coverage() {
     // 	SXMPUtils::RemoveProperties ( &meta1, 0, 0, kXMPUtil_DoAllProperties );
     // 	DumpXMPObj ( log, meta1, "Remove all properties, including internal" );
 
-    // 	meta1.SetProperty ( kXMP_NS_XMP, "CreatorTool", "XMPCoverage" );
-    // 	meta1.SetProperty ( kXMP_NS_XMP, "Nickname", "TXMP test" );
+    // 	meta1.set_property ( kXMP_NS_XMP, "CreatorTool", "XMPCoverage" );
+    // 	meta1.set_property ( kXMP_NS_XMP, "Nickname", "TXMP test" );
     // 	DumpXMPObj ( log, meta1, "Set xmp:CreatorTool and xmp:Nickname again" );
 
     // 	SXMPMeta meta2 ( SIMPLE_RDF, strlen(SIMPLE_RDF) );
 
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "CreatorTool", "new CreatorTool" );
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "Nickname", "new Nickname" );
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "Format", "new Format" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "CreatorTool", "new CreatorTool" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "Nickname", "new Nickname" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "Format", "new Format" );
     // 	DumpXMPObj ( log, meta2, "Create 2nd XMP object with new values" );
 
     // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties );
     // 	DumpXMPObj ( log, meta1, "Append 2nd to 1st, keeping old values, external
     // only" );
 
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "CreatorTool", "newer CreatorTool" );
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "Nickname", "newer Nickname" );
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "Format", "newer Format" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "CreatorTool", "newer CreatorTool" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "Nickname", "newer Nickname" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "Format", "newer Format" );
     // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties |
     // kXMPTemplate_IncludeInternalProperties ); 	DumpXMPObj ( log, meta1,
     // "Append 2nd to 1st, keeping old values, internal also" );
 
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "CreatorTool", "newest CreatorTool" );
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "Nickname", "newest Nickname" );
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "Format", "newest Format" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "CreatorTool", "newest CreatorTool" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "Nickname", "newest Nickname" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "Format", "newest Format" );
     // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties |
     // kXMPTemplate_ReplaceExistingProperties ); 	DumpXMPObj ( log, meta1,
     // "Append 2nd to 1st, replacing old values, external only" );
 
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "CreatorTool", "final CreatorTool" );
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "Nickname", "final Nickname" );
-    // 	meta2.SetProperty ( kXMP_NS_XMP, "Format", "final Format" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "CreatorTool", "final CreatorTool" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "Nickname", "final Nickname" );
+    // 	meta2.set_property ( kXMP_NS_XMP, "Format", "final Format" );
     // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties |
     // kXMPTemplate_ReplaceExistingProperties |
     // kXMPTemplate_IncludeInternalProperties ); 	DumpXMPObj ( log, meta1,
