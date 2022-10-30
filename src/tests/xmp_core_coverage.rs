@@ -688,66 +688,70 @@ fn xmp_core_coverage() {
 
         //-------------------------------------------------------------------------
 
-        // int				i;
-        // bool			ok;
-        // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
-        // XMP_OptionBits	options;
+        write_major_label("Test property and related methods");
 
-        // 	write_major_label("Test GetProperty and related methods" );
+        // Start with fresh qualifiers.
+        meta.delete_property(NS1, "QualProp1").unwrap();
+        meta.delete_property(NS1, "ns1:QualProp2").unwrap();
+        meta.delete_property(NS1, "ns1:QualProp3").unwrap();
+        meta.delete_property(NS1, "QualProp4").unwrap();
 
-        // 	meta.DeleteProperty ( NS1, "QualProp1" );	// ! Start with fresh
-        // qualifiers. 	meta.DeleteProperty ( NS1, "ns1:QualProp2" );
-        // 	meta.DeleteProperty ( NS1, "ns1:QualProp3" );
-        // 	meta.DeleteProperty ( NS1, "QualProp4" );
+        meta.set_property(NS1, "QualProp1", &"Prop value".into())
+            .unwrap();
+        meta.set_qualifier(NS1, "QualProp1", NS2, "Qual1", &"Qual1 value".into())
+            .unwrap();
 
-        // 	meta.set_property ( NS1, "QualProp1", "Prop value" );
-        // 	meta.set_qualifier ( NS1, "QualProp1", NS2, "Qual1", "Qual1 value" );
+        meta.set_property(NS1, "QualProp2", &"Prop value".into())
+            .unwrap();
+        meta.set_qualifier(NS1, "QualProp2", xmp_ns::XML, "lang", &"en-us".into())
+            .unwrap();
 
-        // 	meta.set_property ( NS1, "QualProp2", "Prop value" );
-        // 	meta.set_qualifier ( NS1, "QualProp2", xmp_ns::XML, "lang", "en-us"
-        // );
+        meta.set_property(NS1, "QualProp3", &"Prop value".into())
+            .unwrap();
+        meta.set_qualifier(NS1, "QualProp3", xmp_ns::XML, "lang", &"en-us".into())
+            .unwrap();
 
-        // 	meta.set_property ( NS1, "QualProp3", "Prop value" );
-        // 	meta.set_qualifier ( NS1, "QualProp3", xmp_ns::XML, "lang", "en-us"
-        // ); 	meta.set_qualifier ( NS1, "QualProp3", NS2, "Qual", "Qual
-        // value" );
+        meta.set_qualifier(NS1, "QualProp3", NS2, "Qual", &"Qual value".into())
+            .unwrap();
 
-        // 	meta.set_property ( NS1, "QualProp4", "Prop value" );
-        // 	meta.set_qualifier ( NS1, "QualProp4", NS2, "Qual", "Qual value" );
-        // 	meta.set_qualifier ( NS1, "QualProp4", xmp_ns::XML, "lang", "en-us"
-        // );
+        meta.set_property(NS1, "QualProp4", &"Prop value".into())
+            .unwrap();
 
-        // 	DumpXMPObj ( log, meta, "XMP object" );
-        // 	fprintf ( log, "\n" );
+        meta.set_qualifier(NS1, "QualProp4", NS2, "Qual", &"Qual value".into())
+            .unwrap();
 
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetProperty ( NS1, "Prop", &tmpStr1, &options );
-        // 	fprintf ( log, "GetProperty ns1:Prop : %s, \"%s\", 0x%X\n",
-        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+        meta.set_qualifier(NS1, "QualProp4", xmp_ns::XML, "lang", &"en-us".into())
+            .unwrap();
 
-        // 	try {
-        // 		tmpStr1.erase();
-        // 		ok = meta.GetProperty ( 0, "ns1:Prop", &tmpStr1, &options );
-        // 		fprintf ( log, "#ERROR: No exception for GetProperty with no schema
-        // URI : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
-        // tmpStr1.c_str(), options ); 	} catch ( XMP_Error & excep ) {
-        // fprintf ( log, "GetProperty with no schema URI -
-        // threw XMP_Error #%d : %s\n", excep.GetID(), excep.GetErrMsg() );
-        // 	} catch ( ... ) {
-        // 		fprintf ( log, "GetProperty with no schema URI - threw unknown
-        // exception\n" ); 	}
+        println!("XMP object = {:#?}", meta);
 
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetProperty ( NS1, "ns1:XMLProp", &tmpStr1, &options );
-        // 	fprintf ( log, "GetProperty ns1:XMLProp : %s, \"%s\", 0x%X\n",
-        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:Prop>Prop value</ns1:Prop> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Bag> <rdf:Bag> <rdf:li>BagItem 1</rdf:li> <rdf:li>BagItem 2</rdf:li> <rdf:li>BagItem 3</rdf:li> <rdf:li>BagItem 4</rdf:li> </rdf:Bag> </ns1:Bag> <ns1:Seq> <rdf:Seq> <rdf:li>SeqItem value</rdf:li> </rdf:Seq> </ns1:Seq> <ns1:Alt> <rdf:Alt> <rdf:li>AltItem value</rdf:li> </rdf:Alt> </ns1:Alt> <ns1:Struct rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> <ns2:Field3>Field3 value</ns2:Field3> </ns1:Struct> <ns1:QualProp1 rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual1>Qual1 value</ns2:Qual1> </ns1:QualProp1> <ns1:QualProp2 xml:lang=\"en-US\">Prop value</ns1:QualProp2> <ns1:QualProp3 xml:lang=\"en-US\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp3> <ns1:QualProp4 xml:lang=\"en-US\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp4> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetProperty ( NS1, "ns1:URIProp", &tmpStr1, &options );
-        // 	fprintf ( log, "GetProperty ns1:URIProp : %s, \"%s\", 0x%X\n",
-        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.property(NS1, "Prop"),
+            Some(XmpValue {
+                value: "Prop value".to_owned(),
+                options: 0
+            })
+        );
 
-        // 	fprintf ( log, "\n" );
+        assert_eq!(meta.property("", "ns1:Prop"), None);
+
+        assert_eq!(
+            meta.property(NS1, "ns1:XMLProp"),
+            Some(XmpValue {
+                value: "<PropValue/>".to_owned(),
+                options: 0
+            })
+        );
+
+        assert_eq!(
+            meta.property(NS1, "ns1:URIProp"),
+            Some(XmpValue {
+                value: "URI:value/".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            })
+        );
 
         // 	tmpStr1.erase();
         // 	ok = meta.GetArrayItem ( NS1, "Bag", 2, &tmpStr1, &options );
@@ -777,6 +781,11 @@ fn xmp_core_coverage() {
         // options );
 
         // 	fprintf ( log, "\n" );
+
+        // int				i;
+        // bool			ok;
+        // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
+        // XMP_OptionBits	options;
 
         // 	tmpStr1.erase();
         // 	ok = meta.GetStructField ( NS1, "Struct", NS2, "Field1", &tmpStr1,
@@ -829,41 +838,41 @@ fn xmp_core_coverage() {
         // 	fprintf ( log, "\n" );
 
         // 	tmpStr1 = "junk";
-        // 	ok = meta.GetProperty ( NS1, "Bag", &tmpStr1, &options );
-        // 	fprintf ( log, "GetProperty ns1:Bag : %s, \"%s\", 0x%X\n", FoundOrNot
+        // 	ok = meta.property ( NS1, "Bag", &tmpStr1, &options );
+        // 	fprintf ( log, "property ns1:Bag : %s, \"%s\", 0x%X\n", FoundOrNot
         // ( ok ), tmpStr1.c_str(), options );
 
         // 	tmpStr1 = "junk";
-        // 	ok = meta.GetProperty ( NS1, "Seq", &tmpStr1, &options );
-        // 	fprintf ( log, "GetProperty ns1:Seq : %s, \"%s\", 0x%X\n", FoundOrNot
+        // 	ok = meta.property ( NS1, "Seq", &tmpStr1, &options );
+        // 	fprintf ( log, "property ns1:Seq : %s, \"%s\", 0x%X\n", FoundOrNot
         // ( ok ), tmpStr1.c_str(), options );
 
         // 	tmpStr1 = "junk";
-        // 	ok = meta.GetProperty ( NS1, "Alt", &tmpStr1, &options );
-        // 	fprintf ( log, "GetProperty ns1:Alt : %s, \"%s\", 0x%X\n", FoundOrNot
+        // 	ok = meta.property ( NS1, "Alt", &tmpStr1, &options );
+        // 	fprintf ( log, "property ns1:Alt : %s, \"%s\", 0x%X\n", FoundOrNot
         // ( ok ), tmpStr1.c_str(), options );
 
         // 	tmpStr1 = "junk";
-        // 	ok = meta.GetProperty ( NS1, "Struct", &tmpStr1, &options );
-        // 	fprintf ( log, "GetProperty ns1:Struct : %s, \"%s\", 0x%X\n",
+        // 	ok = meta.property ( NS1, "Struct", &tmpStr1, &options );
+        // 	fprintf ( log, "property ns1:Struct : %s, \"%s\", 0x%X\n",
         // FoundOrNot ( ok ), tmpStr1.c_str(), options );
 
         // 	fprintf ( log, "\n" );
 
         // 	try {
         // 		tmpStr1 = "junk";
-        // 		ok = meta.GetProperty ( "ns:bogus/", "Bogus", &tmpStr1, &options );
-        // 		fprintf ( log, "#ERROR: No exception for GetProperty with bogus
+        // 		ok = meta.property ( "ns:bogus/", "Bogus", &tmpStr1, &options );
+        // 		fprintf ( log, "#ERROR: No exception for property with bogus
         // schema URI: %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
         // tmpStr1.c_str(), options ); 	} catch ( XMP_Error & excep ) {
-        // 		fprintf ( log, "GetProperty with bogus schema URI - threw XMP_Error
+        // 		fprintf ( log, "property with bogus schema URI - threw XMP_Error
         // #%d : %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch (
-        // ... ) { 		fprintf ( log, "GetProperty with bogus schema URI -
+        // ... ) { 		fprintf ( log, "property with bogus schema URI -
         // threw unknown exception\n" ); 	}
 
         // 	tmpStr1 = "junk";
-        // 	ok = meta.GetProperty ( NS1, "Bogus", &tmpStr1, &options );
-        // 	fprintf ( log, "GetProperty ns1:Bogus : %s\n", FoundOrNot ( ok ) );
+        // 	ok = meta.property ( NS1, "Bogus", &tmpStr1, &options );
+        // 	fprintf ( log, "property ns1:Bogus : %s\n", FoundOrNot ( ok ) );
 
         // 	tmpStr1 = "junk";
         // 	ok = meta.GetArrayItem ( NS1, "Bag", 99, &tmpStr1, &options );
@@ -882,7 +891,7 @@ fn xmp_core_coverage() {
 
         // 	// ----------------------------------------------------------------------------------------
 
-        // 	write_major_label("Test DoesPropertyExist, DeleteProperty, and
+        // 	write_major_label("Test DoesPropertyExist, delete_property, and
         // related methods" );
 
         // 	DumpXMPObj ( log, meta, "XMP object" );
@@ -965,7 +974,7 @@ fn xmp_core_coverage() {
         // 	fprintf ( log, "DoesQualifierExist ns1:Prop/?ns2:Bogus : %s\n",
         // YesOrNo ( ok ) );
 
-        // 	meta.DeleteProperty ( NS1, "Prop" );
+        // 	meta.delete_property ( NS1, "Prop" );
         // 	meta.DeleteArrayItem ( NS1, "Bag", 2 );
         // 	meta.DeleteStructField ( NS1, "Struct", NS2, "Field1" );
 
@@ -980,8 +989,8 @@ fn xmp_core_coverage() {
         // QualProp2/?xml:lang, QualProp3:/ns2:Qual, and
         // QualProp4/?xml:lang" );
 
-        // 	meta.DeleteProperty ( NS1, "Bag" );
-        // 	meta.DeleteProperty ( NS1, "Struct" );
+        // 	meta.delete_property ( NS1, "Bag" );
+        // 	meta.delete_property ( NS1, "Struct" );
 
         // 	DumpXMPObj ( log, meta, "Delete all of Bag and Struct" );
     }
@@ -1014,8 +1023,8 @@ fn xmp_core_coverage() {
     // FoundOrNot ( ok ), tmpStr1.c_str(), tmpStr2.c_str(), options );
 
     // 	tmpStr1 = "junk";
-    // 	ok = meta.GetProperty ( NS1, "AltText", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ns1:AltText : %s, \"%s\", 0x%X\n", FoundOrNot (
+    // 	ok = meta.property ( NS1, "AltText", &tmpStr1, &options );
+    // 	fprintf ( log, "property ns1:AltText : %s, \"%s\", 0x%X\n", FoundOrNot (
     // ok ), tmpStr1.c_str(), options );
 
     // }
@@ -1032,7 +1041,7 @@ fn xmp_core_coverage() {
     // 	double		floatValue;
     // 	char		dateName [8];
 
-    // 	write_major_label("Test set_property... and GetProperty... methods
+    // 	write_major_label("Test set_property... and property... methods
     // (set/get with binary values)" );
 
     // 	FillDateTime ( &dateValue, 2000, 1, 2, 3, 4, 5, true, true, false, 0, 0, 0, 0
@@ -1055,28 +1064,28 @@ fn xmp_core_coverage() {
 
     // 	fprintf ( log, "\n" );
 
-    // 	ok = meta.GetProperty_Bool ( NS1, "Bool0", &boolValue, &options );
-    // 	fprintf ( log, "GetProperty_Bool Bool0 : %s, %d, 0x%X\n", FoundOrNot ( ok ),
+    // 	ok = meta.property_Bool ( NS1, "Bool0", &boolValue, &options );
+    // 	fprintf ( log, "property_Bool Bool0 : %s, %d, 0x%X\n", FoundOrNot ( ok ),
     // boolValue, options );
 
-    // 	ok = meta.GetProperty_Bool ( NS1, "Bool1", &boolValue, &options );
-    // 	fprintf ( log, "GetProperty_Bool Bool1 : %s, %d, 0x%X\n", FoundOrNot ( ok ),
+    // 	ok = meta.property_Bool ( NS1, "Bool1", &boolValue, &options );
+    // 	fprintf ( log, "property_Bool Bool1 : %s, %d, 0x%X\n", FoundOrNot ( ok ),
     // boolValue, options );
 
-    // 	ok = meta.GetProperty_Int ( NS1, "Int", &intValue, &options );
-    // 	fprintf ( log, "GetProperty_Int : %s, %d, 0x%X\n", FoundOrNot ( ok ),
+    // 	ok = meta.property_Int ( NS1, "Int", &intValue, &options );
+    // 	fprintf ( log, "property_Int : %s, %d, 0x%X\n", FoundOrNot ( ok ),
     // intValue, options );
 
-    // 	ok = meta.GetProperty_Float ( NS1, "Float", &floatValue, &options );
-    // 	fprintf ( log, "GetProperty_Float : %s, %f, 0x%X\n", FoundOrNot ( ok ),
+    // 	ok = meta.property_Float ( NS1, "Float", &floatValue, &options );
+    // 	fprintf ( log, "property_Float : %s, %f, 0x%X\n", FoundOrNot ( ok ),
     // floatValue, options );
 
     // 	fprintf ( log, "\n" );
 
     // 	for ( i = 1; i < 14; ++i ) {
     // 		sprintf ( dateName, "Date%d", i );
-    // 		ok = meta.GetProperty_Date ( NS1, dateName, &dateValue, &options );
-    // 		fprintf ( log, "GetProperty_Date (%s) : %s, %d-%02d-%02d %02d:%02d:%02d
+    // 		ok = meta.property_Date ( NS1, dateName, &dateValue, &options );
+    // 		fprintf ( log, "property_Date (%s) : %s, %d-%02d-%02d %02d:%02d:%02d
     // %d*%02d:%02d %d, 0x%X\n",  dateName, FoundOrNot ( ok ), 				  dateValue.year,
     // dateValue.month, dateValue.day, dateValue.hour, dateValue.minute,
     // dateValue.second, 				  dateValue.tzSign, dateValue.tzHour,
@@ -1177,20 +1186,20 @@ fn xmp_core_coverage() {
     // 	fprintf ( log, "\n%s\n", tmpStr1.c_str() );
 
     // 	tmpStr1.erase();  tmpStr2.erase();
-    // 	ok = meta.GetProperty ( NS1, "HasCR", &tmpStr1, 0 );
-    // 	ok = meta.GetProperty ( NS2, "HasCR", &tmpStr2, 0 );
+    // 	ok = meta.property ( NS1, "HasCR", &tmpStr1, 0 );
+    // 	ok = meta.property ( NS2, "HasCR", &tmpStr2, 0 );
     // 	if ( (tmpStr1 != kValueWithCR) || (tmpStr2 != kValueWithCR) ) fprintf ( log,
     // "\n ## HasCR values are bad\n" );
 
     // 	tmpStr1.erase();  tmpStr2.erase();
-    // 	ok = meta.GetProperty ( NS1, "HasLF", &tmpStr1, 0 );
-    // 	ok = meta.GetProperty ( NS2, "HasLF", &tmpStr2, 0 );
+    // 	ok = meta.property ( NS1, "HasLF", &tmpStr1, 0 );
+    // 	ok = meta.property ( NS2, "HasLF", &tmpStr2, 0 );
     // 	if ( (tmpStr1 != kValueWithLF) || (tmpStr2 != kValueWithLF) ) fprintf ( log,
     // "\n ## HasLF values are bad\n" );
 
     // 	tmpStr1.erase();  tmpStr2.erase();
-    // 	ok = meta.GetProperty ( NS1, "HasCRLF", &tmpStr1, 0 );
-    // 	ok = meta.GetProperty ( NS2, "HasCRLF", &tmpStr2, 0 );
+    // 	ok = meta.property ( NS1, "HasCRLF", &tmpStr1, 0 );
+    // 	ok = meta.property ( NS2, "HasCRLF", &tmpStr2, 0 );
     // 	if ( (tmpStr1 != kValueWithCRLF) || (tmpStr2 != kValueWithCRLF) ) fprintf (
     // log, "\n ## HasCRLF values are bad\n" ); }
 
@@ -1333,9 +1342,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1350,9 +1359,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1377,9 +1386,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1404,9 +1413,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1421,9 +1430,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1438,9 +1447,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1455,9 +1464,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1482,9 +1491,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1499,9 +1508,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1526,9 +1535,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1543,9 +1552,9 @@ fn xmp_core_coverage() {
     // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 			if ( tmpStr2 == "ns1:ArrayProp2" ) iter.Skip ( kXMP_IterSkipSubtree );
@@ -1570,9 +1579,9 @@ fn xmp_core_coverage() {
     // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
     // 				tmpStr4.erase();
     // 				options &= kXMP_PropHasAliases;	// So the comparison below works.
-    // 				ok = meta.GetProperty ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
+    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
     // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** GetProperty failed: %s, \"%s\", 0x%X\n",
+    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
     // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
     // 			}
     // 		}
@@ -1631,14 +1640,15 @@ fn xmp_core_coverage() {
     // 	fprintf ( log, "Check field selector usage\n" ); fflush ( log );
 
     // 	tmpStr1.erase();
-    // 	ok = meta.GetProperty ( NS1, "ArrayOfStructProp[ns2:Field1='Item-2']",
+    // 	ok = meta.property ( NS1, "ArrayOfStructProp[ns2:Field1='Item-2']",
     // &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ArrayOfStructProp[ns2:Field1='Item-2'] : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options ); fflush ( log );
+    // 	fprintf ( log, "property ArrayOfStructProp[ns2:Field1='Item-2'] : %s, \"%s\",
+    // 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options ); fflush ( log );
 
     // 	tmpStr1.erase();
-    // 	ok = meta.GetProperty ( NS1,
+    // 	ok = meta.property ( NS1,
     // "ArrayOfStructProp[ns2:Field1='Item-2']/ns2:Field2", &tmpStr1, &options );
-    // 	fprintf ( log, "GetProperty ArrayOfStructProp[ns2:Field1='Item-2']/ns2:Field2 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options ); fflush ( log );
+    // 	fprintf ( log, "property ArrayOfStructProp[ns2:Field1='Item-2']/ns2:Field2 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options ); fflush ( log );
 
     // 	tmpStr1.erase();
     // 	tmpStr2 = "Item-2";
