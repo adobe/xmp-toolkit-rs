@@ -704,6 +704,23 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaDeleteProperty(CXmpMeta* m,
+                                CXmpError* outError,
+                                const char* schemaNS,
+                                const char* propName) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.DeleteProperty(schemaNS, propName);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     void CXmpMetaSetArrayItem(CXmpMeta* m,
                               CXmpError* outError,
                               const char* schemaNS,
