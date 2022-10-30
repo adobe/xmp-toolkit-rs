@@ -1906,6 +1906,49 @@ mod append_array_item {
     }
 }
 
+mod array_len {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::*, XmpMeta};
+
+    #[test]
+    fn happy_path_creator_seq() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+        assert_eq!(
+            m.array_len("http://purl.org/dc/elements/1.1/", "creator"),
+            1
+        );
+    }
+
+    #[test]
+    fn happy_path_creator_bag() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+        assert_eq!(
+            m.array_len("http://purl.org/dc/elements/1.1/", "subject"),
+            6
+        );
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(
+            m.array_len("http://purl.org/dc/elements/1.1/", "creator"),
+            0
+        );
+    }
+
+    #[test]
+    fn no_such_property() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+
+        assert_eq!(
+            m.array_len("http://purl.org/dc/elements/1.1/", "creatorx"),
+            0
+        );
+    }
+}
+
 mod set_struct_field {
     use std::str::FromStr;
 
