@@ -355,6 +355,17 @@ extern "C" {
         item_options: u32,
     );
 
+    pub(crate) fn CXmpMetaSetQualifier(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        qual_ns: *const c_char,
+        qual_name: *const c_char,
+        qual_value: *const c_char,
+        qual_options: u32,
+    );
+
     pub(crate) fn CXmpMetaDoesPropertyExist(
         meta: *const CXmpMeta,
         schema_ns: *const c_char,

@@ -2081,6 +2081,100 @@ mod set_struct_field {
     }
 }
 
+mod set_qualifier {
+    use crate::{xmp_ns, XmpErrorType, XmpMeta, XmpValue};
+
+    const NS1: &str = "ns:test1/";
+    const NS2: &str = "ns:test2/";
+
+    #[test]
+    fn happy_path() {
+        XmpMeta::register_namespace(NS1, "ns1").unwrap();
+        XmpMeta::register_namespace(NS2, "ns2").unwrap();
+
+        let mut m = XmpMeta::default();
+
+        m.set_property(NS1, "QualProp1", &"Prop value".into())
+            .unwrap();
+        m.set_qualifier(NS1, "QualProp1", NS2, "Qual1", &"Qual1 value".into())
+            .unwrap();
+
+        assert_eq!(m.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:QualProp1 rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual1>Qual1 value</ns2:Qual1> </ns1:QualProp1> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+    }
+
+    #[test]
+    fn item_options() {
+        XmpMeta::register_namespace(NS1, "ns1").unwrap();
+        XmpMeta::register_namespace(NS2, "ns2").unwrap();
+
+        let mut m = XmpMeta::default();
+
+        m.set_property(NS1, "QualProp1", &"Prop value".into())
+            .unwrap();
+
+        m.set_qualifier(
+            NS1,
+            "QualProp1",
+            NS2,
+            "Qual1",
+            &XmpValue::from("Qual1 value").set_is_uri(true),
+        )
+        .unwrap();
+
+        assert_eq!(m.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:QualProp1 rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual1 rdf:resource=\"Qual1 value\"/> </ns1:QualProp1> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .set_qualifier(
+                NS1,
+                "QualProp1",
+                NS2,
+                "Qual1",
+                &XmpValue::from("Qual1 value").set_is_uri(true),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
+    fn error_empty_array_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .set_qualifier("ns1", "", "ns2", "CiAdrPcode", &"95110".into())
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadXPath);
+        assert_eq!(err.debug_message, "Empty property name");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .set_qualifier(
+                xmp_ns::IPTC_CORE,
+                "x\0x",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode",
+                &XmpValue::from("95110"),
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
+    }
+}
+
 mod localized_text {
     use std::str::FromStr;
 
