@@ -788,6 +788,30 @@ impl XmpMeta {
         }
     }
 
+    /// Deletes an XMP subtree rooted at a given property.
+    ///
+    /// It is not an error if the qualifier does not exist.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `path`: See [Accessing
+    ///   properties](#accessing-properties).
+    pub fn delete_property(&mut self, namespace: &str, path: &str) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_name = CString::new(path)?;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaDeleteProperty(m, &mut err, c_ns.as_ptr(), c_name.as_ptr());
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
+
     /// Creates or sets the value of an item within an array.
     ///
     /// Items are accessed by an integer index, where the first item has index

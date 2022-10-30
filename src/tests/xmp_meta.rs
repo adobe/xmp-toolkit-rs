@@ -1565,6 +1565,85 @@ mod set_property_date {
     }
 }
 
+mod delete_property {
+    use crate::{tests::fixtures::*, XmpError, XmpErrorType, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        m.set_property("http://purl.org/dc/terms/", "provenance", &"blah".into())
+            .unwrap();
+
+        assert_eq!(
+            m.property("http://purl.org/dc/terms/", "provenance")
+                .unwrap(),
+            XmpValue {
+                value: "blah".to_owned(),
+                options: 0
+            }
+        );
+
+        m.delete_property("http://purl.org/dc/terms/", "provenance")
+            .unwrap();
+
+        assert!(m
+            .property("http://purl.org/dc/terms/", "provenance")
+            .is_none());
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        assert_eq!(
+            m.delete_property("http://purl.org/dc/terms/", "provenance")
+                .unwrap_err(),
+            XmpError {
+                error_type: XmpErrorType::NoCppToolkit,
+                debug_message: "C++ XMP Toolkit not available".to_owned()
+            }
+        );
+    }
+
+    #[test]
+    fn error_empty_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        assert_eq!(
+            m.delete_property("http://purl.org/dc/terms/", "")
+                .unwrap_err(),
+            XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Empty property name".to_owned()
+            }
+        );
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        assert_eq!(
+            m.delete_property("http://purl.org/dc/terms/", "x\0x")
+                .unwrap_err(),
+            XmpError {
+                error_type: XmpErrorType::NulInRustString,
+                debug_message: "Unable to convert to C string because a NUL byte was found"
+                    .to_owned()
+            }
+        );
+    }
+}
+
 mod set_array_item {
     use std::str::FromStr;
 
