@@ -812,6 +812,46 @@ impl XmpMeta {
         }
     }
 
+    /// Provides access to items within an array.
+    ///
+    /// Use `XmpMeta::compose_array_item_path()` to create a complex path.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `array_name`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `item_index`: Index into the array.
+    ///  **IMPORTANT:** Indices in XMP are 1-based, unlike Rust where
+    /// indices are typically 0-based.
+    pub fn array_item(
+        &self,
+        namespace: &str,
+        array_name: &str,
+        item_index: u32,
+    ) -> Option<XmpValue<String>> {
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_array_name = CString::new(array_name).unwrap_or_default();
+
+            let mut options: u32 = 0;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                CXmpString::from_ptr(ffi::CXmpMetaGetArrayItem(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_array_name.as_ptr(),
+                    item_index,
+                    &mut options,
+                ))
+                .map(|value| XmpValue { value, options })
+            }
+        } else {
+            None
+        }
+    }
+
     /// Creates or sets the value of an item within an array.
     ///
     /// Items are accessed by an integer index, where the first item has index
@@ -1647,6 +1687,9 @@ impl ToStringOptions {
 
 /// Describes how a new item should be placed relative to existing
 /// items in an array.
+///
+/// **IMPORTANT:** Indices in XMP are 1-based, unlike Rust where
+/// indices are typically 0-based.
 ///
 /// Use with [`XmpMeta::set_array_item`].
 pub enum ItemPlacement {

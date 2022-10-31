@@ -1644,6 +1644,76 @@ mod delete_property {
     }
 }
 
+mod array_item {
+    use std::str::FromStr;
+
+    use crate::{
+        tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, ItemPlacement, XmpMeta, XmpValue,
+    };
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.array_item(xmp_ns::DC, "subject", 4),
+            Some(XmpValue {
+                value: "XMP".to_owned(),
+                options: 0
+            })
+        );
+    }
+
+    #[test]
+    fn item_options() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        m.set_array_item(
+            xmp_ns::DC,
+            "subject",
+            ItemPlacement::ReplaceItemAtIndex(3),
+            &XmpValue::from("Eric").set_is_uri(true),
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.array_item(xmp_ns::DC, "subject", 3),
+            Some(XmpValue {
+                value: "Eric".to_owned(),
+                options: xmp_prop::VALUE_IS_URI
+            })
+        );
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+
+        assert_eq!(m.array_item(xmp_ns::DC, "subject", 3), None);
+    }
+
+    #[test]
+    fn error_empty_array_name() {
+        let m = XmpMeta::default();
+
+        assert_eq!(m.array_item(xmp_ns::DC, "", 3), None);
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let m = XmpMeta::default();
+
+        assert_eq!(m.array_item(xmp_ns::DC, "x\0x", 3), None);
+    }
+
+    #[test]
+    fn error_zero_index() {
+        let m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        assert_eq!(m.array_item(xmp_ns::DC, "subject", 0), None);
+    }
+}
+
 mod set_array_item {
     use std::str::FromStr;
 
