@@ -803,91 +803,73 @@ fn xmp_core_coverage() {
             })
         );
 
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetQualifier ( NS1, "QualProp1", NS2, "Qual1", &tmpStr1,
-        // &options ); 	fprintf ( log, "GetQualifier
-        // ns1:QualProp1/?ns2:Qual1 : %s, \"%s\", 0x%X\n", FoundOrNot (
-        // ok ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.qualifier(NS1, "QualProp1", NS2, "Qual1"),
+            Some(XmpValue {
+                value: "Qual1 value".to_owned(),
+                options: xmp_prop::IS_QUALIFIER
+            })
+        );
 
-        // 	try {
-        // 		tmpStr1.erase();
-        // 		ok = meta.GetQualifier ( 0, "ns1:QualProp1", NS2, "Qual1", &tmpStr1,
-        // &options ); 		fprintf ( log, "#ERROR: No exception for
-        // GetQualifier with no schema URI : %s, \"%s\", 0x%X\n",
-        // FoundOrNot ( ok ), tmpStr1.c_str(), options ); 	} catch (
-        // XMP_Error & excep ) { 		fprintf ( log, "GetQualifier with no
-        // schema URI - threw XMP_Error #%d : %s\n", excep.GetID(),
-        // excep.GetErrMsg() ); 	} catch ( ... ) { 		fprintf ( log,
-        // "GetQualifier with no schema URI - threw unknown exception\n"
-        // ); 	}
+        assert_eq!(meta.qualifier("", "ns1:QualProp1", NS2, "Qual1"), None);
 
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetQualifier ( NS1, "ns1:QualProp3", xmp_ns::XML,
-        // "xml:lang", &tmpStr1, &options ); 	fprintf ( log,
-        // "GetQualifier ns1:QualProp3 : %s, \"%s\", 0x%X\n", FoundOrNot
-        // ( ok ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.qualifier(NS1, "ns1:QualProp3", xmp_ns::XML, "xml:lang"),
+            Some(XmpValue {
+                value: "en-US".to_owned(),
+                options: xmp_prop::IS_QUALIFIER
+            })
+        );
 
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetQualifier ( NS1, "ns1:QualProp3", NS2, "ns2:Qual",
-        // &tmpStr1, &options ); 	fprintf ( log, "GetQualifier
-        // ns1:QualProp3/?ns2:Qual : %s, \"%s\", 0x%X\n", FoundOrNot (
-        // ok ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.qualifier(NS1, "ns1:QualProp3", NS2, "ns2:Qual"),
+            Some(XmpValue {
+                value: "Qual value".to_owned(),
+                options: xmp_prop::IS_QUALIFIER
+            })
+        );
 
-        // 	fprintf ( log, "\n" );
+        assert_eq!(
+            meta.property(NS1, "Bag"),
+            Some(XmpValue {
+                value: "".to_owned(),
+                options: xmp_prop::VALUE_IS_ARRAY
+            })
+        );
 
-        // 	tmpStr1 = "junk";
-        // 	ok = meta.property ( NS1, "Bag", &tmpStr1, &options );
-        // 	fprintf ( log, "property ns1:Bag : %s, \"%s\", 0x%X\n", FoundOrNot
-        // ( ok ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.property(NS1, "Seq"),
+            Some(XmpValue {
+                value: "".to_owned(),
+                options: xmp_prop::VALUE_IS_ARRAY | xmp_prop::ARRAY_IS_ORDERED
+            })
+        );
 
-        // 	tmpStr1 = "junk";
-        // 	ok = meta.property ( NS1, "Seq", &tmpStr1, &options );
-        // 	fprintf ( log, "property ns1:Seq : %s, \"%s\", 0x%X\n", FoundOrNot
-        // ( ok ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.property(NS1, "Alt"),
+            Some(XmpValue {
+                value: "".to_owned(),
+                options: xmp_prop::VALUE_IS_ARRAY
+                    | xmp_prop::ARRAY_IS_ORDERED
+                    | xmp_prop::ARRAY_IS_ALTERNATE
+            })
+        );
 
-        // 	tmpStr1 = "junk";
-        // 	ok = meta.property ( NS1, "Alt", &tmpStr1, &options );
-        // 	fprintf ( log, "property ns1:Alt : %s, \"%s\", 0x%X\n", FoundOrNot
-        // ( ok ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.property(NS1, "Struct"),
+            Some(XmpValue {
+                value: "".to_owned(),
+                options: xmp_prop::VALUE_IS_STRUCT
+            })
+        );
 
-        // 	tmpStr1 = "junk";
-        // 	ok = meta.property ( NS1, "Struct", &tmpStr1, &options );
-        // 	fprintf ( log, "property ns1:Struct : %s, \"%s\", 0x%X\n",
-        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+        assert_eq!(meta.property("ns:bogus/", "Bogus"), None);
+        assert_eq!(meta.property(NS1, "Bogus"), None);
+        assert_eq!(meta.array_item(NS1, "Bag", 99), None);
+        assert_eq!(meta.struct_field(NS1, "Struct", NS2, "Bogus"), None);
+        assert_eq!(meta.qualifier(NS1, "Prop", NS2, "Bogus"), None);
 
-        // 	fprintf ( log, "\n" );
-
-        // 	try {
-        // 		tmpStr1 = "junk";
-        // 		ok = meta.property ( "ns:bogus/", "Bogus", &tmpStr1, &options );
-        // 		fprintf ( log, "#ERROR: No exception for property with bogus
-        // schema URI: %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
-        // tmpStr1.c_str(), options ); 	} catch ( XMP_Error & excep ) {
-        // 		fprintf ( log, "property with bogus schema URI - threw XMP_Error
-        // #%d : %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch (
-        // ... ) { 		fprintf ( log, "property with bogus schema URI -
-        // threw unknown exception\n" ); 	}
-
-        // 	tmpStr1 = "junk";
-        // 	ok = meta.property ( NS1, "Bogus", &tmpStr1, &options );
-        // 	fprintf ( log, "property ns1:Bogus : %s\n", FoundOrNot ( ok ) );
-
-        // 	tmpStr1 = "junk";
-        // 	ok = meta.array_item ( NS1, "Bag", 99, &tmpStr1, &options );
-        // 	fprintf ( log, "array_item ns1:Bag[99] : %s\n", FoundOrNot ( ok )
-        // );
-
-        // 	tmpStr1 = "junk";
-        // 	ok = meta.struct_field ( NS1, "Struct", NS2, "Bogus", &tmpStr1,
-        // &options ); 	fprintf ( log, "struct_field
-        // ns1:Struct/ns2:Bogus : %s\n", FoundOrNot ( ok ) );
-
-        // 	tmpStr1 = "junk";
-        // 	ok = meta.GetQualifier ( NS1, "Prop", NS2, "Bogus", &tmpStr1,
-        // &options ); 	fprintf ( log, "GetQualifier ns1:Prop/?ns2:Bogus
-        // : %s\n", FoundOrNot ( ok ) );
-
-        // 	// ----------------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
 
         // 	write_major_label("Test DoesPropertyExist, delete_property, and
         // related methods" );
