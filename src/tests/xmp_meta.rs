@@ -2116,6 +2116,104 @@ mod append_array_item {
     }
 }
 
+mod delete_array_item {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::*, xmp_ns, XmpError, XmpErrorType, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        m.delete_array_item(xmp_ns::DC, "subject", 3).unwrap();
+
+        let subjects: Vec<String> = m
+            .property_array(xmp_ns::DC, "subject")
+            .map(|v| {
+                assert!(v.options == 0);
+                v.value
+            })
+            .collect();
+
+        println!("subjects = {:#?}", subjects);
+
+        assert_eq!(subjects, ["purple", "square", "XMP", "XMPFiles", "test"]);
+    }
+
+    #[test]
+    fn last_item() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        m.delete_array_item(xmp_ns::DC, "subject", XmpMeta::LAST_ITEM)
+            .unwrap();
+
+        let subjects: Vec<String> = m
+            .property_array(xmp_ns::DC, "subject")
+            .map(|v| {
+                assert!(v.options == 0);
+                v.value
+            })
+            .collect();
+
+        println!("subjects = {:#?}", subjects);
+
+        assert_eq!(subjects, ["purple", "square", "Stefan", "XMP", "XMPFiles"]);
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        assert_eq!(
+            m.delete_array_item(xmp_ns::DC, "subject", 3),
+            Err(XmpError {
+                error_type: XmpErrorType::NoCppToolkit,
+                debug_message: "C++ XMP Toolkit not available".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_empty_array_name() {
+        let mut m = XmpMeta::default();
+
+        assert_eq!(
+            m.delete_array_item(xmp_ns::DC, "", 3),
+            Err(XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Empty array name".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::default();
+
+        assert_eq!(
+            m.delete_array_item(xmp_ns::DC, "x\0x", 3),
+            Err(XmpError {
+                error_type: XmpErrorType::NulInRustString,
+                debug_message: "Unable to convert to C string because a NUL byte was found"
+                    .to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_zero_index() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.delete_array_item(xmp_ns::DC, "subject", 0),
+            Err(XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Array index must be larger than zero".to_owned()
+            })
+        );
+    }
+}
+
 mod array_len {
     use std::str::FromStr;
 
@@ -2291,6 +2389,91 @@ mod set_struct_field {
     }
 }
 
+mod delete_struct_field {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures, xmp_ns, XmpErrorType, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_str(fixtures::STRUCT_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            )
+            .unwrap(),
+            XmpValue {
+                value: "98110".to_owned(),
+                options: 0
+            }
+        );
+
+        m.delete_struct_field(
+            xmp_ns::IPTC_CORE,
+            "CreatorContactInfo",
+            xmp_ns::IPTC_CORE,
+            "CiAdrPcode",
+        )
+        .unwrap();
+
+        assert!(m
+            .struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            )
+            .is_none());
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .delete_struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode",
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
+    fn error_empty_struct_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .delete_struct_field(xmp_ns::IPTC_CORE, "", xmp_ns::IPTC_CORE, "CiAdrPcode")
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadXPath);
+        assert_eq!(err.debug_message, "Empty struct name");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .delete_struct_field(xmp_ns::IPTC_CORE, "x\0x", xmp_ns::IPTC_CORE, "CiAdrPcode")
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
+    }
+}
+
 mod qualifier {
     use std::str::FromStr;
 
@@ -2444,6 +2627,81 @@ mod set_qualifier {
         assert_eq!(
             err.debug_message,
             "Unable to convert to C string because a NUL byte was found"
+        );
+    }
+}
+
+mod delete_qualifier {
+    use std::str::FromStr;
+
+    use crate::{
+        tests::fixtures, xmp_ns, xmp_value::xmp_prop, XmpError, XmpErrorType, XmpMeta, XmpValue,
+    };
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_str(fixtures::QUAL_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual")
+                .unwrap(),
+            XmpValue {
+                value: "Qual value".to_owned(),
+                options: xmp_prop::IS_QUALIFIER
+            }
+        );
+
+        m.delete_qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual")
+            .unwrap();
+
+        assert_eq!(
+            m.qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual"),
+            None
+        );
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        assert_eq!(
+            m.delete_qualifier(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode",
+            ),
+            Err(XmpError {
+                error_type: XmpErrorType::NoCppToolkit,
+                debug_message: "C++ XMP Toolkit not available".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_empty_struct_name() {
+        let mut m = XmpMeta::from_str(fixtures::QUAL_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.delete_qualifier(xmp_ns::IPTC_CORE, "", xmp_ns::IPTC_CORE, "CiAdrPcode"),
+            Err(XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Empty property name".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_str(fixtures::QUAL_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.delete_qualifier(xmp_ns::IPTC_CORE, "x\0x", xmp_ns::IPTC_CORE, "CiAdrPcode"),
+            Err(XmpError {
+                error_type: XmpErrorType::NulInRustString,
+                debug_message: "Unable to convert to C string because a NUL byte was found"
+                    .to_owned()
+            })
         );
     }
 }

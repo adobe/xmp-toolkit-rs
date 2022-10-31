@@ -343,6 +343,14 @@ extern "C" {
         item_options: u32,
     );
 
+    pub(crate) fn CXmpMetaDeleteArrayItem(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        array_name: *const c_char,
+        item_index: i32,
+    );
+
     pub(crate) fn CXmpMetaCountArrayItems(
         meta: *const CXmpMeta,
         out_error: *mut CXmpError,
@@ -360,6 +368,15 @@ extern "C" {
         field_name: *const c_char,
         item_value: *const c_char,
         item_options: u32,
+    );
+
+    pub(crate) fn CXmpMetaDeleteStructField(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
     );
 
     pub(crate) fn CXmpMetaGetQualifier(
@@ -381,6 +398,15 @@ extern "C" {
         qual_name: *const c_char,
         qual_value: *const c_char,
         qual_options: u32,
+    );
+
+    pub(crate) fn CXmpMetaDeleteQualifier(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        prop_ns: *const c_char,
+        prop_name: *const c_char,
+        qual_ns: *const c_char,
+        qual_name: *const c_char,
     );
 
     pub(crate) fn CXmpMetaDoesPropertyExist(

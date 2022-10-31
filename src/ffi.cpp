@@ -761,6 +761,24 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaDeleteArrayItem(CXmpMeta* m,
+                                 CXmpError* outError,
+                                 const char* schemaNS,
+                                 const char* arrayName,
+                                 AdobeXMPCommon::uint32 itemIndex) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.DeleteArrayItem(schemaNS, arrayName, itemIndex);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
 	bool CXmpMetaCountArrayItems(CXmpMeta* m,
                                  CXmpError* outError,
                                  const char* arrayNS,
@@ -834,6 +852,25 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaDeleteStructField(CXmpMeta* m,
+                                   CXmpError* outError,
+                                   const char* schemaNS,
+                                   const char* structName,
+                                   const char* fieldNS,
+                                   const char* fieldName) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.DeleteStructField(schemaNS, structName, fieldNS, fieldName);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     const char* CXmpMetaGetQualifier(CXmpMeta* m,
                                      CXmpError* outError,
                                      const char* schemaNS,
@@ -874,6 +911,25 @@ extern "C" {
             try {
                 m->m.SetQualifier(schemaNS, propName, qualNS, qualName,
                                   qualValue, qualOptions);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
+    void CXmpMetaDeleteQualifier(CXmpMeta* m,
+                                 CXmpError* outError,
+                                 const char* propNS,
+                                 const char* propName,
+                                 const char* qualNS,
+                                 const char* qualName) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.DeleteQualifier(propNS, propName, qualNS, qualName);
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
