@@ -916,6 +916,23 @@ extern "C" {
         return 0;
     }
 
+    int CXmpMetaDoesQualifierExist(CXmpMeta* m,
+                                   const char* schemaNS,
+                                   const char* propName,
+                                   const char* qualNS,
+                                   const char* qualName) {
+        #ifndef NOOP_FFI
+            try {
+                return (m->m.DoesQualifierExist(schemaNS, propName, qualNS, qualName)) ? 1 : 0;
+            }
+            catch (...) {
+                // Intentional no-op.
+            }
+        #endif
+
+        return 0;
+    }
+
     const char* CXmpMetaGetArrayItem(CXmpMeta* m,
                                      CXmpError* outError,
                                      const char* schemaNS,

@@ -522,6 +522,54 @@ mod contains_struct_field {
     }
 }
 
+mod contains_qualifier {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::QUAL_EXAMPLE, XmpMeta};
+
+    #[test]
+    fn exists() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(m.contains_qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual"));
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(!m.contains_qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qualx"));
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert!(!m.contains_qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual"));
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(!m.contains_qualifier("", "QualProp1", "ns:test2/", "Qual"));
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(!m.contains_qualifier("ns:test1/", "", "ns:test2/", "Qual"));
+    }
+
+    #[test]
+    fn empty_qual_namespace() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(!m.contains_qualifier("ns:test1/", "QualProp1", "", "Qual"));
+    }
+
+    #[test]
+    fn empty_field_name() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(!m.contains_qualifier("ns:test1/", "QualProp1", "ns:test2/", ""));
+    }
+}
+
 mod property {
     use crate::{tests::fixtures::*, xmp_ns, XmpMeta, XmpValue};
 
