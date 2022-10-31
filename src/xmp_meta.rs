@@ -1047,6 +1047,52 @@ impl XmpMeta {
         }
     }
 
+    /// Provides access to a qualifier attached to a property.
+    ///
+    /// ## Arguments
+    ///
+    /// * `prop_ns` and `prop_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `qual_ns` and `qual_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    ///
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `None` in such cases.
+    pub fn qualifier(
+        &self,
+        prop_ns: &str,
+        prop_path: &str,
+        qual_ns: &str,
+        qual_name: &str,
+    ) -> Option<XmpValue<String>> {
+        if let Some(m) = self.m {
+            let c_prop_ns = CString::new(prop_ns).unwrap_or_default();
+            let c_prop_name = CString::new(prop_path).unwrap_or_default();
+            let c_qual_ns = CString::new(qual_ns).unwrap_or_default();
+            let c_qual_name = CString::new(qual_name).unwrap_or_default();
+
+            let mut options: u32 = 0;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                CXmpString::from_ptr(ffi::CXmpMetaGetQualifier(
+                    m,
+                    &mut err,
+                    c_prop_ns.as_ptr(),
+                    c_prop_name.as_ptr(),
+                    c_qual_ns.as_ptr(),
+                    c_qual_name.as_ptr(),
+                    &mut options,
+                ))
+                .map(|value| XmpValue { value, options })
+            }
+        } else {
+            None
+        }
+    }
+
     /// Creates or sets a qualifier attached to a property.
     ///
     /// Use this to set a value for an existing qualifier, or create a new

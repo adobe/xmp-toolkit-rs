@@ -834,6 +834,34 @@ extern "C" {
         #endif
     }
 
+    const char* CXmpMetaGetQualifier(CXmpMeta* m,
+                                     CXmpError* outError,
+                                     const char* schemaNS,
+                                     const char* propName,
+                                     const char* qualNS,
+                                     const char* qualName,
+                                     AdobeXMPCommon::uint32* outOptions) {
+        *outOptions = 0;
+
+        #ifndef NOOP_FFI
+            try {
+                std::string qualValue;
+                if (m->m.GetQualifier(schemaNS, propName, qualNS, qualName,
+                                      &qualValue, outOptions)) {
+                    return copyStringForResult(qualValue);
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
     void CXmpMetaSetQualifier(CXmpMeta* m,
                               CXmpError* outError,
                               const char* schemaNS,
