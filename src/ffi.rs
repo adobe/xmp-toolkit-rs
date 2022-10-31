@@ -343,6 +343,14 @@ extern "C" {
         item_options: u32,
     );
 
+    pub(crate) fn CXmpMetaDeleteArrayItem(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        array_name: *const c_char,
+        item_index: i32,
+    );
+
     pub(crate) fn CXmpMetaCountArrayItems(
         meta: *const CXmpMeta,
         out_error: *mut CXmpError,
