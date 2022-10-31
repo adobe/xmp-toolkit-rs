@@ -362,6 +362,16 @@ extern "C" {
         item_options: u32,
     );
 
+    pub(crate) fn CXmpMetaGetQualifier(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        qual_ns: *const c_char,
+        qual_name: *const c_char,
+        out_qual_options: *mut u32,
+    ) -> *const c_char;
+
     pub(crate) fn CXmpMetaSetQualifier(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,

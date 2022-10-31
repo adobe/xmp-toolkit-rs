@@ -2243,6 +2243,69 @@ mod set_struct_field {
     }
 }
 
+mod qualifier {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::QUAL_EXAMPLE, xmp_value::xmp_prop, XmpMeta, XmpValue};
+
+    #[test]
+    fn exists() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual")
+                .unwrap(),
+            XmpValue {
+                value: "Qual value".to_owned(),
+                options: xmp_prop::IS_QUALIFIER
+            }
+        );
+    }
+
+    #[test]
+    fn doesnt_exist() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(m
+            .qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qualx")
+            .is_none());
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(
+            m.qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual"),
+            None
+        );
+    }
+
+    #[test]
+    fn empty_namespace() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(m.qualifier("", "QualProp1", "ns:test2/", "Qual").is_none());
+    }
+
+    #[test]
+    fn empty_prop_name() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(m.qualifier("ns:test1/", "", "ns:test2/", "Qual").is_none());
+    }
+
+    #[test]
+    fn empty_qual_namespace() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(m.qualifier("ns:test1/", "QualProp1", "", "Qual").is_none());
+    }
+
+    #[test]
+    fn empty_field_name() {
+        let m = XmpMeta::from_str(QUAL_EXAMPLE).unwrap();
+        assert!(m
+            .qualifier("ns:test1/", "QualProp1", "ns:test2/", "")
+            .is_none());
+    }
+}
+
 mod set_qualifier {
     use crate::{xmp_ns, XmpErrorType, XmpMeta, XmpValue};
 

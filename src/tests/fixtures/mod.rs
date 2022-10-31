@@ -138,3 +138,35 @@ pub(crate) const ARRAY_EXAMPLE: &str = r#"
         </rdf:RDF>
         </x:xmpmeta>
         "#;
+
+pub(crate) const QUAL_EXAMPLE: &str = r#"
+        <rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+            <rdf:Description rdf:about='Test:XMPCoreCoverage/kRDFCoverage' xmlns:ns1='ns:test1/' xmlns:ns2='ns:test2/'>
+
+                <ns1:SimpleProp1>Simple1 value</ns1:SimpleProp1>
+                <ns1:SimpleProp2 xml:lang='x-default'>Simple2 value</ns1:SimpleProp2>
+
+                <ns1:QualProp1 rdf:parseType='Resource'>
+                    <rdf:value>Prop value</rdf:value>
+                    <ns2:Qual>Qual value</ns2:Qual>
+                </ns1:QualProp1>
+
+                <ns1:QualProp2 rdf:parseType='Resource'>
+                    <rdf:value xml:lang='x-default'>Prop value</rdf:value>
+                    <ns2:Qual>Qual value</ns2:Qual>
+                </ns1:QualProp2>
+
+                <ns1:QualProp4 xml:lang='x-default' rdf:parseType='Resource'>
+                    <ns2:Field1>Field1 value</ns2:Field1>
+                    <ns2:Field2>Field2 value</ns2:Field2>
+                </ns1:QualProp4>
+
+                <ns1:QualProp5 xml:lang='x-default'>
+                    <rdf:Bag>
+                        <rdf:li>Item1.1 value</rdf:li>
+                        <rdf:li>Item1.2 value</rdf:li>
+                    </rdf:Bag>
+                </ns1:QualProp5>
+            </rdf:Description>
+        </rdf:RDF>
+        "#;
