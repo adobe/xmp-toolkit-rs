@@ -898,34 +898,41 @@ fn xmp_core_coverage() {
         assert!(!meta.contains_qualifier(NS1, "Prop", NS2, "Bogus"));
 
         meta.delete_property(NS1, "Prop").unwrap();
-        // 	meta.DeleteArrayItem ( NS1, "Bag", 2 );
-        // 	meta.DeleteStructField ( NS1, "Struct", NS2, "Field1" );
+        meta.delete_array_item(NS1, "Bag", 2).unwrap();
+        meta.delete_struct_field(NS1, "Struct", NS2, "Field1")
+            .unwrap();
 
-        // 	DumpXMPObj ( log, meta, "Delete Prop, Bag[2], and Struct1/Field1" );
+        println!("Delete Prop, Bag[2], and Struct1/Field1 = {:#?}", meta);
 
-        // 	meta.DeleteQualifier ( NS1, "QualProp1", NS2, "Qual1" );
-        // 	meta.DeleteQualifier ( NS1, "QualProp2", xmp_ns::XML, "lang" );
-        // 	meta.DeleteQualifier ( NS1, "QualProp3", NS2, "Qual" );
-        // 	meta.DeleteQualifier ( NS1, "QualProp4", xmp_ns::XML, "lang" );
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Bag> <rdf:Bag> <rdf:li>BagItem 1</rdf:li> <rdf:li>BagItem 3</rdf:li> <rdf:li>BagItem 4</rdf:li> </rdf:Bag> </ns1:Bag> <ns1:Seq> <rdf:Seq> <rdf:li>SeqItem value</rdf:li> </rdf:Seq> </ns1:Seq> <ns1:Alt> <rdf:Alt> <rdf:li>AltItem value</rdf:li> </rdf:Alt> </ns1:Alt> <ns1:Struct rdf:parseType=\"Resource\"> <ns2:Field2>Field2 value</ns2:Field2> <ns2:Field3>Field3 value</ns2:Field3> </ns1:Struct> <ns1:QualProp1 rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual1>Qual1 value</ns2:Qual1> </ns1:QualProp1> <ns1:QualProp2 xml:lang=\"en-US\">Prop value</ns1:QualProp2> <ns1:QualProp3 xml:lang=\"en-US\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp3> <ns1:QualProp4 xml:lang=\"en-US\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp4> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
-        // 	DumpXMPObj ( log, meta, "Delete QualProp1/?ns2:Qual1,
-        // QualProp2/?xml:lang, QualProp3:/ns2:Qual, and
-        // QualProp4/?xml:lang" );
+        meta.delete_qualifier(NS1, "QualProp1", NS2, "Qual1")
+            .unwrap();
+        meta.delete_qualifier(NS1, "QualProp2", xmp_ns::XML, "lang")
+            .unwrap();
+        meta.delete_qualifier(NS1, "QualProp3", NS2, "Qual")
+            .unwrap();
+        meta.delete_qualifier(NS1, "QualProp4", xmp_ns::XML, "lang")
+            .unwrap();
 
-        // 	meta.delete_property ( NS1, "Bag" );
-        // 	meta.delete_property ( NS1, "Struct" );
+        println!("Delete QualProp1/?ns2:Qual1, QualProp2/?xml:lang, QualProp3:/ns2:Qual, and QualProp4/?xml:lang = {:#?}", meta);
 
-        // 	DumpXMPObj ( log, meta, "Delete all of Bag and Struct" );
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Bag> <rdf:Bag> <rdf:li>BagItem 1</rdf:li> <rdf:li>BagItem 3</rdf:li> <rdf:li>BagItem 4</rdf:li> </rdf:Bag> </ns1:Bag> <ns1:Seq> <rdf:Seq> <rdf:li>SeqItem value</rdf:li> </rdf:Seq> </ns1:Seq> <ns1:Alt> <rdf:Alt> <rdf:li>AltItem value</rdf:li> </rdf:Alt> </ns1:Alt> <ns1:Struct rdf:parseType=\"Resource\"> <ns2:Field2>Field2 value</ns2:Field2> <ns2:Field3>Field3 value</ns2:Field3> </ns1:Struct> <ns1:QualProp1>Prop value</ns1:QualProp1> <ns1:QualProp2>Prop value</ns1:QualProp2> <ns1:QualProp3 xml:lang=\"en-US\">Prop value</ns1:QualProp3> <ns1:QualProp4 rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp4> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+
+        meta.delete_property(NS1, "Bag").unwrap();
+        meta.delete_property(NS1, "Struct").unwrap();
+
+        println!("Delete all of Bag and Struct = {:#?}", meta);
+
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:XMLProp>&lt;PropValue/&gt;</ns1:XMLProp> <ns1:URIProp rdf:resource=\"URI:value/\"/> <ns1:Seq> <rdf:Seq> <rdf:li>SeqItem value</rdf:li> </rdf:Seq> </ns1:Seq> <ns1:Alt> <rdf:Alt> <rdf:li>AltItem value</rdf:li> </rdf:Alt> </ns1:Alt> <ns1:QualProp1>Prop value</ns1:QualProp1> <ns1:QualProp2>Prop value</ns1:QualProp2> <ns1:QualProp3 xml:lang=\"en-US\">Prop value</ns1:QualProp3> <ns1:QualProp4 rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp4> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
     }
 
-    // // --------------------------------------------------------------------------------------------
-    // // Localized text set/get methods
-    // // ------------------------------
+    //-------------------------------------------------------------------------
 
-    // {
-    // 	SXMPMeta meta;
-
-    // 	write_major_label("Test SetLocalizedText and GetLocalizedText" );
+    {
+    	// write_major_label("Test SetLocalizedText and GetLocalizedText" );
+  
+      // let mut meta = XmpMeta::default();
 
     // 	tmpStr1 = "default value";
     // 	meta.SetLocalizedText ( NS1, "AltText", "", "x-default", tmpStr1 );
@@ -1018,7 +1025,7 @@ fn xmp_core_coverage() {
 
     // 	DumpXMPObj ( log, meta, "Get and re-set the dates" );
 
-    // }
+    }
 
     // // --------------------------------------------------------------------------------------------
     // // Parse and serialize methods
