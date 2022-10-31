@@ -1665,6 +1665,19 @@ mod array_item {
     }
 
     #[test]
+    fn last_item() {
+        let m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.array_item(xmp_ns::DC, "subject", XmpMeta::LAST_ITEM),
+            Some(XmpValue {
+                value: "test".to_owned(),
+                options: 0
+            })
+        );
+    }
+
+    #[test]
     fn item_options() {
         let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
 
