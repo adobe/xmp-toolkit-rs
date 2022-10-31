@@ -754,44 +754,54 @@ fn xmp_core_coverage() {
         );
 
         assert_eq!(
-            meta.array_item ( NS1, "Bag", 2),
-            Some(XmpValue { value: "BagItem 1".to_owned(), options: 0 }));
+            meta.array_item(NS1, "Bag", 2),
+            Some(XmpValue {
+                value: "BagItem 2".to_owned(),
+                options: 0
+            })
+        );
+
+        assert_eq!(meta.array_item("", "ns1:Bag", 1), None);
 
         assert_eq!(
-          meta.array_item ( "", "ns1:Bag", 1), None);
+            meta.array_item(NS1, "ns1:Seq", 1),
+            Some(XmpValue {
+                value: "SeqItem value".to_owned(),
+                options: 0
+            })
+        );
 
-        assert_eq!(meta.array_item ( NS1, "ns1:Seq", 1 ), Some(XmpValue{value: "SeqItem value".to_owned(), options: 0}));
+        assert_eq!(
+            meta.array_item(NS1, "ns1:Alt", XmpMeta::LAST_ITEM),
+            Some(XmpValue {
+                value: "AltItem value".to_owned(),
+                options: 0
+            })
+        );
 
-        // 	tmpStr1.erase();
-        // 	ok = meta.array_item ( NS1, "ns1:Alt", kXMP_ArrayLastItem,
-        // &tmpStr1, &options ); 	fprintf ( log, "array_item ns1:Alt[1]
-        // : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(),
-        // options );
+        assert_eq!(
+            meta.struct_field(NS1, "Struct", NS2, "Field1"),
+            Some(XmpValue {
+                value: "Field1 value".to_owned(),
+                options: 0
+            })
+        );
 
-        // 	fprintf ( log, "\n" );
+        assert_eq!(
+            meta.struct_field(NS1, "ns1:Struct", NS2, "ns2:Field2"),
+            Some(XmpValue {
+                value: "Field2 value".to_owned(),
+                options: 0
+            })
+        );
 
-        // int				i;
-        // bool			ok;
-        // std::string 	tmpStr1, tmpStr2, tmpStr3, tmpStr4;
-        // XMP_OptionBits	options;
-
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetStructField ( NS1, "Struct", NS2, "Field1", &tmpStr1,
-        // &options ); 	fprintf ( log, "GetStructField
-        // ns1:Struct/ns2:Field1 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok
-        // ), tmpStr1.c_str(), options );
-
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetStructField ( NS1, "ns1:Struct", NS2, "ns2:Field2",
-        // &tmpStr1, &options ); 	fprintf ( log, "GetStructField
-        // ns1:Struct/ns2:Field2 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok
-        // ), tmpStr1.c_str(), options );
-
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetStructField ( NS1, "ns1:Struct", NS2, "ns2:Field3",
-        // &tmpStr1, &options ); 	fprintf ( log, "GetStructField
-        // ns1:Struct/ns2:Field3 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok
-        // ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.struct_field(NS1, "ns1:Struct", NS2, "ns2:Field3"),
+            Some(XmpValue {
+                value: "Field3 value".to_owned(),
+                options: 0
+            })
+        );
 
         // 	tmpStr1.erase();
         // 	ok = meta.GetQualifier ( NS1, "QualProp1", NS2, "Qual1", &tmpStr1,
@@ -868,8 +878,8 @@ fn xmp_core_coverage() {
         // );
 
         // 	tmpStr1 = "junk";
-        // 	ok = meta.GetStructField ( NS1, "Struct", NS2, "Bogus", &tmpStr1,
-        // &options ); 	fprintf ( log, "GetStructField
+        // 	ok = meta.struct_field ( NS1, "Struct", NS2, "Bogus", &tmpStr1,
+        // &options ); 	fprintf ( log, "struct_field
         // ns1:Struct/ns2:Bogus : %s\n", FoundOrNot ( ok ) );
 
         // 	tmpStr1 = "junk";
