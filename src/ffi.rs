@@ -400,6 +400,15 @@ extern "C" {
         qual_options: u32,
     );
 
+    pub(crate) fn CXmpMetaDeleteQualifier(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        prop_ns: *const c_char,
+        prop_name: *const c_char,
+        qual_ns: *const c_char,
+        qual_name: *const c_char,
+    );
+
     pub(crate) fn CXmpMetaDoesPropertyExist(
         meta: *const CXmpMeta,
         schema_ns: *const c_char,

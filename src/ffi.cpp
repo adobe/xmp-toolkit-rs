@@ -921,6 +921,25 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaDeleteQualifier(CXmpMeta* m,
+                                 CXmpError* outError,
+                                 const char* propNS,
+                                 const char* propName,
+                                 const char* qualNS,
+                                 const char* qualName) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.DeleteQualifier(propNS, propName, qualNS, qualName);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     int CXmpMetaDoesPropertyExist(CXmpMeta* m,
                                   const char* schemaNS,
                                   const char* propName) {

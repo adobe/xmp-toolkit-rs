@@ -2631,6 +2631,81 @@ mod set_qualifier {
     }
 }
 
+mod delete_qualifier {
+    use std::str::FromStr;
+
+    use crate::{
+        tests::fixtures, xmp_ns, xmp_value::xmp_prop, XmpError, XmpErrorType, XmpMeta, XmpValue,
+    };
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_str(fixtures::QUAL_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual")
+                .unwrap(),
+            XmpValue {
+                value: "Qual value".to_owned(),
+                options: xmp_prop::IS_QUALIFIER
+            }
+        );
+
+        m.delete_qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual")
+            .unwrap();
+
+        assert_eq!(
+            m.qualifier("ns:test1/", "QualProp1", "ns:test2/", "Qual"),
+            None
+        );
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        assert_eq!(
+            m.delete_qualifier(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode",
+            ),
+            Err(XmpError {
+                error_type: XmpErrorType::NoCppToolkit,
+                debug_message: "C++ XMP Toolkit not available".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_empty_struct_name() {
+        let mut m = XmpMeta::from_str(fixtures::QUAL_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.delete_qualifier(xmp_ns::IPTC_CORE, "", xmp_ns::IPTC_CORE, "CiAdrPcode"),
+            Err(XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Empty property name".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::from_str(fixtures::QUAL_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.delete_qualifier(xmp_ns::IPTC_CORE, "x\0x", xmp_ns::IPTC_CORE, "CiAdrPcode"),
+            Err(XmpError {
+                error_type: XmpErrorType::NulInRustString,
+                debug_message: "Unable to convert to C string because a NUL byte was found"
+                    .to_owned()
+            })
+        );
+    }
+}
+
 mod localized_text {
     use std::str::FromStr;
 
