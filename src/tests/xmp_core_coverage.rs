@@ -871,42 +871,19 @@ fn xmp_core_coverage() {
 
         //-------------------------------------------------------------------------
 
-        // 	write_major_label("Test DoesPropertyExist, delete_property, and
-        // related methods" );
+        write_major_label("Test contains_property, delete_property, and related methods");
 
-        // 	DumpXMPObj ( log, meta, "XMP object" );
-        // 	fprintf ( log, "\n" );
+        println!("XMP object = {:#?}", meta);
 
-        // 	ok = meta.DoesPropertyExist ( NS1, "Prop" );
-        // 	fprintf ( log, "DoesPropertyExist ns1:Prop : %s\n", YesOrNo ( ok ) );
+        assert!(meta.contains_property(NS1, "Prop"));
+        assert!(!meta.contains_property("", "ns1:Bag"));
+        assert!(meta.contains_property(NS1, "ns1:Struct"));
 
-        // 	try {
-        // 		ok = meta.DoesPropertyExist ( 0, "ns1:Bag" );
-        // 		fprintf ( log, "#ERROR: No exception for DoesPropertyExist with no
-        // schema URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error &
-        // excep ) { 		fprintf ( log, "DoesPropertyExist with no schema
-        // URI - threw XMP_Error #%d : %s\n", excep.GetID(),
-        // excep.GetErrMsg() ); 	} catch ( ... ) { 		fprintf ( log,
-        // "DoesPropertyExist with no schema URI - threw unknown
-        // exception\n" ); 	}
+        // Not ported to Rust (use `array_len` instead):
+        //    ok = meta.DoesArrayItemExist(NS1, "Bag", 2);
+        // 	  ok = meta.DoesArrayItemExist (NS1, "ns1:Seq", kXMP_ArrayLastItem);
 
-        // 	ok = meta.DoesPropertyExist ( NS1, "ns1:Struct" );
-        // 	fprintf ( log, "DoesPropertyExist ns1:Struct : %s\n", YesOrNo ( ok )
-        // );
-
-        // 	fprintf ( log, "\n" );
-
-        // 	ok = meta.DoesArrayItemExist ( NS1, "Bag", 2 );
-        // 	fprintf ( log, "DoesArrayItemExist ns1:Bag[2] : %s\n", YesOrNo ( ok )
-        // );
-
-        // 	ok = meta.DoesArrayItemExist ( NS1, "ns1:Seq", kXMP_ArrayLastItem );
-        // 	fprintf ( log, "DoesArrayItemExist ns1:Seq[last] : %s\n", YesOrNo (
-        // ok ) );
-
-        // 	ok = meta.DoesStructFieldExist ( NS1, "Struct", NS2, "Field1" );
-        // 	fprintf ( log, "DoesStructFieldExist ns1:Struct/ns2:Field1 : %s\n",
-        // YesOrNo ( ok ) );
+        assert!(meta.contains_struct_field(NS1, "Struct", NS2, "Field1"));
 
         // 	ok = meta.DoesQualifierExist ( NS1, "QualProp1", NS2, "Qual1" );
         // 	fprintf ( log, "DoesQualifierExist ns1:QualProp1/?ns2:Qual1 : %s\n",
@@ -919,17 +896,17 @@ fn xmp_core_coverage() {
         // 	fprintf ( log, "\n" );
 
         // 	try {
-        // 		ok = meta.DoesPropertyExist ( "ns:bogus/", "Bogus" );
-        // 		fprintf ( log, "#ERROR: No exception for DoesPropertyExist with bogus
+        // 		ok = meta.contains_property ( "ns:bogus/", "Bogus" );
+        // 		fprintf ( log, "#ERROR: No exception for contains_property with bogus
         // schema URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error &
-        // excep ) { 		fprintf ( log, "DoesPropertyExist with bogus schema
+        // excep ) { 		fprintf ( log, "contains_property with bogus schema
         // URI - threw XMP_Error #%d : %s\n", excep.GetID(),
         // excep.GetErrMsg() ); 	} catch ( ... ) { 		fprintf ( log,
-        // "DoesPropertyExist with bogus schema URI - threw unknown
+        // "contains_property with bogus schema URI - threw unknown
         // exception\n" ); 	}
 
-        // 	ok = meta.DoesPropertyExist ( NS1, "Bogus" );
-        // 	fprintf ( log, "DoesPropertyExist ns1:Bogus : %s\n", YesOrNo ( ok )
+        // 	ok = meta.contains_property ( NS1, "Bogus" );
+        // 	fprintf ( log, "contains_property ns1:Bogus : %s\n", YesOrNo ( ok )
         // );
 
         // 	ok = meta.DoesArrayItemExist ( NS1, "Bag", 99 );
@@ -946,8 +923,8 @@ fn xmp_core_coverage() {
         // "DoesArrayItemExist with no schema URI - threw unknown
         // exception\n" ); 	}
 
-        // 	ok = meta.DoesStructFieldExist ( NS1, "Struct", NS2, "Bogus" );
-        // 	fprintf ( log, "DoesStructFieldExist ns1:Struct/ns2:Bogus : %s\n",
+        // 	ok = meta.contains_struct_field ( NS1, "Struct", NS2, "Bogus" );
+        // 	fprintf ( log, "contains_struct_field ns1:Struct/ns2:Bogus : %s\n",
         // YesOrNo ( ok ) );
 
         // 	ok = meta.DoesQualifierExist ( NS1, "Prop", NS2, "Bogus" );
