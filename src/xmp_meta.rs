@@ -1092,7 +1092,7 @@ impl XmpMeta {
     /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
     ///   properties](#accessing-properties) again.)
     /// * `item_value`: Contains value and flags for the item to be added to the
-    ///   array.
+    ///   struct.
     pub fn set_struct_field(
         &mut self,
         namespace: &str,
@@ -1119,6 +1119,49 @@ impl XmpMeta {
                     c_field_name.as_ptr(),
                     c_item_value.as_ptr(),
                     item_value.options,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
+
+    /// Deletes an XMP subtree rooted at a given struct field.
+    ///
+    /// It is not an error if the field does not exist.
+    ///
+    /// Use [`XmpMeta::compose_struct_field_path()`] to create a complex path.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `struct_name`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    pub fn delete_struct_field(
+        &mut self,
+        namespace: &str,
+        struct_name: &str,
+        field_ns: &str,
+        field_name: &str,
+    ) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let c_struct_ns = CString::new(namespace)?;
+            let c_struct_name = CString::new(struct_name.as_bytes())?;
+            let c_field_ns = CString::new(field_ns)?;
+            let c_field_name = CString::new(field_name.as_bytes())?;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaDeleteStructField(
+                    m,
+                    &mut err,
+                    c_struct_ns.as_ptr(),
+                    c_struct_name.as_ptr(),
+                    c_field_ns.as_ptr(),
+                    c_field_name.as_ptr(),
                 );
             }
 
