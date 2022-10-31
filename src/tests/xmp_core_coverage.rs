@@ -885,53 +885,19 @@ fn xmp_core_coverage() {
 
         assert!(meta.contains_struct_field(NS1, "Struct", NS2, "Field1"));
 
-        // 	ok = meta.DoesQualifierExist ( NS1, "QualProp1", NS2, "Qual1" );
-        // 	fprintf ( log, "DoesQualifierExist ns1:QualProp1/?ns2:Qual1 : %s\n",
-        // YesOrNo ( ok ) );
+        assert!(meta.contains_qualifier(NS1, "QualProp1", NS2, "Qual1"));
+        assert!(meta.contains_qualifier(NS1, "QualProp2", xmp_ns::XML, "lang"));
+        assert!(!meta.contains_property("ns:bogus/", "Bogus"));
+        assert!(!meta.contains_property(NS1, "Bogus"));
 
-        // 	ok = meta.DoesQualifierExist ( NS1, "QualProp2", xmp_ns::XML, "lang"
-        // ); 	fprintf ( log, "DoesQualifierExist ns1:QualProp2/?xml:lang
-        // : %s\n", YesOrNo ( ok ) );
-
-        // 	fprintf ( log, "\n" );
-
-        // 	try {
-        // 		ok = meta.contains_property ( "ns:bogus/", "Bogus" );
-        // 		fprintf ( log, "#ERROR: No exception for contains_property with bogus
-        // schema URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error &
-        // excep ) { 		fprintf ( log, "contains_property with bogus schema
-        // URI - threw XMP_Error #%d : %s\n", excep.GetID(),
-        // excep.GetErrMsg() ); 	} catch ( ... ) { 		fprintf ( log,
-        // "contains_property with bogus schema URI - threw unknown
-        // exception\n" ); 	}
-
-        // 	ok = meta.contains_property ( NS1, "Bogus" );
-        // 	fprintf ( log, "contains_property ns1:Bogus : %s\n", YesOrNo ( ok )
-        // );
-
-        // 	ok = meta.DoesArrayItemExist ( NS1, "Bag", 99 );
-        // 	fprintf ( log, "DoesArrayItemExist ns1:Bag[99] : %s\n", YesOrNo ( ok
-        // ) );
-
-        // 	try {
+        // Not ported to Rust (use `array_len` instead):
+        // 	  ok = meta.DoesArrayItemExist ( NS1, "Bag", 99 );
         // 		ok = meta.DoesArrayItemExist ( 0, "ns1:Bag", kXMP_ArrayLastItem );
-        // 		fprintf ( log, "#ERROR: No exception for DoesArrayItemExist with no
-        // schema URI: %s\n", YesOrNo ( ok ) ); 	} catch ( XMP_Error &
-        // excep ) { 		fprintf ( log, "DoesArrayItemExist with no schema
-        // URI - threw XMP_Error #%d : %s\n", excep.GetID(),
-        // excep.GetErrMsg() ); 	} catch ( ... ) { 		fprintf ( log,
-        // "DoesArrayItemExist with no schema URI - threw unknown
-        // exception\n" ); 	}
 
-        // 	ok = meta.contains_struct_field ( NS1, "Struct", NS2, "Bogus" );
-        // 	fprintf ( log, "contains_struct_field ns1:Struct/ns2:Bogus : %s\n",
-        // YesOrNo ( ok ) );
+        assert!(!meta.contains_struct_field(NS1, "Struct", NS2, "Bogus"));
+        assert!(!meta.contains_qualifier(NS1, "Prop", NS2, "Bogus"));
 
-        // 	ok = meta.DoesQualifierExist ( NS1, "Prop", NS2, "Bogus" );
-        // 	fprintf ( log, "DoesQualifierExist ns1:Prop/?ns2:Bogus : %s\n",
-        // YesOrNo ( ok ) );
-
-        // 	meta.delete_property ( NS1, "Prop" );
+        meta.delete_property(NS1, "Prop").unwrap();
         // 	meta.DeleteArrayItem ( NS1, "Bag", 2 );
         // 	meta.DeleteStructField ( NS1, "Struct", NS2, "Field1" );
 
