@@ -250,6 +250,46 @@ impl XmpMeta {
         }
     }
 
+    /// Returns `true` if the metadata block contains the named qualifier.
+    ///
+    /// ## Arguments
+    ///
+    /// * `prop_ns` and `prop_path`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `qual` and `qual_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    ///
+    /// ## Error handling
+    ///
+    /// Any errors (for instance, empty or invalid namespace or property name)
+    /// are ignored; the function will return `false` in such cases.
+    pub fn contains_qualifier(
+        &self,
+        prop_ns: &str,
+        prop_path: &str,
+        qual_ns: &str,
+        qual_name: &str,
+    ) -> bool {
+        if let Some(m) = self.m {
+            let c_prop_ns = CString::new(prop_ns).unwrap_or_default();
+            let c_prop_name = CString::new(prop_path).unwrap_or_default();
+            let c_qual_ns = CString::new(qual_ns).unwrap_or_default();
+            let c_qual_name = CString::new(qual_name).unwrap_or_default();
+
+            unsafe {
+                ffi::CXmpMetaDoesQualifierExist(
+                    m,
+                    c_prop_ns.as_ptr(),
+                    c_prop_name.as_ptr(),
+                    c_qual_ns.as_ptr(),
+                    c_qual_name.as_ptr(),
+                ) != 0
+            }
+        } else {
+            false
+        }
+    }
+
     /// Gets a simple string property value.
     ///
     /// ## Arguments

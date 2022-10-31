@@ -397,6 +397,14 @@ extern "C" {
         field_name: *const c_char,
     ) -> c_int;
 
+    pub(crate) fn CXmpMetaDoesQualifierExist(
+        meta: *const CXmpMeta,
+        prop_ns: *const c_char,
+        prop_name: *const c_char,
+        qual_ns: *const c_char,
+        qual_name: *const c_char,
+    ) -> c_int;
+
     pub(crate) fn CXmpMetaGetArrayItem(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,
