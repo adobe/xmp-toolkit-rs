@@ -820,14 +820,14 @@ impl XmpMeta {
     ///
     /// * `namespace` and `array_name`: See [Accessing
     ///   properties](#accessing-properties).
-    /// * `item_index`: Index into the array.
-    ///  **IMPORTANT:** Indices in XMP are 1-based, unlike Rust where
-    /// indices are typically 0-based.
+    /// * `item_index`: Index into the array. **IMPORTANT:** Indices in XMP are
+    ///   1-based, unlike Rust where indices are typically 0-based.  Use
+    ///   [`XmpMeta::LAST_ITEM`] to specify the last existing array item.
     pub fn array_item(
         &self,
         namespace: &str,
         array_name: &str,
-        item_index: u32,
+        item_index: i32,
     ) -> Option<XmpValue<String>> {
         if let Some(m) = self.m {
             let c_ns = CString::new(namespace).unwrap_or_default();
@@ -1506,7 +1506,7 @@ pub struct ArrayProperty<'a> {
     meta: &'a XmpMeta,
     ns: CString,
     name: CString,
-    index: u32,
+    index: i32,
 }
 
 impl<'a> Iterator for ArrayProperty<'a> {

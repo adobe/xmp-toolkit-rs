@@ -392,7 +392,7 @@ extern "C" {
         out_error: *mut CXmpError,
         schema_ns: *const c_char,
         prop_name: *const c_char,
-        index: u32,
+        index: i32,
         out_options: *mut u32,
     ) -> *const c_char;
 
