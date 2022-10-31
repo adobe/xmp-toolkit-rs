@@ -852,6 +852,25 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaDeleteStructField(CXmpMeta* m,
+                                   CXmpError* outError,
+                                   const char* schemaNS,
+                                   const char* structName,
+                                   const char* fieldNS,
+                                   const char* fieldName) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.DeleteStructField(schemaNS, structName, fieldNS, fieldName);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     const char* CXmpMetaGetQualifier(CXmpMeta* m,
                                      CXmpError* outError,
                                      const char* schemaNS,

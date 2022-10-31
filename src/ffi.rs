@@ -370,6 +370,15 @@ extern "C" {
         item_options: u32,
     );
 
+    pub(crate) fn CXmpMetaDeleteStructField(
+        meta: *mut CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
+    );
+
     pub(crate) fn CXmpMetaGetQualifier(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,

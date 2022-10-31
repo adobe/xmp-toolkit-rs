@@ -2389,6 +2389,91 @@ mod set_struct_field {
     }
 }
 
+mod delete_struct_field {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures, xmp_ns, XmpErrorType, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_str(fixtures::STRUCT_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            )
+            .unwrap(),
+            XmpValue {
+                value: "98110".to_owned(),
+                options: 0
+            }
+        );
+
+        m.delete_struct_field(
+            xmp_ns::IPTC_CORE,
+            "CreatorContactInfo",
+            xmp_ns::IPTC_CORE,
+            "CiAdrPcode",
+        )
+        .unwrap();
+
+        assert!(m
+            .struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode"
+            )
+            .is_none());
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        let err = m
+            .delete_struct_field(
+                xmp_ns::IPTC_CORE,
+                "CreatorContactInfo",
+                xmp_ns::IPTC_CORE,
+                "CiAdrPcode",
+            )
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
+    fn error_empty_struct_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .delete_struct_field(xmp_ns::IPTC_CORE, "", xmp_ns::IPTC_CORE, "CiAdrPcode")
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::BadXPath);
+        assert_eq!(err.debug_message, "Empty struct name");
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::default();
+
+        let err = m
+            .delete_struct_field(xmp_ns::IPTC_CORE, "x\0x", xmp_ns::IPTC_CORE, "CiAdrPcode")
+            .unwrap_err();
+
+        assert_eq!(err.error_type, XmpErrorType::NulInRustString);
+        assert_eq!(
+            err.debug_message,
+            "Unable to convert to C string because a NUL byte was found"
+        );
+    }
+}
+
 mod qualifier {
     use std::str::FromStr;
 
