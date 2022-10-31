@@ -814,29 +814,15 @@ impl XmpMeta {
 
     /// Provides access to items within an array.
     ///
-    /// Items are accessed by an integer index, where the first item has index 1.
-
-Parameters
-
-    /// Creates or sets the value of an item within an array.
-    ///
-    /// Items are accessed by an integer index, where the first item has index
-    /// 1. This function creates the item if necessary, but the array itself
-    /// must already exist. Use [`XmpMeta::append_array_item()`] to create
-    /// arrays. A new item is automatically appended if the index is the array
-    /// size plus 1.
-    ///
     /// Use `XmpMeta::compose_array_item_path()` to create a complex path.
     ///
     /// ## Arguments
     ///
     /// * `namespace` and `array_name`: See [Accessing
-    ///   properties](#accessing-properties). NOTE: `array_name` is an
-    ///   `XmpValue<String>` which contains any necessary flags for the array.
-    /// * `item_placement`: Describes where to place the new item. See
-    ///   [`ItemPlacement`].
-    /// * `item_value`: Contains value and flags for the item to be added to the
-    ///   array.
+    ///   properties](#accessing-properties).
+    /// * `item_index`: Index into the array.
+    ///  **IMPORTANT:** Indices in XMP are 1-based, unlike Rust where
+    /// indices are typically 0-based.
     pub fn array_item(
         &self,
         namespace: &str,
@@ -1701,6 +1687,9 @@ impl ToStringOptions {
 
 /// Describes how a new item should be placed relative to existing
 /// items in an array.
+///
+/// **IMPORTANT:** Indices in XMP are 1-based, unlike Rust where
+/// indices are typically 0-based.
 ///
 /// Use with [`XmpMeta::set_array_item`].
 pub enum ItemPlacement {
