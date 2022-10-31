@@ -1268,6 +1268,47 @@ impl XmpMeta {
         }
     }
 
+    /// Deletes an XMP subtree rooted at a given qualifier.
+    ///
+    /// It is not an error if the qualifier does not exist.
+    ///
+    /// ## Arguments
+    ///
+    /// * `prop_ns` and `prop_name`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `qual_ns` and `qual_name` take the same form (i.e. see [Accessing
+    ///   properties](#accessing-properties) again.)
+    pub fn delete_qualifier(
+        &mut self,
+        prop_ns: &str,
+        prop_name: &str,
+        qual_ns: &str,
+        qual_name: &str,
+    ) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let c_prop_ns = CString::new(prop_ns)?;
+            let c_prop_name = CString::new(prop_name.as_bytes())?;
+            let c_qual_ns = CString::new(qual_ns)?;
+            let c_qual_name = CString::new(qual_name.as_bytes())?;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaDeleteQualifier(
+                    m,
+                    &mut err,
+                    c_prop_ns.as_ptr(),
+                    c_prop_name.as_ptr(),
+                    c_qual_ns.as_ptr(),
+                    c_qual_name.as_ptr(),
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
+
     /// Retrieves information about a selected item from an alt-text array.
     ///
     /// Localized text properties are stored in alt-text arrays. They allow
