@@ -753,30 +753,18 @@ fn xmp_core_coverage() {
             })
         );
 
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetArrayItem ( NS1, "Bag", 2, &tmpStr1, &options );
-        // 	fprintf ( log, "GetArrayItem ns1:Bag[2] : %s, \"%s\", 0x%X\n",
-        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.array_item ( NS1, "Bag", 2),
+            Some(XmpValue { value: "BagItem 1".to_owned(), options: 0 }));
 
-        // 	try {
-        // 		tmpStr1.erase();
-        // 		ok = meta.GetArrayItem ( 0, "ns1:Bag", 1, &tmpStr1, &options );
-        // 		fprintf ( log, "#ERROR: No exception for GetArrayItem with no schema
-        // URI : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ),
-        // tmpStr1.c_str(), options ); 	} catch ( XMP_Error & excep ) {
-        // 		fprintf ( log, "GetArrayItem with no schema URI - threw XMP_Error #%d
-        // : %s\n", excep.GetID(), excep.GetErrMsg() ); 	} catch ( ... )
-        // { 		fprintf ( log, "GetArrayItem with no schema URI - threw
-        // unknown exception\n" ); 	}
+        assert_eq!(
+          meta.array_item ( "", "ns1:Bag", 1), None);
+
+        assert_eq!(meta.array_item ( NS1, "ns1:Seq", 1 ), Some(XmpValue{value: "SeqItem value".to_owned(), options: 0}));
 
         // 	tmpStr1.erase();
-        // 	ok = meta.GetArrayItem ( NS1, "ns1:Seq", 1, &tmpStr1, &options );
-        // 	fprintf ( log, "GetArrayItem ns1:Seq[1] : %s, \"%s\", 0x%X\n",
-        // FoundOrNot ( ok ), tmpStr1.c_str(), options );
-
-        // 	tmpStr1.erase();
-        // 	ok = meta.GetArrayItem ( NS1, "ns1:Alt", kXMP_ArrayLastItem,
-        // &tmpStr1, &options ); 	fprintf ( log, "GetArrayItem ns1:Alt[1]
+        // 	ok = meta.array_item ( NS1, "ns1:Alt", kXMP_ArrayLastItem,
+        // &tmpStr1, &options ); 	fprintf ( log, "array_item ns1:Alt[1]
         // : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(),
         // options );
 
@@ -875,8 +863,8 @@ fn xmp_core_coverage() {
         // 	fprintf ( log, "property ns1:Bogus : %s\n", FoundOrNot ( ok ) );
 
         // 	tmpStr1 = "junk";
-        // 	ok = meta.GetArrayItem ( NS1, "Bag", 99, &tmpStr1, &options );
-        // 	fprintf ( log, "GetArrayItem ns1:Bag[99] : %s\n", FoundOrNot ( ok )
+        // 	ok = meta.array_item ( NS1, "Bag", 99, &tmpStr1, &options );
+        // 	fprintf ( log, "array_item ns1:Bag[99] : %s\n", FoundOrNot ( ok )
         // );
 
         // 	tmpStr1 = "junk";
