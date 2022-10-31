@@ -812,6 +812,60 @@ impl XmpMeta {
         }
     }
 
+    /// Provides access to items within an array.
+    ///
+    /// Items are accessed by an integer index, where the first item has index 1.
+
+Parameters
+
+    /// Creates or sets the value of an item within an array.
+    ///
+    /// Items are accessed by an integer index, where the first item has index
+    /// 1. This function creates the item if necessary, but the array itself
+    /// must already exist. Use [`XmpMeta::append_array_item()`] to create
+    /// arrays. A new item is automatically appended if the index is the array
+    /// size plus 1.
+    ///
+    /// Use `XmpMeta::compose_array_item_path()` to create a complex path.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `array_name`: See [Accessing
+    ///   properties](#accessing-properties). NOTE: `array_name` is an
+    ///   `XmpValue<String>` which contains any necessary flags for the array.
+    /// * `item_placement`: Describes where to place the new item. See
+    ///   [`ItemPlacement`].
+    /// * `item_value`: Contains value and flags for the item to be added to the
+    ///   array.
+    pub fn array_item(
+        &self,
+        namespace: &str,
+        array_name: &str,
+        item_index: u32,
+    ) -> Option<XmpValue<String>> {
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_array_name = CString::new(array_name).unwrap_or_default();
+
+            let mut options: u32 = 0;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                CXmpString::from_ptr(ffi::CXmpMetaGetArrayItem(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_array_name.as_ptr(),
+                    item_index,
+                    &mut options,
+                ))
+                .map(|value| XmpValue { value, options })
+            }
+        } else {
+            None
+        }
+    }
+
     /// Creates or sets the value of an item within an array.
     ///
     /// Items are accessed by an integer index, where the first item has index
