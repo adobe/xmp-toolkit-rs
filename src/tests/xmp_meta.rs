@@ -2116,6 +2116,104 @@ mod append_array_item {
     }
 }
 
+mod delete_array_item {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::*, xmp_ns, XmpError, XmpErrorType, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        m.delete_array_item(xmp_ns::DC, "subject", 3).unwrap();
+
+        let subjects: Vec<String> = m
+            .property_array(xmp_ns::DC, "subject")
+            .map(|v| {
+                assert!(v.options == 0);
+                v.value
+            })
+            .collect();
+
+        println!("subjects = {:#?}", subjects);
+
+        assert_eq!(subjects, ["purple", "square", "XMP", "XMPFiles", "test"]);
+    }
+
+    #[test]
+    fn last_item() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        m.delete_array_item(xmp_ns::DC, "subject", XmpMeta::LAST_ITEM)
+            .unwrap();
+
+        let subjects: Vec<String> = m
+            .property_array(xmp_ns::DC, "subject")
+            .map(|v| {
+                assert!(v.options == 0);
+                v.value
+            })
+            .collect();
+
+        println!("subjects = {:#?}", subjects);
+
+        assert_eq!(subjects, ["purple", "square", "Stefan", "XMP", "XMPFiles"]);
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        assert_eq!(
+            m.delete_array_item(xmp_ns::DC, "subject", 3),
+            Err(XmpError {
+                error_type: XmpErrorType::NoCppToolkit,
+                debug_message: "C++ XMP Toolkit not available".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_empty_array_name() {
+        let mut m = XmpMeta::default();
+
+        assert_eq!(
+            m.delete_array_item(xmp_ns::DC, "", 3),
+            Err(XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Empty array name".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::default();
+
+        assert_eq!(
+            m.delete_array_item(xmp_ns::DC, "x\0x", 3),
+            Err(XmpError {
+                error_type: XmpErrorType::NulInRustString,
+                debug_message: "Unable to convert to C string because a NUL byte was found"
+                    .to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_zero_index() {
+        let mut m = XmpMeta::from_str(ARRAY_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.delete_array_item(xmp_ns::DC, "subject", 0),
+            Err(XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Array index must be larger than zero".to_owned()
+            })
+        );
+    }
+}
+
 mod array_len {
     use std::str::FromStr;
 

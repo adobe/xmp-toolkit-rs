@@ -1003,6 +1003,47 @@ impl XmpMeta {
         }
     }
 
+    /// Deletes an XMP subtree rooted at a given array item.
+    ///
+    /// It is not an error if the array item does not exist. Use
+    /// [`XmpMeta::compose_array_item_path()`] to create a complex path.
+    ///
+    /// ## Arguments
+    ///
+    /// * `namespace` and `array_name`: See [Accessing
+    ///   properties](#accessing-properties). NOTE: `array_name` is an
+    ///   `XmpValue<String>` which contains any necessary flags for the array.
+    /// * `item_index`: The index of the desired item. Use
+    ///   [`XmpMeta::LAST_ITEM`] to specify the last existing array item.
+    ///   **IMPORTANT:** Indices in XMP are 1-based, not zero-based as in most
+    ///   of Rust.
+    pub fn delete_array_item(
+        &mut self,
+        namespace: &str,
+        array_name: &str,
+        item_index: i32,
+    ) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace)?;
+            let c_array_name = CString::new(array_name)?;
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaDeleteArrayItem(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_array_name.as_ptr(),
+                    item_index,
+                );
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
+
     /// Reports the number of items currently defined in an array.
     ///
     /// ## Arguments

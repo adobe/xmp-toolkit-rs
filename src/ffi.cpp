@@ -761,6 +761,24 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaDeleteArrayItem(CXmpMeta* m,
+                                 CXmpError* outError,
+                                 const char* schemaNS,
+                                 const char* arrayName,
+                                 AdobeXMPCommon::uint32 itemIndex) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.DeleteArrayItem(schemaNS, arrayName, itemIndex);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
 	bool CXmpMetaCountArrayItems(CXmpMeta* m,
                                  CXmpError* outError,
                                  const char* arrayNS,
