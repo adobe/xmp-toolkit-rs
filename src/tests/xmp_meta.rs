@@ -2859,6 +2859,24 @@ mod set_localized_text {
     }
 
     #[test]
+    fn generic_lang() {
+        let mut m = XmpMeta::default();
+
+        const NS1: &str = "ns:test1/";
+
+        m.set_localized_text(NS1, "AltText", None, "x-default", "default value")
+            .unwrap();
+
+        m.set_localized_text(NS1, "AltText", Some("en"), "en-us", "en-us value")
+            .unwrap();
+
+        m.set_localized_text(NS1, "AltText", Some("en"), "en-uk", "en-uk value")
+            .unwrap();
+
+        assert_eq!(m.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\"> <ns1:AltText> <rdf:Alt> <rdf:li xml:lang=\"x-default\">en-us value</rdf:li> <rdf:li xml:lang=\"en-US\">en-us value</rdf:li> <rdf:li xml:lang=\"en-UK\">en-uk value</rdf:li> </rdf:Alt> </ns1:AltText> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+    }
+
+    #[test]
     fn init_fail() {
         let mut m = XmpMeta::new_fail();
 
