@@ -930,34 +930,45 @@ fn xmp_core_coverage() {
     //-------------------------------------------------------------------------
 
     {
-    	// write_major_label("Test SetLocalizedText and GetLocalizedText" );
-  
-      // let mut meta = XmpMeta::default();
+        write_major_label("Test set_localized_text and localized_text");
 
-    // 	tmpStr1 = "default value";
-    // 	meta.SetLocalizedText ( NS1, "AltText", "", "x-default", tmpStr1 );
-    // 	DumpXMPObj ( log, meta, "Set x-default value" );
+        let mut meta = XmpMeta::default();
 
-    // 	meta.SetLocalizedText ( NS1, "AltText", "en", "en-us", "en-us value" );
-    // 	DumpXMPObj ( log, meta, "Set en/en-us value" );
+        meta.set_localized_text(NS1, "AltText", None, "x-default", "default value")
+            .unwrap();
 
-    // 	meta.SetLocalizedText ( NS1, "AltText", "en", "en-uk", "en-uk value" );
-    // 	DumpXMPObj ( log, meta, "Set en/en-uk value" );
+        meta.set_localized_text(NS1, "AltText", Some("en"), "en-us", "en-us value")
+            .unwrap();
 
-    // 	fprintf ( log, "\n" );
+        meta.set_localized_text(NS1, "AltText", Some("en"), "en-uk", "en-uk value")
+            .unwrap();
 
-    // 	tmpStr1.erase();  tmpStr2.erase();
-    // 	ok = meta.GetLocalizedText ( NS1, "AltText", "en", "en-ca", &tmpStr1,
-    // &tmpStr2, &options );
-    // 	fprintf ( log, "GetLocalizedText en/en-ca : %s, \'%s\' \"%s\", 0x%X\n",
-    // FoundOrNot ( ok ), tmpStr1.c_str(), tmpStr2.c_str(), options );
+        assert_eq!(
+            meta.localized_text(NS1, "AltText", Some("en"), "en-ca"),
+            Some((
+                XmpValue {
+                    value: "en-us value".to_owned(),
+                    options: xmp_prop::HAS_LANG | xmp_prop::HAS_QUALIFIERS,
+                },
+                "x-default".to_owned()
+            ))
+        );
 
-    // 	tmpStr1 = "junk";
-    // 	ok = meta.property ( NS1, "AltText", &tmpStr1, &options );
-    // 	fprintf ( log, "property ns1:AltText : %s, \"%s\", 0x%X\n", FoundOrNot (
-    // ok ), tmpStr1.c_str(), options );
+        assert_eq!(
+            meta.property(NS1, "AltText"),
+            Some(XmpValue {
+                value: "".to_owned(),
+                options: xmp_prop::ARRAY_IS_ALT_TEXT
+                    | xmp_prop::ARRAY_IS_ALTERNATE
+                    | xmp_prop::ARRAY_IS_ORDERED
+                    | xmp_prop::VALUE_IS_ARRAY
+            })
+        );
 
-    // }
+        println!("After set_localized_text = {:#?}", meta);
+
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\"> <ns1:AltText> <rdf:Alt> <rdf:li xml:lang=\"x-default\">en-us value</rdf:li> <rdf:li xml:lang=\"en-US\">en-us value</rdf:li> <rdf:li xml:lang=\"en-UK\">en-uk value</rdf:li> </rdf:Alt> </ns1:AltText> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+    }
 
     // // --------------------------------------------------------------------------------------------
     // // Binary value set/get methods
@@ -1025,7 +1036,7 @@ fn xmp_core_coverage() {
 
     // 	DumpXMPObj ( log, meta, "Get and re-set the dates" );
 
-    }
+    // }
 
     // // --------------------------------------------------------------------------------------------
     // // Parse and serialize methods
