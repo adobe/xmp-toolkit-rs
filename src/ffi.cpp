@@ -1056,6 +1056,32 @@ extern "C" {
         return NULL;
     }
 
+    void CXmpMetaSetLocalizedText(CXmpMeta* m,
+                                  CXmpError* outError,
+                                  const char* schemaNS,
+                                  const char* altTextName,
+                                  const char* genericLang,
+                                  const char* specificLang,
+                                  const char* itemValue,                                  const char** actualLang,
+                                  AdobeXMPCommon::uint32 options) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.SetLocalizedText(schemaNS,
+                                      altTextName,
+                                      genericLang,
+                                      specificLang,
+                                      itemValue,
+                                      options);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     const char* CXmpMetaGetObjectName(CXmpMeta* m, CXmpError* outError) {
         #ifndef NOOP_FFI
             try {
