@@ -2709,26 +2709,7 @@ mod delete_qualifier {
 mod localized_text {
     use std::str::FromStr;
 
-    use crate::{xmp_ns, xmp_value::xmp_prop, XmpMeta};
-
-    const LOCALIZED_TEXT_EXAMPLE: &str = r#"<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-            xmlns:dc="http://purl.org/dc/elements/1.1/">
-            <rdf:Description rdf:about="">
-                <dc:title>
-                    <rdf:Alt>
-                        <rdf:li xml:lang="x-default">
-                            XMP - Extensible Metadata Platform
-                        </rdf:li>
-                        <rdf:li xml:lang="en-us">
-                            XMP - Extensible Metadata Platform (US English)
-                        </rdf:li>
-                        <rdf:li xml:lang="fr">
-                            XMP - Une Platforme Extensible pour les Métadonnées
-                        </rdf:li>
-                    </rdf:Alt>
-                </dc:title>
-            </rdf:Description>
-        </rdf:RDF>"#;
+    use crate::{tests::fixtures::LOCALIZED_TEXT_EXAMPLE, xmp_ns, xmp_value::xmp_prop, XmpMeta};
 
     #[test]
     fn happy_path() {
@@ -2833,6 +2814,86 @@ mod localized_text {
         assert_eq!(
             m.localized_text(xmp_ns::XMP, "title", Some("x-default"), "no-such-lang"),
             None
+        );
+    }
+}
+
+mod set_localized_text {
+    use std::str::FromStr;
+
+    use crate::{
+        tests::fixtures::LOCALIZED_TEXT_EXAMPLE, xmp_ns, xmp_value::xmp_prop, XmpError,
+        XmpErrorType, XmpMeta, XmpValue,
+    };
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::from_str(LOCALIZED_TEXT_EXAMPLE).unwrap();
+
+        assert_eq!(
+            m.localized_text(xmp_ns::DC, "title", None, "en-us")
+                .unwrap(),
+            (
+                XmpValue {
+                    value: "XMP - Extensible Metadata Platform (US English)".to_owned(),
+                    options: xmp_prop::HAS_LANG | xmp_prop::HAS_QUALIFIERS
+                },
+                "en-US".to_owned()
+            )
+        );
+
+        m.set_localized_text(xmp_ns::DC, "title", None, "en-us", "XMP in Rust")
+            .unwrap();
+
+        assert_eq!(
+            m.localized_text(xmp_ns::DC, "title", None, "en-us")
+                .unwrap(),
+            (
+                XmpValue {
+                    value: "XMP in Rust".to_owned(),
+                    options: xmp_prop::HAS_LANG | xmp_prop::HAS_QUALIFIERS
+                },
+                "en-US".to_owned()
+            )
+        );
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+
+        assert_eq!(
+            m.set_localized_text(xmp_ns::DC, "title", None, "en-us", "XMP in Rust"),
+            Err(XmpError {
+                error_type: XmpErrorType::NoCppToolkit,
+                debug_message: "C++ XMP Toolkit not available".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_empty_struct_name() {
+        let mut m = XmpMeta::default();
+
+        assert_eq!(
+            m.set_localized_text(xmp_ns::XMP, "", None, "CiAdrPcode", "95110",),
+            Err(XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Empty array name".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn error_nul_in_name() {
+        let mut m = XmpMeta::default();
+
+        assert_eq!(
+            m.set_localized_text(xmp_ns::XMP, "x\0x", None, "en-US", "95110",),
+            Err(XmpError {
+                error_type: XmpErrorType::BadXPath,
+                debug_message: "Empty array name".to_owned()
+            })
         );
     }
 }
