@@ -23,7 +23,10 @@
 
 use std::{str::FromStr, string::ToString};
 
-use crate::{xmp_ns, xmp_value::xmp_prop, ItemPlacement, ToStringOptions, XmpMeta, XmpValue};
+use crate::{
+    xmp_ns, xmp_value::xmp_prop, ItemPlacement, ToStringOptions, XmpDate, XmpDateTime, XmpMeta,
+    XmpTime, XmpTimeZone, XmpValue,
+};
 
 const NS1: &str = "ns:test1/";
 const NS2: &str = "ns:test2/";
@@ -970,109 +973,138 @@ fn xmp_core_coverage() {
         assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:ns1=\"ns:test1/\"> <ns1:AltText> <rdf:Alt> <rdf:li xml:lang=\"x-default\">en-us value</rdf:li> <rdf:li xml:lang=\"en-US\">en-us value</rdf:li> <rdf:li xml:lang=\"en-UK\">en-uk value</rdf:li> </rdf:Alt> </ns1:AltText> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
     }
 
-    // // --------------------------------------------------------------------------------------------
-    // // Binary value set/get methods
-    // // ----------------------------
+    //-------------------------------------------------------------------------
 
-    // {
-    // 	SXMPMeta meta ( DATE_TIME_RDF, strlen(DATE_TIME_RDF) );
-    // 	XMP_DateTime dateValue;
-    // 	bool		boolValue;
-    // 	XMP_Int32	intValue;
-    // 	double		floatValue;
-    // 	char		dateName [8];
+    {
+        write_major_label(
+            "Test set_property... and property... methods (set/get with binary values)",
+        );
 
-    // 	write_major_label("Test set_property... and property... methods
-    // (set/get with binary values)" );
+        let mut meta = XmpMeta::from_str(DATE_TIME_RDF).unwrap();
 
-    // 	FillDateTime ( &dateValue, 2000, 1, 2, 3, 4, 5, true, true, false, 0, 0, 0, 0
-    // );
+        let date_value = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2000,
+                month: 1,
+                day: 2,
+            }),
+            time: Some(XmpTime {
+                hour: 3,
+                minute: 4,
+                second: 5,
+                nanosecond: 0,
+                time_zone: None,
+            }),
+        };
 
-    // 	meta.set_property_Bool ( NS1, "Bool0", false );
-    // 	meta.set_property_Bool ( NS1, "Bool1", true );
-    // 	meta.set_property_Int ( NS1, "Int", 42 );
-    // 	meta.set_property_Float ( NS1, "Float", 4.2 );
+        meta.set_property_bool(NS1, "Bool0", &false.into()).unwrap();
+        meta.set_property_bool(NS1, "Bool1", &true.into()).unwrap();
+        meta.set_property_i32(NS1, "Int", &42.into()).unwrap();
+        meta.set_property_f64(NS1, "Float", &4.2.into()).unwrap();
 
-    // 	meta.set_property_Date ( NS1, "Date10", dateValue );
-    // 	dateValue.tzSign = 1; dateValue.tzHour = 6; dateValue.tzMinute = 7;
-    // 	meta.set_property_Date ( NS1, "Date11", dateValue );
-    // 	dateValue.tzSign = -1;
-    // 	meta.set_property_Date ( NS1, "Date12", dateValue );
-    // 	dateValue.nanoSecond = 9;
-    // 	meta.set_property_Date ( NS1, "Date13", dateValue );
+        meta.set_property_date(NS1, "Date10", &date_value.into())
+            .unwrap();
 
-    // 	DumpXMPObj ( log, meta, "A few basic binary Set... calls" );
+        let date_value = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2000,
+                month: 1,
+                day: 2,
+            }),
+            time: Some(XmpTime {
+                hour: 3,
+                minute: 4,
+                second: 5,
+                nanosecond: 0,
+                time_zone: Some(XmpTimeZone { hour: 6, minute: 7 }),
+            }),
+        };
 
-    // 	fprintf ( log, "\n" );
+        meta.set_property_date(NS1, "Date11", &date_value.into())
+            .unwrap();
 
-    // 	ok = meta.property_Bool ( NS1, "Bool0", &boolValue, &options );
-    // 	fprintf ( log, "property_Bool Bool0 : %s, %d, 0x%X\n", FoundOrNot ( ok ),
-    // boolValue, options );
+        let date_value = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2000,
+                month: 1,
+                day: 2,
+            }),
+            time: Some(XmpTime {
+                hour: 3,
+                minute: 4,
+                second: 5,
+                nanosecond: 0,
+                time_zone: Some(XmpTimeZone {
+                    hour: -6,
+                    minute: 7,
+                }),
+            }),
+        };
 
-    // 	ok = meta.property_Bool ( NS1, "Bool1", &boolValue, &options );
-    // 	fprintf ( log, "property_Bool Bool1 : %s, %d, 0x%X\n", FoundOrNot ( ok ),
-    // boolValue, options );
+        meta.set_property_date(NS1, "Date12", &date_value.into())
+            .unwrap();
 
-    // 	ok = meta.property_Int ( NS1, "Int", &intValue, &options );
-    // 	fprintf ( log, "property_Int : %s, %d, 0x%X\n", FoundOrNot ( ok ),
-    // intValue, options );
+        let date_value = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2000,
+                month: 1,
+                day: 2,
+            }),
+            time: Some(XmpTime {
+                hour: 3,
+                minute: 4,
+                second: 5,
+                nanosecond: 9,
+                time_zone: Some(XmpTimeZone {
+                    hour: -6,
+                    minute: 7,
+                }),
+            }),
+        };
 
-    // 	ok = meta.property_Float ( NS1, "Float", &floatValue, &options );
-    // 	fprintf ( log, "property_Float : %s, %f, 0x%X\n", FoundOrNot ( ok ),
-    // floatValue, options );
+        meta.set_property_date(NS1, "Date13", &date_value.into())
+            .unwrap();
 
-    // 	fprintf ( log, "\n" );
+        println!("A few basic binary set... calls = {:#?}", meta);
 
-    // 	for ( i = 1; i < 14; ++i ) {
-    // 		sprintf ( dateName, "Date%d", i );
-    // 		ok = meta.property_Date ( NS1, dateName, &dateValue, &options );
-    // 		fprintf ( log, "property_Date (%s) : %s, %d-%02d-%02d %02d:%02d:%02d
-    // %d*%02d:%02d %d, 0x%X\n",  dateName, FoundOrNot ( ok ), 				  dateValue.year,
-    // dateValue.month, dateValue.day, dateValue.hour, dateValue.minute,
-    // dateValue.second, 				  dateValue.tzSign, dateValue.tzHour,
-    // dateValue.tzMinute, dateValue.nanoSecond, options );
-    // 		meta.set_property_Date ( NS2, dateName, dateValue );
-    // 	}
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kDateTimeRDF\" xmlns:ns1=\"ns:test1/\"> <ns1:Date1>2003</ns1:Date1> <ns1:Date2>2003-12</ns1:Date2> <ns1:Date3>2003-12-31</ns1:Date3> <ns1:Date4>2003-12-31T12:34Z</ns1:Date4> <ns1:Date5>2003-12-31T12:34:56Z</ns1:Date5> <ns1:Date6>2003-12-31T12:34:56.001Z</ns1:Date6> <ns1:Date7>2003-12-31T12:34:56.000000001Z</ns1:Date7> <ns1:Date8>2003-12-31T10:04:56-02:30</ns1:Date8> <ns1:Date9>2003-12-31T15:49:56+03:15</ns1:Date9> <ns1:Bool0>False</ns1:Bool0> <ns1:Bool1>True</ns1:Bool1> <ns1:Int>42</ns1:Int> <ns1:Float>4.200000</ns1:Float> <ns1:Date10>2000-01-02T03:04:05</ns1:Date10> <ns1:Date11>2000-01-02T03:04:05+06:07</ns1:Date11> <ns1:Date12>2000-01-02T03:04:05-06:07</ns1:Date12> <ns1:Date13>2000-01-02T03:04:05.000000009-06:07</ns1:Date13> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
-    // 	DumpXMPObj ( log, meta, "Get and re-set the dates" );
+        assert_eq!(
+            meta.property_bool(NS1, "Bool0"),
+            Some(XmpValue {
+                value: false,
+                options: 0
+            })
+        );
 
-    // }
+        assert_eq!(
+            meta.property_bool(NS1, "Bool1"),
+            Some(XmpValue {
+                value: true,
+                options: 0
+            })
+        );
 
-    // // --------------------------------------------------------------------------------------------
-    // // Parse and serialize methods
-    // // ---------------------------
+        assert_eq!(
+            meta.property_i32(NS1, "Int"),
+            Some(XmpValue {
+                value: 42i32,
+                options: 0
+            })
+        );
 
-    // write_major_label("Test parsing with multiple buffers and various
-    // options" );
+        assert_eq!(
+            meta.property_f64(NS1, "Float"),
+            Some(XmpValue {
+                value: 4.2f64,
+                options: 0
+            })
+        );
+    }
 
-    // {
-    // 	SXMPMeta meta;
-    // 	for ( i = 0; i < (long)strlen(SIMPLE_RDF) - 10; i += 10 ) {
-    // 		meta.ParseFromBuffer ( &SIMPLE_RDF[i], 10, kXMP_ParseMoreBuffers );
-    // 	}
-    // 	meta.ParseFromBuffer ( &SIMPLE_RDF[i], strlen(SIMPLE_RDF) - i );
-    // 	DumpXMPObj ( log, meta, "Multiple buffer parse" );
-    // }
+    //-------------------------------------------------------------------------
 
-    // {
-    // 	SXMPMeta meta;
-    // 	for ( i = 0; i < (long)strlen(SIMPLE_RDF) - 10; i += 10 ) {
-    // 		meta.ParseFromBuffer ( &SIMPLE_RDF[i], 10, kXMP_ParseMoreBuffers );
-    // 	}
-    // 	meta.ParseFromBuffer ( &SIMPLE_RDF[i], (strlen(SIMPLE_RDF) - i),
-    // kXMP_ParseMoreBuffers ); 	meta.ParseFromBuffer ( SIMPLE_RDF, 0 );
-    // 	DumpXMPObj ( log, meta, "Multiple buffer parse, empty last buffer" );
-    // }
-
-    // {
-    // 	SXMPMeta meta;
-    // 	for ( i = 0; i < (long)strlen(SIMPLE_RDF) - 10; i += 10 ) {
-    // 		meta.ParseFromBuffer ( &SIMPLE_RDF[i], 10, kXMP_ParseMoreBuffers );
-    // 	}
-    // 	meta.ParseFromBuffer ( &SIMPLE_RDF[i], (strlen(SIMPLE_RDF) - i),
-    // kXMP_ParseMoreBuffers ); 	meta.ParseFromBuffer ( 0, 0 );
-    // 	DumpXMPObj ( log, meta, "Multiple buffer parse, null last buffer" );
-    // }
+    // write_major_label("Test parsing with multiple buffers and various options" );
 
     // {
     // 	SXMPMeta meta;
