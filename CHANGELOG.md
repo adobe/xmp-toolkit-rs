@@ -6,6 +6,28 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.7.2
+_01 November 2022_
+
+* Add `XmpMeta::set_localized_text` ([#133](https://github.com/adobe/xmp-toolkit-rs/pull/133))
+* Add `XmpMeta::delee_qualifier` ([#132](https://github.com/adobe/xmp-toolkit-rs/pull/132))
+* Add `XmpMeta::delete_struct_field` ([#131](https://github.com/adobe/xmp-toolkit-rs/pull/131))
+* Add `XmpMeta::delete_array_item` ([#130](https://github.com/adobe/xmp-toolkit-rs/pull/130))
+* Add `XmpMeta::contains_qualifier` ([#129](https://github.com/adobe/xmp-toolkit-rs/pull/129))
+* Add `XmpMeta::qualifier` ([#128](https://github.com/adobe/xmp-toolkit-rs/pull/128))
+* Allow `XmpMeta::array_item` to accept `XmpMeta::LAST_ITEM` ([#127](https://github.com/adobe/xmp-toolkit-rs/pull/127))
+* Add `XmpMeta::array_item` ([#126](https://github.com/adobe/xmp-toolkit-rs/pull/126))
+* Add `XmpMeta::delete_property` ([#125](https://github.com/adobe/xmp-toolkit-rs/pull/125))
+* Add `XmpMeta::set_qualifier` ([#124](https://github.com/adobe/xmp-toolkit-rs/pull/124))
+* Add `XmpMeta::compose_qualifier_path` ([#123](https://github.com/adobe/xmp-toolkit-rs/pull/123))
+* Add `XmpMeta::array_len` ([#122](https://github.com/adobe/xmp-toolkit-rs/pull/122))
+* Add `XmpMeta::set_array_item` ([#121](https://github.com/adobe/xmp-toolkit-rs/pull/121))
+* Implement `Display` for `XmpMeta` ([#120](https://github.com/adobe/xmp-toolkit-rs/pull/120))
+* Add `XmpMeta::compose_array_item_path` ([#119](https://github.com/adobe/xmp-toolkit-rs/pull/119))
+* Add `XmpMeta::set_struct_field` ([#118](https://github.com/adobe/xmp-toolkit-rs/pull/118))
+* Add `XmpMeta::append_array_item` ([#117](https://github.com/adobe/xmp-toolkit-rs/pull/117))
+* Add `XmpMeta::namespace_prefix` and `XmpMeta::namespace_uri` accessors ([#116](https://github.com/adobe/xmp-toolkit-rs/pull/116))
+
 ## 0.7.1
 _24 October 2022_
 
