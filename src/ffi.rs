@@ -169,6 +169,7 @@ extern "C" {
         out_error: *mut CXmpError,
         buffer: *const u8,
         buffer_size: u32,
+        options: u32,
     ) -> *mut CXmpMeta;
 
     pub(crate) fn CXmpMetaSerializeToBuffer(

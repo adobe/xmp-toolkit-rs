@@ -147,6 +147,179 @@ mod from_str {
     }
 }
 
+mod from_str_requiring_xmp_meta {
+    use crate::{tests::fixtures::*, XmpError, XmpErrorType, XmpMeta, XmpValue};
+
+    const NO_META: &str = r#"<rdf:Description rdf:about=""
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xap="http://ns.adobe.com/xap/1.0/"
+        xmlns:xapMM="http://ns.adobe.com/xap/1.0/mm/"
+        xmlns:tiff="http://ns.adobe.com/tiff/1.0/"
+        xmlns:exif="http://ns.adobe.com/exif/1.0/"
+        xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/"
+        xmlns:pdf="http://ns.adobe.com/pdf/1.3/"
+        xmlns:pdfx="http://ns.adobe.com/pdfx/1.3/"
+        xmlns:xapRights="http://ns.adobe.com/xap/1.0/rights/"
+        dc:format="application/vnd.adobe.photoshop"
+        xap:CreatorTool="Adobe Photoshop CS2 Windows"
+        xap:CreateDate="2006-04-25T15:32:01+02:00"
+        xap:ModifyDate="2006-04-27T15:38:36.655+02:00"
+        xap:MetadataDate="2006-04-26T16:47:10+02:00"
+        xapMM:DocumentID="uuid:FE607D9B5FD4DA118B7787757E22306B"
+        xapMM:InstanceID="uuid:BF664E7B33D5DA119129F691B53239AD"
+        tiff:Orientation="1"
+        tiff:XResolution="720000/10000"
+        tiff:YResolution="720000/10000"
+        tiff:ResolutionUnit="2"
+        tiff:NativeDigest="256,257,258,259,262,274,277,284,530,531,282,283,296,301,318,319,529,532,306,270,271,272,305,315,33432;6F0EC2A1D6ADFA4DF4BB00D7C83AFAC0"
+        exif:PixelXDimension="200"
+        exif:PixelYDimension="200"
+        exif:ColorSpace="-1"
+        exif:NativeDigest="36864,40960,40961,37121,37122,40962,40963,37510,40964,36867,36868,33434,33437,34850,34852,34855,34856,37377,37378,37379,37380,37381,37382,37383,37384,37385,37386,37396,41483,41484,41486,41487,41488,41492,41493,41495,41728,41729,41730,41985,41986,41987,41988,41989,41990,41991,41992,41993,41994,41995,41996,42016,0,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20,22,23,24,25,26,27,28,30;D891A8B493E755131A3267739F6277DB"
+        photoshop:ColorMode="3"
+        photoshop:ICCProfile="Dell 1905FP Color Profile"
+        photoshop:CaptionWriter="Stefan"
+        photoshop:History=""
+        pdf:Keywords="&quot;XMP  metadata  schema XML RDF&quot;"
+        pdf:Copyright="2005 Adobe Systems Inc."
+        pdfx:Copyright="2005 Adobe Systems Inc."
+        xapRights:Marked="False">
+        <dc:description>
+        <rdf:Alt>
+            <rdf:li xml:lang="x-default">a test file (öäüßÖÄÜ€中文)</rdf:li>
+        </rdf:Alt>
+        </dc:description>
+        <dc:title>
+        <rdf:Alt>
+            <rdf:li xml:lang="x-default">Purple Square</rdf:li>
+        </rdf:Alt>
+        </dc:title>
+        <dc:creator>
+        <rdf:Seq>
+            <rdf:li>Llywelyn</rdf:li>
+        </rdf:Seq>
+        </dc:creator>
+        <dc:subject>
+        <rdf:Bag>
+            <rdf:li>purple</rdf:li>
+            <rdf:li>square</rdf:li>
+            <rdf:li>Stefan</rdf:li>
+            <rdf:li>XMP</rdf:li>
+            <rdf:li>XMPFiles</rdf:li>
+            <rdf:li>test</rdf:li>
+        </rdf:Bag>
+        </dc:subject>
+        </rdf:Description>
+        "#;
+
+    #[test]
+    fn happy_path() {
+        let m = XmpMeta::from_str_requiring_xmp_meta(PURPLE_SQUARE_XMP, false).unwrap();
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+                .unwrap(),
+            XmpValue {
+                value: "Adobe Photoshop CS2 Windows".to_owned(),
+                options: 0
+            }
+        );
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+                .unwrap(),
+            XmpValue {
+                value: "Dell 1905FP Color Profile".to_owned(),
+                options: 0
+            }
+        );
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+
+    #[test]
+    fn missing_xmp_meta_required() {
+        assert_eq!(
+            XmpMeta::from_str_requiring_xmp_meta(NO_META, true).unwrap_err(),
+            XmpError {
+                error_type: XmpErrorType::BadSerialize,
+                debug_message: "x".to_owned()
+            }
+        );
+    }
+
+    #[test]
+    fn missing_xmp_meta_not_required() {
+        let m = XmpMeta::from_str_requiring_xmp_meta(NO_META, false).unwrap();
+
+        println!("m = {:#?}", m);
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+                .unwrap(),
+            XmpValue {
+                value: "Adobe Photoshop CS2 Windows".to_owned(),
+                options: 0
+            }
+        );
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+                .unwrap(),
+            XmpValue {
+                value: "Dell 1905FP Color Profile".to_owned(),
+                options: 0
+            }
+        );
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+
+    #[test]
+    fn bad_xmp() {
+        // TXMPMeta::ParseFromBuffer doesn't seem to throw exceptions,
+        // regardless of how badly-formed the XMP is. This test merely
+        // confirms that we pass that behavior through.
+        let m = XmpMeta::from_str_requiring_xmp_meta("this is not XMP", false).unwrap();
+
+        assert!(m
+            .property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+
+    #[test]
+    fn empty_string() {
+        // TXMPMeta::ParseFromBuffer doesn't seem to throw exceptions,
+        // regardless of how badly-formed the XMP is. This test merely
+        // confirms that we pass that behavior through.
+        let m = XmpMeta::from_str_requiring_xmp_meta("", false).unwrap();
+
+        assert!(m
+            .property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+            .is_none());
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+}
+
 mod to_string_with_options {
     use std::str::FromStr;
 
