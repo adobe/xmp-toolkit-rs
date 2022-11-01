@@ -170,3 +170,16 @@ pub(crate) const QUAL_EXAMPLE: &str = r#"
             </rdf:Description>
         </rdf:RDF>
         "#;
+
+pub(crate) const LOCALIZED_TEXT_EXAMPLE: &str = r#"<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <rdf:Description rdf:about="">
+            <dc:title>
+                <rdf:Alt>
+                    <rdf:li xml:lang="x-default">XMP - Extensible Metadata Platform</rdf:li>
+                    <rdf:li xml:lang="en-us">XMP - Extensible Metadata Platform (US English)</rdf:li>
+                    <rdf:li xml:lang="fr">XMP - Une Platforme Extensible pour les Métadonnées</rdf:li>
+                </rdf:Alt>
+            </dc:title>
+        </rdf:Description>
+    </rdf:RDF>"#;

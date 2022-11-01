@@ -1349,9 +1349,9 @@ impl XmpMeta {
     ///   artificial language, `x-default`, that is used to explicitly denote a
     ///   default item in an alt-text array. The XMP toolkit normalizes alt-text
     ///   arrays such that the x-default item is the first item. The
-    ///   `set_localized_text` function has several special features related to
-    ///   the `x-default` item. See its description for details. The array item
-    ///   is selected according to these rules:
+    ///   [`XmpMeta::set_localized_text()`] function has several special
+    ///   features related to the `x-default` item. See its description for
+    ///   details. The array item is selected according to these rules:
     /// * Look for an exact match with the specific language.
     /// * If a generic language is given, look for a partial match.
     /// * Look for an `x-default` item.
@@ -1426,6 +1426,89 @@ impl XmpMeta {
             }
         } else {
             None
+        }
+    }
+
+    /// Modifies the value of a selected item in an alt-text array using a
+    /// string object.
+    ///
+    /// Creates an appropriate array item if necessary, and handles special
+    /// cases for the `x-default` item.
+    ///
+    /// The array item is selected according to these rules:
+    ///
+    /// * Look for an exact match with the specific language.
+    /// * If a generic language is given, look for a partial match.
+    /// * Look for an `x-default` item.
+    /// * Choose the first item.
+    ///
+    /// A partial match with the generic language is where the start of the
+    /// item's language matches the generic string and the next character is
+    /// `-`. An exact match is also recognized as a degenerate case.
+    ///
+    /// You can pass `x-default` as the specific language. In this case,
+    /// selection of an `x-default` item is an exact match by the first rule,
+    /// not a selection by the 3rd rule. The last 2 rules are fallbacks used
+    /// when the specific and generic languages fail to produce a match.
+    ///
+    /// Item values are modified according to these rules:
+    ///
+    /// * If the selected item is from a match with the specific language, the
+    ///   value of that item is modified. If the existing value of that item
+    ///   matches the existing value of the `x-default` item, the `x-default`
+    ///   item is also modified. If the array only has 1 existing item (which is
+    ///   not `x-default`), an `x-default` item is added with the given value.
+    /// * If the selected item is from a match with the generic language and
+    ///   there are no other generic matches, the value of that item is
+    ///   modified. If the existing value of that item matches the existing
+    ///   value of the `x-default` item, the `x-default` item is also modified.
+    ///   If the array only has 1 existing item (which is not `x-default`), an
+    ///   `x-default` item is added with the given value.
+    /// * If the selected item is from a partial match with the generic language
+    ///   and there are other partial matches, a new item is created for the
+    ///   specific language. The `x-default` item is not modified.
+    /// * If the selected item is from the last 2 rules then a new item is
+    ///   created for the specific language. If the array only had an
+    ///   `x-default` item, the `x-default` item is also modified. If the array
+    ///   was empty, items are created for the specific language and
+    ///   `x-default`.
+    pub fn set_localized_text(
+        &mut self,
+        namespace: &str,
+        path: &str,
+        generic_lang: Option<&str>,
+        specific_lang: &str,
+        item_value: &str,
+    ) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let c_ns = CString::new(namespace).unwrap_or_default();
+            let c_name = CString::new(path).unwrap_or_default();
+            let c_generic_lang = generic_lang.map(|s| CString::new(s).unwrap_or_default());
+            let c_specific_lang = CString::new(specific_lang).unwrap_or_default();
+            let c_item_value = CString::new(item_value).unwrap_or_default();
+
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaSetLocalizedText(
+                    m,
+                    &mut err,
+                    c_ns.as_ptr(),
+                    c_name.as_ptr(),
+                    match c_generic_lang {
+                        Some(lang) => lang.as_ptr(),
+                        None => std::ptr::null(),
+                    },
+                    c_specific_lang.as_ptr(),
+                    c_item_value.as_ptr(),
+                    0,
+                );
+            };
+
+            XmpError::raise_from_c(&err)?;
+            Ok(())
+        } else {
+            Err(no_cpp_toolkit())
         }
     }
 

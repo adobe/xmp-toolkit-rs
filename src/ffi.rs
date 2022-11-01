@@ -451,6 +451,17 @@ extern "C" {
         out_options: *mut u32,
     ) -> *const c_char;
 
+    pub(crate) fn CXmpMetaSetLocalizedText(
+        meta: *const CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        alt_text_name: *const c_char,
+        generic_lang: *const c_char,
+        specific_lang: *const c_char,
+        item_value: *const c_char,
+        options: u32,
+    );
+
     pub(crate) fn CXmpMetaGetObjectName(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,
