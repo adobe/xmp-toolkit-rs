@@ -24,8 +24,9 @@
 use std::{str::FromStr, string::ToString};
 
 use crate::{
-    xmp_ns, xmp_value::xmp_prop, FromStrOptions, ItemPlacement, ToStringOptions, XmpDate,
-    XmpDateTime, XmpError, XmpErrorType, XmpMeta, XmpTime, XmpTimeZone, XmpValue,
+    tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, FromStrOptions, ItemPlacement,
+    ToStringOptions, XmpDate, XmpDateTime, XmpError, XmpErrorType, XmpMeta, XmpTime, XmpTimeZone,
+    XmpValue,
 };
 
 const NS1: &str = "ns:test1/";
@@ -210,42 +211,6 @@ const XMP_META_RDF: &str = r#"<x:Outermost xmlns:x='adobe:ns:meta/'>
     </rdf:RDF>
     
     </x:Outermost>"#;
-
-// NOTE: Not using r# syntax here because we need the CR/LF chars
-// in these values to be parsed as such.
-const NEWLINE_RDF: &str = "<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
-      <rdf:Description rdf:about='Test:XMPCoreCoverage/kNewlineRDF' xmlns:ns1='ns:test1/'>
-    
-        <ns1:HasCR>ASCII \u{D} CR</ns1:HasCR>
-        <ns1:HasLF>ASCII \u{A} LF</ns1:HasLF>
-        <ns1:HasCRLF>ASCII \u{D}\u{A} CRLF</ns1:HasCRLF>
-    
-      </rdf:Description>
-    </rdf:RDF>";
-
-const INCONSISTENT_RDF: &str = r#"<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
-      <rdf:Description rdf:about='Test:XMPCoreCoverage/kInconsistentRDF'
-                       xmlns:pdf='http://ns.adobe.com/pdf/1.3/'
-                       xmlns:xmp='http://ns.adobe.com/xap/1.0/'
-                       xmlns:dc='http://purl.org/dc/elements/1.1/'>
-    
-        <pdf:Author>PDF Author</pdf:Author>
-        <xmp:Author>XMP Author</xmp:Author>
-    
-        <xmp:Authors>
-          <rdf:Seq>
-            <rdf:li>XMP Authors [1]</rdf:li>
-          </rdf:Seq>
-        </xmp:Authors>
-    
-        <dc:creator>
-          <rdf:Seq>
-            <rdf:li>DC Creator [1]</rdf:li>
-          </rdf:Seq>
-        </dc:creator>
-    
-      </rdf:Description>
-    </rdf:RDF>"#;
 
 const DATE_TIME_RDF: &str = r#"<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
       <rdf:Description rdf:about='Test:XMPCoreCoverage/kDateTimeRDF' xmlns:ns1='ns:test1/'>
@@ -1167,150 +1132,181 @@ fn xmp_core_coverage() {
         }
     );
 
-    // {
-    // 	write_major_label("Test CR and LF in values" );
+    {
+        write_major_label("Test CR and LF in values");
 
-    // 	const char *	kValueWithCR	= "ASCII \x0D CR";
-    // 	const char *	kValueWithLF	= "ASCII \x0A LF";
-    // 	const char *	kValueWithCRLF	= "ASCII \x0D\x0A CRLF";
+        const VALUE_WITH_CR: &str = "ASCII \r CR";
+        const VALUE_WITH_LF: &str = "ASCII \n LF";
+        const VALUE_WITH_CRLF: &str = "ASCII \r\n CRLF";
 
-    // 	SXMPMeta meta ( NEWLINE_RDF, kXMP_UseNullTermination );
+        let mut meta = XmpMeta::from_str(NEWLINE_RDF).unwrap();
 
-    // 	meta.set_property ( NS2, "HasCR", kValueWithCR );
-    // 	meta.set_property ( NS2, "HasLF", kValueWithLF );
-    // 	meta.set_property ( NS2, "HasCRLF", kValueWithCRLF );
+        meta.set_property(NS2, "HasCR", &VALUE_WITH_CR.into())
+            .unwrap();
+        meta.set_property(NS2, "HasLF", &VALUE_WITH_LF.into())
+            .unwrap();
+        meta.set_property(NS2, "HasCRLF", &VALUE_WITH_CRLF.into())
+            .unwrap();
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper );
-    // 	fprintf ( log, "\n%s\n", tmpStr1.c_str() );
+        println!("Parse and reconcile inconsistent aliases = {:#?}", meta);
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kNewlineRDF\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:HasCR>ASCII &#xA; CR</ns1:HasCR> <ns1:HasLF>ASCII &#xA; LF</ns1:HasLF> <ns1:HasCRLF>ASCII &#xA; CRLF</ns1:HasCRLF> <ns2:HasCR>ASCII &#xD; CR</ns2:HasCR> <ns2:HasLF>ASCII &#xA; LF</ns2:HasLF> <ns2:HasCRLF>ASCII &#xD;&#xA; CRLF</ns2:HasCRLF> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
-    // 	tmpStr1.erase();  tmpStr2.erase();
-    // 	ok = meta.property ( NS1, "HasCR", &tmpStr1, 0 );
-    // 	ok = meta.property ( NS2, "HasCR", &tmpStr2, 0 );
-    // 	if ( (tmpStr1 != kValueWithCR) || (tmpStr2 != kValueWithCR) ) fprintf ( log,
-    // "\n ## HasCR values are bad\n" );
+        assert_eq!(
+            meta.property(NS2, "HasCR"),
+            Some(XmpValue {
+                value: VALUE_WITH_CR.to_owned(),
+                options: 0
+            })
+        );
 
-    // 	tmpStr1.erase();  tmpStr2.erase();
-    // 	ok = meta.property ( NS1, "HasLF", &tmpStr1, 0 );
-    // 	ok = meta.property ( NS2, "HasLF", &tmpStr2, 0 );
-    // 	if ( (tmpStr1 != kValueWithLF) || (tmpStr2 != kValueWithLF) ) fprintf ( log,
-    // "\n ## HasLF values are bad\n" );
+        assert_eq!(
+            meta.property(NS2, "HasLF"),
+            Some(XmpValue {
+                value: VALUE_WITH_LF.to_owned(),
+                options: 0
+            })
+        );
 
-    // 	tmpStr1.erase();  tmpStr2.erase();
-    // 	ok = meta.property ( NS1, "HasCRLF", &tmpStr1, 0 );
-    // 	ok = meta.property ( NS2, "HasCRLF", &tmpStr2, 0 );
-    // 	if ( (tmpStr1 != kValueWithCRLF) || (tmpStr2 != kValueWithCRLF) ) fprintf (
-    // log, "\n ## HasCRLF values are bad\n" ); }
+        assert_eq!(
+            meta.property(NS2, "HasCRLF"),
+            Some(XmpValue {
+                value: VALUE_WITH_CRLF.to_owned(),
+                options: 0
+            })
+        );
+    }
 
-    // {
-    // 	write_major_label("Test serialization with various options" );
+    {
+        write_major_label("Test serialization with various options");
 
-    // 	SXMPMeta meta ( SIMPLE_RDF, strlen(SIMPLE_RDF) );
-    // 	meta.set_property ( NS2, "Another", "Something in another schema" );
-    // 	meta.set_property ( NS2, "Yet/pdf:More", "Yet more in another schema" );
+        let mut meta = XmpMeta::from_str(SIMPLE_RDF).unwrap();
 
-    // 	DumpXMPObj ( log, meta, "Parse simple RDF, serialize with various options" );
+        meta.set_property(NS2, "Another", &"Something in another schema".into())
+            .unwrap();
+        meta.set_property(NS2, "Yet/pdf:More", &"Yet more in another schema".into())
+            .unwrap();
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1 );
-    // 	WriteMinorLabel ( log, "Default serialize" );
-    // 	fprintf ( log, "%s\n", tmpStr1.c_str() );  fflush ( log );
-    // 	VerifyNewlines ( log, tmpStr1, "\x0A" );
+        println!(
+            "Parse simple RDF, serialize with various options = {:#?}",
+            meta
+        );
 
-    // 	SXMPMeta meta2 ( tmpStr1.c_str(), tmpStr1.size() );
-    // 	DumpXMPObj ( log, meta2, "Reparse default serialization" );
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\" xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\"> <ns1:SimpleProp>Simple value</ns1:SimpleProp> <ns1:ArrayProp> <rdf:Bag> <rdf:li>Item1 value</rdf:li> <rdf:li>Item2 value</rdf:li> </rdf:Bag> </ns1:ArrayProp> <ns1:StructProp rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:StructProp> <ns1:QualProp rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp> <ns1:AltTextProp> <rdf:Alt> <rdf:li xml:lang=\"x-one\">x-one value</rdf:li> <rdf:li xml:lang=\"x-two\">x-two value</rdf:li> </rdf:Alt> </ns1:AltTextProp> <ns1:ArrayOfStructProp> <rdf:Bag> <rdf:li rdf:parseType=\"Resource\"> <ns2:Field1>Item-1</ns2:Field1> <ns2:Field2>Field 1.2 value</ns2:Field2> </rdf:li> <rdf:li rdf:parseType=\"Resource\"> <ns2:Field1>Item-2</ns2:Field1> <ns2:Field2>Field 2.2 value</ns2:Field2> </rdf:li> </rdf:Bag> </ns1:ArrayOfStructProp> <ns2:Another>Something in another schema</ns2:Another> <ns2:Yet rdf:parseType=\"Resource\"> <pdf:More>Yet more in another schema</pdf:More> </ns2:Yet> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper |
-    // kXMP_UseCompactFormat ); 	WriteMinorLabel ( log, "Compact RDF, no packet
-    // serialize" ); 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+        let meta2 = XmpMeta::from_str(&meta.to_string()).unwrap();
 
-    // 	SXMPMeta meta3 ( tmpStr1.c_str(), tmpStr1.size() );
-    // 	DumpXMPObj ( log, meta3, "Reparse compact serialization" );
+        println!("Reparse default serialization = {:#?}", meta2);
+        assert_eq!(meta2.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\" xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\"> <ns1:SimpleProp>Simple value</ns1:SimpleProp> <ns1:ArrayProp> <rdf:Bag> <rdf:li>Item1 value</rdf:li> <rdf:li>Item2 value</rdf:li> </rdf:Bag> </ns1:ArrayProp> <ns1:StructProp rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:StructProp> <ns1:QualProp rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp> <ns1:AltTextProp> <rdf:Alt> <rdf:li xml:lang=\"x-one\">x-one value</rdf:li> <rdf:li xml:lang=\"x-two\">x-two value</rdf:li> </rdf:Alt> </ns1:AltTextProp> <ns1:ArrayOfStructProp> <rdf:Bag> <rdf:li rdf:parseType=\"Resource\"> <ns2:Field1>Item-1</ns2:Field1> <ns2:Field2>Field 1.2 value</ns2:Field2> </rdf:li> <rdf:li rdf:parseType=\"Resource\"> <ns2:Field1>Item-2</ns2:Field1> <ns2:Field2>Field 2.2 value</ns2:Field2> </rdf:li> </rdf:Bag> </ns1:ArrayOfStructProp> <ns2:Another>Something in another schema</ns2:Another> <ns2:Yet rdf:parseType=\"Resource\"> <pdf:More>Yet more in another schema</pdf:More> </ns2:Yet> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
-    // 	{
-    // 		SXMPMeta meta2;
+        let m1 = meta
+            .to_string_with_options(
+                ToStringOptions::default()
+                    .omit_packet_wrapper()
+                    .use_compact_format(),
+            )
+            .unwrap();
 
-    // 		meta2.set_property ( kXMP_NS_PDF, "Author", "PDF Author" );
+        println!("Compact RDF, no packet serialize = {}", m1);
+        assert_eq!(m1, "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n  <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\"\n    xmlns:ns1=\"ns:test1/\"\n    xmlns:ns2=\"ns:test2/\"\n    xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\"\n   ns1:SimpleProp=\"Simple value\"\n   ns2:Another=\"Something in another schema\">\n   <ns1:ArrayProp>\n    <rdf:Bag>\n     <rdf:li>Item1 value</rdf:li>\n     <rdf:li>Item2 value</rdf:li>\n    </rdf:Bag>\n   </ns1:ArrayProp>\n   <ns1:StructProp\n    ns2:Field1=\"Field1 value\"\n    ns2:Field2=\"Field2 value\"/>\n   <ns1:QualProp rdf:parseType=\"Resource\">\n    <rdf:value>Prop value</rdf:value>\n    <ns2:Qual>Qual value</ns2:Qual>\n   </ns1:QualProp>\n   <ns1:AltTextProp>\n    <rdf:Alt>\n     <rdf:li xml:lang=\"x-one\">x-one value</rdf:li>\n     <rdf:li xml:lang=\"x-two\">x-two value</rdf:li>\n    </rdf:Alt>\n   </ns1:AltTextProp>\n   <ns1:ArrayOfStructProp>\n    <rdf:Bag>\n     <rdf:li\n      ns2:Field1=\"Item-1\"\n      ns2:Field2=\"Field 1.2 value\"/>\n     <rdf:li\n      ns2:Field1=\"Item-2\"\n      ns2:Field2=\"Field 2.2 value\"/>\n    </rdf:Bag>\n   </ns1:ArrayOfStructProp>\n   <ns2:Yet\n    pdf:More=\"Yet more in another schema\"/>\n  </rdf:Description>\n </rdf:RDF>\n</x:xmpmeta>\n");
 
-    // 		tmpStr1.erase();
-    // 		meta2.SerializeToBuffer ( &tmpStr1, kXMP_ReadOnlyPacket );
-    // 		WriteMinorLabel ( log, "Read-only serialize with alias comments" );
-    // 		fprintf ( log, "%s\n", tmpStr1.c_str() );
+        let meta3 = XmpMeta::from_str(&m1).unwrap();
 
-    // 		meta2.set_property ( kXMP_NS_PDF, "Actual", "PDF Actual" );
-    // 		meta2.set_property ( kXMP_NS_XMP, "Actual", "XMP Actual" );
+        println!("Reparse compact serialization = {:#?}", meta3);
+        assert_eq!(meta3.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\" xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\"> <ns1:SimpleProp>Simple value</ns1:SimpleProp> <ns1:ArrayProp> <rdf:Bag> <rdf:li>Item1 value</rdf:li> <rdf:li>Item2 value</rdf:li> </rdf:Bag> </ns1:ArrayProp> <ns1:StructProp rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:StructProp> <ns1:QualProp rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp> <ns1:AltTextProp> <rdf:Alt> <rdf:li xml:lang=\"x-one\">x-one value</rdf:li> <rdf:li xml:lang=\"x-two\">x-two value</rdf:li> </rdf:Alt> </ns1:AltTextProp> <ns1:ArrayOfStructProp> <rdf:Bag> <rdf:li rdf:parseType=\"Resource\"> <ns2:Field1>Item-1</ns2:Field1> <ns2:Field2>Field 1.2 value</ns2:Field2> </rdf:li> <rdf:li rdf:parseType=\"Resource\"> <ns2:Field1>Item-2</ns2:Field1> <ns2:Field2>Field 2.2 value</ns2:Field2> </rdf:li> </rdf:Bag> </ns1:ArrayOfStructProp> <ns2:Another>Something in another schema</ns2:Another> <ns2:Yet rdf:parseType=\"Resource\"> <pdf:More>Yet more in another schema</pdf:More> </ns2:Yet> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
-    // 		tmpStr1.erase();
-    // 		meta2.SerializeToBuffer ( &tmpStr1, kXMP_ReadOnlyPacket );
-    // 		WriteMinorLabel ( log, "Read-only serialize with alias comments (more
-    // actuals)" ); 		fprintf ( log, "%s\n", tmpStr1.c_str() );
-    // 	}
+        {
+            let mut meta2 = XmpMeta::default();
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "\x0D" );
-    // 	WriteMinorLabel ( log, "CR newline serialize" );
-    // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
-    // 	VerifyNewlines ( log, tmpStr1, "\x0D" );
+            meta2
+                .set_property(xmp_ns::PDF, "Author", &"PDF Author".into())
+                .unwrap();
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "\x0D\x0A" );
-    // 	WriteMinorLabel ( log, "CRLF newline serialize" );
-    // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
-    // 	VerifyNewlines ( log, tmpStr1, "\x0D\x0A" );
+            println!("Read-only serialize with alias comments = {:#?}", meta2);
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "<->" );
-    // 	WriteMinorLabel ( log, "Alternate newline serialize" );
-    // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+            assert_eq!(meta2.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"> <dc:creator> <rdf:Seq> <rdf:li>PDF Author</rdf:li> </rdf:Seq> </dc:creator> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "", "#", 3 );
-    // 	WriteMinorLabel ( log, "Alternate indent serialize" );
-    // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+            meta2
+                .set_property(xmp_ns::PDF, "Actual", &"PDF Actual".into())
+                .unwrap();
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, 0, 10 );
-    // 	WriteMinorLabel ( log, "Small padding serialize" );
-    // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+            meta2
+                .set_property(xmp_ns::XMP, "Actual", &"XMP Actual".into())
+                .unwrap();
 
-    // 	tmpStr1.erase();
-    // 	tmpStr2.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1 );
-    // 	meta.SerializeToBuffer ( &tmpStr2, kXMP_IncludeThumbnailPad );
-    // 	fprintf ( log, "Thumbnailpad adds %zd bytes\n", tmpStr2.size()-tmpStr1.size()
-    // );
+            println!(
+                "Read-only serialize with alias comments (more actuals) = {:#?}",
+                meta2
+            );
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_ReadOnlyPacket );
-    // 	size_t minSize = tmpStr1.size();
-    // 	fprintf ( log, "Minimum packet size is %zd bytes\n", minSize );
+            assert_eq!(meta2.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\" xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\"> <dc:creator> <rdf:Seq> <rdf:li>PDF Author</rdf:li> </rdf:Seq> </dc:creator> <pdf:Actual>PDF Actual</pdf:Actual> <xmp:Actual>XMP Actual</xmp:Actual> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+        }
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_ExactPacketLength, minSize+1234 );
-    // 	fprintf ( log, "Minimum+1234 packet size is %zd bytes\n", tmpStr1.size() );
-    // 	if ( tmpStr1.size() != (minSize + 1234) ) fprintf ( log, "** Bad packet
-    // length **\n" );
+        let s = meta.to_string_with_options(ToStringOptions::default().omit_packet_wrapper().set_newline("\u{D}")).unwrap();
 
-    // 	tmpStr1.erase();
-    // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_ExactPacketLength, minSize );
-    // 	fprintf ( log, "Minimum+0 packet size is %zd bytes\n", tmpStr1.size() );
-    // 	if ( tmpStr1.size() != minSize ) fprintf ( log, "** Bad packet length **\n"
-    // );
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "\x0D"
+        // ); 	WriteMinorLabel ( log, "CR newline serialize" );
+        // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+        // 	VerifyNewlines ( log, tmpStr1, "\x0D" );
 
-    // 	try {
-    // 		tmpStr1.erase();
-    // 		meta.SerializeToBuffer ( &tmpStr1, kXMP_ExactPacketLength, minSize-1 );
-    // 		fprintf ( log, "#ERROR: No exception for minimum-1, size is %zd bytes **\n",
-    // tmpStr1.size() ); 	} catch ( XMP_Error & excep ) {
-    // 		fprintf ( log, "Serialize in minimum-1 - threw XMP_Error #%d : %s\n",
-    // excep.GetID(), excep.GetErrMsg() ); 	} catch ( ... ) {
-    // 		fprintf ( log, "Serialize in minimum-1 - threw unknown exception\n" );
-    // 	}
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0,
+        // "\x0D\x0A" ); 	WriteMinorLabel ( log, "CRLF newline serialize"
+        // ); 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+        // 	VerifyNewlines ( log, tmpStr1, "\x0D\x0A" );
 
-    // 	// *** UTF-16 and UTF-32 encodings
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "<->"
+        // ); 	WriteMinorLabel ( log, "Alternate newline serialize" );
+        // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
 
-    // }
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "",
+        // "#", 3 ); 	WriteMinorLabel ( log, "Alternate indent serialize"
+        // ); 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, 0, 10 );
+        // 	WriteMinorLabel ( log, "Small padding serialize" );
+        // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+
+        // 	tmpStr1.erase();
+        // 	tmpStr2.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1 );
+        // 	meta.SerializeToBuffer ( &tmpStr2, kXMP_IncludeThumbnailPad );
+        // 	fprintf ( log, "Thumbnailpad adds %zd bytes\n",
+        // tmpStr2.size()-tmpStr1.size() );
+
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_ReadOnlyPacket );
+        // 	size_t minSize = tmpStr1.size();
+        // 	fprintf ( log, "Minimum packet size is %zd bytes\n", minSize );
+
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_ExactPacketLength,
+        // minSize+1234 ); 	fprintf ( log, "Minimum+1234 packet size is
+        // %zd bytes\n", tmpStr1.size() ); 	if ( tmpStr1.size() !=
+        // (minSize + 1234) ) fprintf ( log, "** Bad packet length **\n"
+        // );
+
+        // 	tmpStr1.erase();
+        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_ExactPacketLength, minSize );
+        // 	fprintf ( log, "Minimum+0 packet size is %zd bytes\n", tmpStr1.size()
+        // ); 	if ( tmpStr1.size() != minSize ) fprintf ( log, "** Bad
+        // packet length **\n" );
+
+        // 	try {
+        // 		tmpStr1.erase();
+        // 		meta.SerializeToBuffer ( &tmpStr1, kXMP_ExactPacketLength, minSize-1
+        // ); 		fprintf ( log, "#ERROR: No exception for minimum-1, size
+        // is %zd bytes **\n", tmpStr1.size() ); 	} catch ( XMP_Error &
+        // excep ) { 		fprintf ( log, "Serialize in minimum-1 - threw
+        // XMP_Error #%d : %s\n", excep.GetID(), excep.GetErrMsg() ); 	}
+        // catch ( ... ) { 		fprintf ( log, "Serialize in minimum-1 -
+        // threw unknown exception\n" ); 	}
+
+        // 	// *** UTF-16 and UTF-32 encodings
+    }
 
     // // --------------------------------------------------------------------------------------------
     // // Iteration methods
@@ -1564,9 +1560,9 @@ fn xmp_core_coverage() {
     // 	{
     // 		SXMPMeta meta;
 
-    // 		meta.set_property ( kXMP_NS_PDF, "Author", "PDF Author" );
-    // 		meta.set_property ( kXMP_NS_PDF, "PDFProp", "PDF Prop" );
-    // 		meta.set_property ( kXMP_NS_XMP, "XMPProp", "XMP Prop" );
+    // 		meta.set_property ( xmp_ns::PDF, "Author", "PDF Author" );
+    // 		meta.set_property ( xmp_ns::PDF, "PDFProp", "PDF Prop" );
+    // 		meta.set_property ( xmp_ns::XMP, "XMPProp", "XMP Prop" );
     // 		meta.set_property ( kXMP_NS_DC, "DCProp", "DC Prop" );
 
     // 		SXMPIterator iter1 ( meta );
@@ -1921,8 +1917,8 @@ fn xmp_core_coverage() {
     // 	SXMPUtils::RemoveProperties ( &meta1, NS1 );
     // 	DumpXMPObj ( log, meta1, "Remove all of ns1:" );
 
-    // 	meta1.set_property ( kXMP_NS_XMP, "CreatorTool", "XMPCoverage" );
-    // 	meta1.set_property ( kXMP_NS_XMP, "Nickname", "TXMP test" );
+    // 	meta1.set_property ( xmp_ns::XMP, "CreatorTool", "XMPCoverage" );
+    // 	meta1.set_property ( xmp_ns::XMP, "Nickname", "TXMP test" );
     // 	DumpXMPObj ( log, meta1, "Set xmp:CreatorTool (internal) and xmp:Nickname
     // (external)" );
 
@@ -1932,38 +1928,38 @@ fn xmp_core_coverage() {
     // 	SXMPUtils::RemoveProperties ( &meta1, 0, 0, kXMPUtil_DoAllProperties );
     // 	DumpXMPObj ( log, meta1, "Remove all properties, including internal" );
 
-    // 	meta1.set_property ( kXMP_NS_XMP, "CreatorTool", "XMPCoverage" );
-    // 	meta1.set_property ( kXMP_NS_XMP, "Nickname", "TXMP test" );
+    // 	meta1.set_property ( xmp_ns::XMP, "CreatorTool", "XMPCoverage" );
+    // 	meta1.set_property ( xmp_ns::XMP, "Nickname", "TXMP test" );
     // 	DumpXMPObj ( log, meta1, "Set xmp:CreatorTool and xmp:Nickname again" );
 
     // 	SXMPMeta meta2 ( SIMPLE_RDF, strlen(SIMPLE_RDF) );
 
-    // 	meta2.set_property ( kXMP_NS_XMP, "CreatorTool", "new CreatorTool" );
-    // 	meta2.set_property ( kXMP_NS_XMP, "Nickname", "new Nickname" );
-    // 	meta2.set_property ( kXMP_NS_XMP, "Format", "new Format" );
+    // 	meta2.set_property ( xmp_ns::XMP, "CreatorTool", "new CreatorTool" );
+    // 	meta2.set_property ( xmp_ns::XMP, "Nickname", "new Nickname" );
+    // 	meta2.set_property ( xmp_ns::XMP, "Format", "new Format" );
     // 	DumpXMPObj ( log, meta2, "Create 2nd XMP object with new values" );
 
     // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties );
     // 	DumpXMPObj ( log, meta1, "Append 2nd to 1st, keeping old values, external
     // only" );
 
-    // 	meta2.set_property ( kXMP_NS_XMP, "CreatorTool", "newer CreatorTool" );
-    // 	meta2.set_property ( kXMP_NS_XMP, "Nickname", "newer Nickname" );
-    // 	meta2.set_property ( kXMP_NS_XMP, "Format", "newer Format" );
+    // 	meta2.set_property ( xmp_ns::XMP, "CreatorTool", "newer CreatorTool" );
+    // 	meta2.set_property ( xmp_ns::XMP, "Nickname", "newer Nickname" );
+    // 	meta2.set_property ( xmp_ns::XMP, "Format", "newer Format" );
     // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties |
     // kXMPTemplate_IncludeInternalProperties ); 	DumpXMPObj ( log, meta1,
     // "Append 2nd to 1st, keeping old values, internal also" );
 
-    // 	meta2.set_property ( kXMP_NS_XMP, "CreatorTool", "newest CreatorTool" );
-    // 	meta2.set_property ( kXMP_NS_XMP, "Nickname", "newest Nickname" );
-    // 	meta2.set_property ( kXMP_NS_XMP, "Format", "newest Format" );
+    // 	meta2.set_property ( xmp_ns::XMP, "CreatorTool", "newest CreatorTool" );
+    // 	meta2.set_property ( xmp_ns::XMP, "Nickname", "newest Nickname" );
+    // 	meta2.set_property ( xmp_ns::XMP, "Format", "newest Format" );
     // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties |
     // kXMPTemplate_ReplaceExistingProperties ); 	DumpXMPObj ( log, meta1,
     // "Append 2nd to 1st, replacing old values, external only" );
 
-    // 	meta2.set_property ( kXMP_NS_XMP, "CreatorTool", "final CreatorTool" );
-    // 	meta2.set_property ( kXMP_NS_XMP, "Nickname", "final Nickname" );
-    // 	meta2.set_property ( kXMP_NS_XMP, "Format", "final Format" );
+    // 	meta2.set_property ( xmp_ns::XMP, "CreatorTool", "final CreatorTool" );
+    // 	meta2.set_property ( xmp_ns::XMP, "Nickname", "final Nickname" );
+    // 	meta2.set_property ( xmp_ns::XMP, "Format", "final Format" );
     // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties |
     // kXMPTemplate_ReplaceExistingProperties |
     // kXMPTemplate_IncludeInternalProperties ); 	DumpXMPObj ( log, meta1,
