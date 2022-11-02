@@ -1104,31 +1104,48 @@ fn xmp_core_coverage() {
 
     //-------------------------------------------------------------------------
 
-    // write_major_label("Test parsing with multiple buffers and various options" );
+    write_major_label("Test parsing with multiple buffers and various options");
 
-    // {
-    // 	SXMPMeta meta;
-    // 	meta.ParseFromBuffer ( SIMPLE_RDF, strlen(SIMPLE_RDF), kXMP_RequireXMPMeta );
-    // 	DumpXMPObj ( log, meta, "Parse and require xmpmeta element, which is missing"
-    // ); }
+    {
+        // TODO (https://github.com/adobe/xmp-toolkit-rs/issues/135):
+        // I think this should be an error response, not a silent
+        // Ok(default) response.
+        let meta = XmpMeta::from_str_requiring_xmp_meta(SIMPLE_RDF, true).unwrap();
+        
+        println!(
+            "Parse and require xmpmeta element, which is missing = {:#?}",
+            meta
+        );
 
-    // {
-    // 	SXMPMeta meta;
-    // 	meta.ParseFromBuffer ( NAMESPACE_RDF, strlen(NAMESPACE_RDF) );
-    // 	DumpXMPObj ( log, meta, "Parse RDF with multiple nested namespaces" );
-    // }
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\"/> </rdf:RDF> </x:xmpmeta>");
+    }
 
-    // {
-    // 	SXMPMeta meta;
-    // 	meta.ParseFromBuffer ( XMP_META_RDF, strlen(XMP_META_RDF),
-    // kXMP_RequireXMPMeta ); 	DumpXMPObj ( log, meta, "Parse and require xmpmeta
-    // element, which is present" ); }
+    {
+        let meta = XmpMeta::from_str(NAMESPACE_RDF).unwrap();
 
-    // {
-    // 	SXMPMeta meta;
-    // 	meta.ParseFromBuffer ( INCONSISTENT_RDF, strlen(INCONSISTENT_RDF) );
-    // 	DumpXMPObj ( log, meta, "Parse and reconcile inconsistent aliases" );
-    // }
+        println!("Parse RDF with multiple nested namespaces = {:#?}", meta);
+        
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kNamespaceRDF\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\" xmlns:ns3=\"ns:test3/\" xmlns:ns4=\"ns:test4/\" xmlns:ns5=\"ns:test5/\" xmlns:ns6=\"ns:test6/\"> <ns1:NestedStructProp rdf:parseType=\"Resource\"> <ns2:Outer rdf:parseType=\"Resource\"> <ns3:Middle rdf:parseType=\"Resource\"> <ns4:Inner rdf:parseType=\"Resource\"> <ns5:Field1>Field1 value</ns5:Field1> <ns6:Field2>Field2 value</ns6:Field2> </ns4:Inner> </ns3:Middle> </ns2:Outer> </ns1:NestedStructProp> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+    }
+
+    {
+        let meta = XmpMeta::from_str_requiring_xmp_meta(XMP_META_RDF, true).unwrap();
+
+        println!(
+            "Parse and require xmpmeta element, which is present = {:#?}",
+            meta
+        );
+
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/XMP_META_RDF\" xmlns:ns1=\"ns:test1/\"> <ns1:XMPMetaProp>xmpmeta packet</ns1:XMPMetaProp> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+    }
+
+    {
+        let meta = XmpMeta::from_str(INCONSISTENT_RDF).unwrap();
+
+        println!("Parse and reconcile inconsistent aliases = {:#?}", meta);
+
+        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kInconsistentRDF\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"> <dc:creator> <rdf:Seq> <rdf:li>DC Creator [1]</rdf:li> </rdf:Seq> </dc:creator> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+    }
 
     // try {
     // 	SXMPMeta meta;
