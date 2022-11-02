@@ -183,3 +183,27 @@ pub(crate) const LOCALIZED_TEXT_EXAMPLE: &str = r#"<rdf:RDF xmlns:rdf="http://ww
             </dc:title>
         </rdf:Description>
     </rdf:RDF>"#;
+
+pub(crate) const INCONSISTENT_RDF: &str = r#"<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+      <rdf:Description rdf:about='Test:XMPCoreCoverage/kInconsistentRDF'
+                       xmlns:pdf='http://ns.adobe.com/pdf/1.3/'
+                       xmlns:xmp='http://ns.adobe.com/xap/1.0/'
+                       xmlns:dc='http://purl.org/dc/elements/1.1/'>
+    
+        <pdf:Author>PDF Author</pdf:Author>
+        <xmp:Author>XMP Author</xmp:Author>
+    
+        <xmp:Authors>
+          <rdf:Seq>
+            <rdf:li>XMP Authors [1]</rdf:li>
+          </rdf:Seq>
+        </xmp:Authors>
+    
+        <dc:creator>
+          <rdf:Seq>
+            <rdf:li>DC Creator [1]</rdf:li>
+          </rdf:Seq>
+        </dc:creator>
+    
+      </rdf:Description>
+    </rdf:RDF>"#;

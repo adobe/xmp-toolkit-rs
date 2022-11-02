@@ -148,7 +148,7 @@ mod from_str {
 }
 
 mod from_str_with_options {
-    use crate::{tests::fixtures::*, FromStrOptions, XmpMeta, XmpValue};
+    use crate::{tests::fixtures::*, FromStrOptions, XmpError, XmpErrorType, XmpMeta, XmpValue};
 
     const NO_META: &str = r#"<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
         <rdf:Description rdf:about=""
@@ -287,6 +287,31 @@ mod from_str_with_options {
         assert!(m
             .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
             .is_none());
+    }
+
+    #[test]
+    fn strict_aliasing_should_fail() {
+        assert_eq!(
+            XmpMeta::from_str_with_options(
+                INCONSISTENT_RDF,
+                FromStrOptions::default().strict_aliasing()
+            )
+            .unwrap_err(),
+            XmpError {
+                error_type: XmpErrorType::BadXmp,
+                debug_message: "Mismatch between alias and base nodes".to_owned()
+            }
+        );
+    }
+
+    #[test]
+    fn strict_aliasing_ignore() {
+        assert_eq!(
+            XmpMeta::from_str_with_options(INCONSISTENT_RDF, FromStrOptions::default())
+                .unwrap()
+                .to_string(),
+            "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kInconsistentRDF\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"> <dc:creator> <rdf:Seq> <rdf:li>DC Creator [1]</rdf:li> </rdf:Seq> </dc:creator> </rdf:Description> </rdf:RDF> </x:xmpmeta>"
+        );
     }
 
     #[test]
