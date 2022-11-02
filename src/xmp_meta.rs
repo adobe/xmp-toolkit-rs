@@ -627,7 +627,11 @@ impl XmpMeta {
                     &mut err,
                     c_ns.as_ptr(),
                     c_name.as_ptr(),
-                    c_value.as_ptr(),
+                    if new_value.value.is_empty() {
+                        std::ptr::null()
+                    } else {
+                        c_value.as_ptr()
+                    },
                     new_value.options,
                 );
             }
