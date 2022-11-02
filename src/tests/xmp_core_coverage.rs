@@ -24,8 +24,8 @@
 use std::{str::FromStr, string::ToString};
 
 use crate::{
-    xmp_ns, xmp_value::xmp_prop, ItemPlacement, ToStringOptions, XmpDate, XmpDateTime, XmpMeta,
-    XmpTime, XmpTimeZone, XmpValue,
+    xmp_ns, xmp_value::xmp_prop, FromStrOptions, ItemPlacement, ToStringOptions, XmpDate,
+    XmpDateTime, XmpError, XmpErrorType, XmpMeta, XmpTime, XmpTimeZone, XmpValue,
 };
 
 const NS1: &str = "ns:test1/";
@@ -1110,8 +1110,12 @@ fn xmp_core_coverage() {
         // TODO (https://github.com/adobe/xmp-toolkit-rs/issues/135):
         // I think this should be an error response, not a silent
         // Ok(default) response.
-        let meta = XmpMeta::from_str_requiring_xmp_meta(SIMPLE_RDF, true).unwrap();
-        
+        let meta = XmpMeta::from_str_with_options(
+            SIMPLE_RDF,
+            FromStrOptions::default().require_xmp_meta(),
+        )
+        .unwrap();
+
         println!(
             "Parse and require xmpmeta element, which is missing = {:#?}",
             meta
@@ -1124,12 +1128,16 @@ fn xmp_core_coverage() {
         let meta = XmpMeta::from_str(NAMESPACE_RDF).unwrap();
 
         println!("Parse RDF with multiple nested namespaces = {:#?}", meta);
-        
+
         assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kNamespaceRDF\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\" xmlns:ns3=\"ns:test3/\" xmlns:ns4=\"ns:test4/\" xmlns:ns5=\"ns:test5/\" xmlns:ns6=\"ns:test6/\"> <ns1:NestedStructProp rdf:parseType=\"Resource\"> <ns2:Outer rdf:parseType=\"Resource\"> <ns3:Middle rdf:parseType=\"Resource\"> <ns4:Inner rdf:parseType=\"Resource\"> <ns5:Field1>Field1 value</ns5:Field1> <ns6:Field2>Field2 value</ns6:Field2> </ns4:Inner> </ns3:Middle> </ns2:Outer> </ns1:NestedStructProp> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
     }
 
     {
-        let meta = XmpMeta::from_str_requiring_xmp_meta(XMP_META_RDF, true).unwrap();
+        let meta = XmpMeta::from_str_with_options(
+            XMP_META_RDF,
+            FromStrOptions::default().require_xmp_meta(),
+        )
+        .unwrap();
 
         println!(
             "Parse and require xmpmeta element, which is present = {:#?}",
@@ -1147,16 +1155,17 @@ fn xmp_core_coverage() {
         assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kInconsistentRDF\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\"> <dc:creator> <rdf:Seq> <rdf:li>DC Creator [1]</rdf:li> </rdf:Seq> </dc:creator> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
     }
 
-    // try {
-    // 	SXMPMeta meta;
-    // 	meta.ParseFromBuffer ( INCONSISTENT_RDF, strlen(INCONSISTENT_RDF),
-    // kXMP_StrictAliasing ); 	DumpXMPObj ( log, meta, "ERROR: Parse and do not
-    // reconcile inconsistent aliases - should have thrown an exception" );
-    // } catch ( XMP_Error & excep ) {
-    // 	fprintf ( log, "\nParse and do not reconcile inconsistent aliases - threw
-    // XMP_Error #%d : %s\n", excep.GetID(), excep.GetErrMsg() ); } catch ( ...
-    // ) { 	fprintf ( log, "\nParse and do not reconcile inconsistent aliases -
-    // threw unknown exception\n" ); }
+    assert_eq!(
+        XmpMeta::from_str_with_options(
+            INCONSISTENT_RDF,
+            FromStrOptions::default().strict_aliasing()
+        )
+        .unwrap_err(),
+        XmpError {
+            error_type: XmpErrorType::BadXmp,
+            debug_message: "Mismatch between alias and base nodes".to_owned()
+        }
+    );
 
     // {
     // 	write_major_label("Test CR and LF in values" );
