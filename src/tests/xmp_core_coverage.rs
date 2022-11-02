@@ -1337,281 +1337,282 @@ fn xmp_core_coverage() {
         );
     }
 
-    // // --------------------------------------------------------------------------------------------
-    // // Iteration methods
-    // // -----------------
+    //-------------------------------------------------------------------------
 
-    // {
-    // 	write_major_label("Test iteration methods" );
+    {
+        write_major_label("Test iteration methods");
 
-    // 	SXMPMeta meta ( RDF_COVERAGE, strlen ( RDF_COVERAGE ) );
-    // 	XMP_OptionBits opt2;
+        let mut meta = XmpMeta::from_str(RDF_COVERAGE).unwrap();
 
-    // 	meta.set_property ( NS2, "Prop", "Prop value" );
+        meta.set_property(NS2, "Prop", &"Prop value".into())
+            .unwrap();
 
-    // 	meta.set_property ( NS2, "Bag", 0, kXMP_PropValueIsArray );
-    // 	meta.SetArrayItem ( NS2, "Bag", 1, "BagItem 2" );
-    // 	meta.SetArrayItem ( NS2, "Bag", 1, "BagItem 1", kXMP_InsertBeforeItem );
-    // 	meta.SetArrayItem ( NS2, "Bag", 2, "BagItem 3", kXMP_InsertAfterItem );
+        meta.set_property(NS2, "Bag", &(XmpValue::from("").set_is_array(true)))
+            .unwrap();
 
-    // 	DumpXMPObj ( log, meta, "Parse \"coverage\" RDF, add Bag items out of order"
-    // );
+        // meta.SetArrayItem ( NS2, "Bag", 1, "BagItem 2" );
+        // meta.SetArrayItem ( NS2, "Bag", 1, "BagItem 1", kXMP_InsertBeforeItem
+        // ); meta.SetArrayItem ( NS2, "Bag", 2, "BagItem 3",
+        // kXMP_InsertAfterItem );
 
-    // 	{
-    // 		SXMPIterator iter ( meta );
-    // 		WriteMinorLabel ( log, "Default iteration" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	DumpXMPObj ( log, meta, "Parse \"coverage\" RDF, add Bag items out of
+        // order" );
 
-    // 	{
-    // 		SXMPIterator iter ( meta, kXMP_IterOmitQualifiers );
-    // 		WriteMinorLabel ( log, "Iterate omitting qualifiers" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta );
+        // 		WriteMinorLabel ( log, "Default iteration" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, kXMP_IterJustLeafName );
-    // 		WriteMinorLabel ( log, "Iterate with just leaf names" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, kXMP_IterOmitQualifiers );
+        // 		WriteMinorLabel ( log, "Iterate omitting qualifiers" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, kXMP_IterJustLeafNodes );
-    // 		WriteMinorLabel ( log, "Iterate just the leaf nodes" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, kXMP_IterJustLeafName );
+        // 		WriteMinorLabel ( log, "Iterate with just leaf names" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, kXMP_IterJustChildren );
-    // 		WriteMinorLabel ( log, "Iterate just the schema nodes" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, kXMP_IterJustLeafNodes );
+        // 		WriteMinorLabel ( log, "Iterate just the leaf nodes" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, NS2 );
-    // 		WriteMinorLabel ( log, "Iterate the ns2: namespace" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, kXMP_IterJustChildren );
+        // 		WriteMinorLabel ( log, "Iterate just the schema nodes" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, NS2, "Bag" );
-    // 		WriteMinorLabel ( log, "Start at ns2:Bag" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, NS2 );
+        // 		WriteMinorLabel ( log, "Iterate the ns2: namespace" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, NS2, "NestedStructProp/ns1:Outer" );
-    // 		WriteMinorLabel ( log, "Start at ns2:NestedStructProp/ns1:Outer" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, NS2, "Bag" );
+        // 		WriteMinorLabel ( log, "Start at ns2:Bag" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, "ns:empty/" );
-    // 		WriteMinorLabel ( log, "Iterate an empty namespace" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, NS2, "NestedStructProp/ns1:Outer" );
+        // 		WriteMinorLabel ( log, "Start at ns2:NestedStructProp/ns1:Outer" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, NS2, "", kXMP_IterJustChildren |
-    // kXMP_IterJustLeafName ); 		WriteMinorLabel ( log, "Iterate the top of the
-    // ns2: namespace with just leaf names" ); 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, "ns:empty/" );
+        // 		WriteMinorLabel ( log, "Iterate an empty namespace" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, NS2, "", kXMP_IterJustChildren |
-    // kXMP_IterJustLeafNodes ); 		WriteMinorLabel ( log, "Iterate the top of the
-    // ns2: namespace visiting just leaf nodes" ); 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, NS2, "", kXMP_IterJustChildren |
+        // kXMP_IterJustLeafName ); 		WriteMinorLabel ( log, "Iterate the top of
+        // the ns2: namespace with just leaf names" ); 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, NS2, "Bag", kXMP_IterJustChildren );
-    // 		WriteMinorLabel ( log, "Iterate just the children of ns2:Bag" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, NS2, "", kXMP_IterJustChildren |
+        // kXMP_IterJustLeafNodes ); 		WriteMinorLabel ( log, "Iterate the top of
+        // the ns2: namespace visiting just leaf nodes" ); 		while ( true
+        // ) { 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, NS2, "Bag", kXMP_IterJustChildren |
-    // kXMP_IterJustLeafName ); 		WriteMinorLabel ( log, "Iterate just the
-    // children of ns2:Bag with just leaf names" ); 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, NS2, "Bag", kXMP_IterJustChildren );
+        // 		WriteMinorLabel ( log, "Iterate just the children of ns2:Bag" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta, NS2, "NestedStructProp/ns1:Outer/ns1:Middle",
-    // kXMP_IterJustChildren ); 		WriteMinorLabel ( log, "Iterate just the
-    // children of ns2:NestedStructProp/ns1:Outer/ns1:Middle" ); 		while ( true )
-    // { 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, NS2, "Bag", kXMP_IterJustChildren |
+        // kXMP_IterJustLeafName ); 		WriteMinorLabel ( log, "Iterate just the
+        // children of ns2:Bag with just leaf names" ); 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 		}
+        // 	}
 
-    // 	{
-    // 		SXMPIterator iter ( meta );
-    // 		WriteMinorLabel ( log, "Skip children of ArrayProp2, and siblings after
-    // StructProp" ); 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 			if ( tmpStr2 == "ns1:ArrayProp2" ) iter.Skip ( kXMP_IterSkipSubtree );
-    // 			if ( tmpStr2 == "ns1:StructProp" ) iter.Skip ( kXMP_IterSkipSiblings );
-    // 		}
-    // 	}
+        // 	{
+        // 		SXMPIterator iter ( meta, NS2,
+        // "NestedStructProp/ns1:Outer/ns1:Middle",
+        // kXMP_IterJustChildren ); 		WriteMinorLabel ( log, "Iterate just the
+        // children of ns2:NestedStructProp/ns1:Outer/ns1:Middle" ); 		while (
+        // true ) { 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
 
-    // 	{
-    // 		SXMPMeta meta;
+        // 	{
+        // 		SXMPIterator iter ( meta );
+        // 		WriteMinorLabel ( log, "Skip children of ArrayProp2, and siblings
+        // after StructProp" ); 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 			if ( tmpStr2 == "ns1:ArrayProp2" ) iter.Skip ( kXMP_IterSkipSubtree
+        // ); 			if ( tmpStr2 == "ns1:StructProp" ) iter.Skip (
+        // kXMP_IterSkipSiblings ); 		}
+        // 	}
 
-    // 		meta.set_property ( xmp_ns::PDF, "Author", "PDF Author" );
-    // 		meta.set_property ( xmp_ns::PDF, "PDFProp", "PDF Prop" );
-    // 		meta.set_property ( xmp_ns::XMP, "XMPProp", "XMP Prop" );
-    // 		meta.set_property ( kXMP_NS_DC, "DCProp", "DC Prop" );
+        // 	{
+        // 		SXMPMeta meta;
 
-    // 		SXMPIterator iter1 ( meta );
-    // 		WriteMinorLabel ( log, "Iterate without showing aliases" );
-    // 		while ( true ) {
-    // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-    // 			if ( ! iter1.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-    // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(), tmpStr2.c_str(),
-    // tmpStr3.c_str(), options ); 			if ( ! (options & kXMP_SchemaNode) ) {
-    // 				tmpStr4.erase();
-    // 				options &= kXMP_PropHasAliases;	// So the comparison below works.
-    // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4, &opt2 );
-    // 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 != options) ) {
-    // 					fprintf ( log, "    ** property failed: %s, \"%s\", 0x%X\n",
-    // FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-    // 			}
-    // 		}
-    // 	}
+        // 		meta.set_property ( xmp_ns::PDF, "Author", "PDF Author" );
+        // 		meta.set_property ( xmp_ns::PDF, "PDFProp", "PDF Prop" );
+        // 		meta.set_property ( xmp_ns::XMP, "XMPProp", "XMP Prop" );
+        // 		meta.set_property ( kXMP_NS_DC, "DCProp", "DC Prop" );
 
-    // }
+        // 		SXMPIterator iter1 ( meta );
+        // 		WriteMinorLabel ( log, "Iterate without showing aliases" );
+        // 		while ( true ) {
+        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
+        // 			if ( ! iter1.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
+        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
+        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
+        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
+        // 				options &= kXMP_PropHasAliases;	// So the comparison below works.
+        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
+        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
+        // options) ) { 					fprintf ( log, "    ** property failed: %s,
+        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
+        // 			}
+        // 		}
+        // 	}
+    }
 
     // // --------------------------------------------------------------------------------------------
     // // XPath composition utilities
