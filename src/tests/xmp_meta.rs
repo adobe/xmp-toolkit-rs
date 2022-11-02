@@ -1289,7 +1289,9 @@ mod struct_field {
 }
 
 mod set_property {
-    use crate::{tests::fixtures::*, xmp_value::xmp_prop, XmpErrorType, XmpMeta, XmpValue};
+    use crate::{
+        tests::fixtures::*, xmp_value::xmp_prop, ItemPlacement, XmpErrorType, XmpMeta, XmpValue,
+    };
 
     #[test]
     fn happy_path() {
@@ -1344,6 +1346,24 @@ mod set_property {
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
+    fn empty_string_is_array() {
+        let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
+
+        m.set_property("ns:test2/", "Bag", &(XmpValue::from("").set_is_array(true)))
+            .unwrap();
+
+        m.set_array_item(
+            "ns:test2/",
+            "Bag",
+            ItemPlacement::ReplaceItemAtIndex(1),
+            &"BagItem 2".into(),
+        )
+        .unwrap();
+
+        assert_eq!(m.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\" xmlns:xmpMM=\"http://ns.adobe.com/xap/1.0/mm/\" xmlns:photoshop=\"http://ns.adobe.com/photoshop/1.0/\" xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\" xmlns:pdfx=\"http://ns.adobe.com/pdfx/1.3/\" xmlns:xmpRights=\"http://ns.adobe.com/xap/1.0/rights/\" xmlns:tiff=\"http://ns.adobe.com/tiff/1.0/\" xmlns:exif=\"http://ns.adobe.com/exif/1.0/\" xmlns:ns2=\"ns:test2/\"> <dc:format>application/vnd.adobe.photoshop</dc:format> <dc:description> <rdf:Alt> <rdf:li xml:lang=\"x-default\">a test file (öäüßÖÄÜ€中文)</rdf:li> </rdf:Alt> </dc:description> <dc:title> <rdf:Alt> <rdf:li xml:lang=\"x-default\">Purple Square</rdf:li> </rdf:Alt> </dc:title> <dc:creator> <rdf:Seq> <rdf:li>Llywelyn</rdf:li> </rdf:Seq> </dc:creator> <dc:subject> <rdf:Bag> <rdf:li>purple</rdf:li> <rdf:li>square</rdf:li> <rdf:li>Stefan</rdf:li> <rdf:li>XMP</rdf:li> <rdf:li>XMPFiles</rdf:li> <rdf:li>test</rdf:li> </rdf:Bag> </dc:subject> <xmp:CreatorTool>Adobe Photoshop CS2 Windows</xmp:CreatorTool> <xmp:CreateDate>2006-04-25T15:32:01+02:00</xmp:CreateDate> <xmp:ModifyDate>2006-04-27T15:38:36.655+02:00</xmp:ModifyDate> <xmp:MetadataDate>2006-04-26T16:47:10+02:00</xmp:MetadataDate> <xmpMM:DocumentID>uuid:FE607D9B5FD4DA118B7787757E22306B</xmpMM:DocumentID> <xmpMM:InstanceID>uuid:BF664E7B33D5DA119129F691B53239AD</xmpMM:InstanceID> <photoshop:ColorMode>3</photoshop:ColorMode> <photoshop:ICCProfile>Dell 1905FP Color Profile</photoshop:ICCProfile> <photoshop:CaptionWriter>Stefan</photoshop:CaptionWriter> <pdf:Keywords>\"XMP  metadata  schema XML RDF\"</pdf:Keywords> <pdf:Copyright>2005 Adobe Systems Inc.</pdf:Copyright> <pdfx:Copyright>2005 Adobe Systems Inc.</pdfx:Copyright> <xmpRights:Marked>False</xmpRights:Marked> <tiff:Orientation>1</tiff:Orientation> <tiff:XResolution>720000/10000</tiff:XResolution> <tiff:YResolution>720000/10000</tiff:YResolution> <tiff:ResolutionUnit>2</tiff:ResolutionUnit> <exif:ColorSpace>65535</exif:ColorSpace> <exif:PixelXDimension>200</exif:PixelXDimension> <exif:PixelYDimension>200</exif:PixelYDimension> <ns2:Bag> <rdf:Bag> <rdf:li>BagItem 2</rdf:li> </rdf:Bag> </ns2:Bag> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
     }
 
     #[test]
