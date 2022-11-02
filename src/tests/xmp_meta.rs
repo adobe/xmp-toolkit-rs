@@ -147,8 +147,8 @@ mod from_str {
     }
 }
 
-mod from_str_requiring_xmp_meta {
-    use crate::{tests::fixtures::*, XmpMeta, XmpValue};
+mod from_str_with_options {
+    use crate::{tests::fixtures::*, FromStrOptions, XmpMeta, XmpValue};
 
     const NO_META: &str = r#"<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
         <rdf:Description rdf:about=""
@@ -215,8 +215,9 @@ mod from_str_requiring_xmp_meta {
         "#;
 
     #[test]
-    fn happy_path() {
-        let m = XmpMeta::from_str_requiring_xmp_meta(PURPLE_SQUARE_XMP, false).unwrap();
+    fn default_options() {
+        let m =
+            XmpMeta::from_str_with_options(PURPLE_SQUARE_XMP, FromStrOptions::default()).unwrap();
 
         assert_eq!(
             m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
@@ -246,7 +247,11 @@ mod from_str_requiring_xmp_meta {
         // TODO (https://github.com/adobe/xmp-toolkit-rs/issues/135):
         // I think this should be an error response, not a silent
         // Ok(default) response.
-        assert!(XmpMeta::from_str_requiring_xmp_meta(NO_META, true).is_ok());
+        assert!(XmpMeta::from_str_with_options(
+            NO_META,
+            FromStrOptions::default().require_xmp_meta()
+        )
+        .is_ok());
 
         // Should be:
         // XmpError {
@@ -257,7 +262,7 @@ mod from_str_requiring_xmp_meta {
 
     #[test]
     fn missing_xmp_meta_not_required() {
-        let m = XmpMeta::from_str_requiring_xmp_meta(NO_META, false).unwrap();
+        let m = XmpMeta::from_str_with_options(NO_META, FromStrOptions::default()).unwrap();
 
         println!("m = {:#?}", m);
 
@@ -289,7 +294,8 @@ mod from_str_requiring_xmp_meta {
         // TXMPMeta::ParseFromBuffer doesn't seem to throw exceptions,
         // regardless of how badly-formed the XMP is. This test merely
         // confirms that we pass that behavior through.
-        let m = XmpMeta::from_str_requiring_xmp_meta("this is not XMP", false).unwrap();
+        let m =
+            XmpMeta::from_str_with_options("this is not XMP", FromStrOptions::default()).unwrap();
 
         assert!(m
             .property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
@@ -309,7 +315,7 @@ mod from_str_requiring_xmp_meta {
         // TXMPMeta::ParseFromBuffer doesn't seem to throw exceptions,
         // regardless of how badly-formed the XMP is. This test merely
         // confirms that we pass that behavior through.
-        let m = XmpMeta::from_str_requiring_xmp_meta("", false).unwrap();
+        let m = XmpMeta::from_str_with_options("", FromStrOptions::default()).unwrap();
 
         assert!(m
             .property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
