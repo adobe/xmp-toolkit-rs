@@ -1241,71 +1241,100 @@ fn xmp_core_coverage() {
             assert_eq!(meta2.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\" xmlns:xmp=\"http://ns.adobe.com/xap/1.0/\"> <dc:creator> <rdf:Seq> <rdf:li>PDF Author</rdf:li> </rdf:Seq> </dc:creator> <pdf:Actual>PDF Actual</pdf:Actual> <xmp:Actual>XMP Actual</xmp:Actual> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
         }
 
-        let s = meta.to_string_with_options(ToStringOptions::default().omit_packet_wrapper().set_newline("\u{D}")).unwrap();
+        let s = meta
+            .to_string_with_options(
+                ToStringOptions::default()
+                    .omit_packet_wrapper()
+                    .set_newline("\u{D}".to_owned()),
+            )
+            .unwrap();
 
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "\x0D"
-        // ); 	WriteMinorLabel ( log, "CR newline serialize" );
-        // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
-        // 	VerifyNewlines ( log, tmpStr1, "\x0D" );
+        println!("CR newline serialize = {}", s);
+        assert_eq!(s, "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\r   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\r      <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\"\r            xmlns:ns1=\"ns:test1/\"\r            xmlns:ns2=\"ns:test2/\"\r            xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\">\r         <ns1:SimpleProp>Simple value</ns1:SimpleProp>\r         <ns1:ArrayProp>\r            <rdf:Bag>\r               <rdf:li>Item1 value</rdf:li>\r               <rdf:li>Item2 value</rdf:li>\r            </rdf:Bag>\r         </ns1:ArrayProp>\r         <ns1:StructProp rdf:parseType=\"Resource\">\r            <ns2:Field1>Field1 value</ns2:Field1>\r            <ns2:Field2>Field2 value</ns2:Field2>\r         </ns1:StructProp>\r         <ns1:QualProp rdf:parseType=\"Resource\">\r            <rdf:value>Prop value</rdf:value>\r            <ns2:Qual>Qual value</ns2:Qual>\r         </ns1:QualProp>\r         <ns1:AltTextProp>\r            <rdf:Alt>\r               <rdf:li xml:lang=\"x-one\">x-one value</rdf:li>\r               <rdf:li xml:lang=\"x-two\">x-two value</rdf:li>\r            </rdf:Alt>\r         </ns1:AltTextProp>\r         <ns1:ArrayOfStructProp>\r            <rdf:Bag>\r               <rdf:li rdf:parseType=\"Resource\">\r                  <ns2:Field1>Item-1</ns2:Field1>\r                  <ns2:Field2>Field 1.2 value</ns2:Field2>\r               </rdf:li>\r               <rdf:li rdf:parseType=\"Resource\">\r                  <ns2:Field1>Item-2</ns2:Field1>\r                  <ns2:Field2>Field 2.2 value</ns2:Field2>\r               </rdf:li>\r            </rdf:Bag>\r         </ns1:ArrayOfStructProp>\r         <ns2:Another>Something in another schema</ns2:Another>\r         <ns2:Yet rdf:parseType=\"Resource\">\r            <pdf:More>Yet more in another schema</pdf:More>\r         </ns2:Yet>\r      </rdf:Description>\r   </rdf:RDF>\r</x:xmpmeta>\r");
 
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0,
-        // "\x0D\x0A" ); 	WriteMinorLabel ( log, "CRLF newline serialize"
-        // ); 	fprintf ( log, "%s\n", tmpStr1.c_str() );
-        // 	VerifyNewlines ( log, tmpStr1, "\x0D\x0A" );
+        let s = meta
+            .to_string_with_options(
+                ToStringOptions::default()
+                    .omit_packet_wrapper()
+                    .set_newline("\r\n".to_owned()),
+            )
+            .unwrap();
 
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "<->"
-        // ); 	WriteMinorLabel ( log, "Alternate newline serialize" );
-        // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+        println!("CRLF newline serialize = {}", s);
+        assert_eq!(s, "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\r\n   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\r\n      <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\"\r\n            xmlns:ns1=\"ns:test1/\"\r\n            xmlns:ns2=\"ns:test2/\"\r\n            xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\">\r\n         <ns1:SimpleProp>Simple value</ns1:SimpleProp>\r\n         <ns1:ArrayProp>\r\n            <rdf:Bag>\r\n               <rdf:li>Item1 value</rdf:li>\r\n               <rdf:li>Item2 value</rdf:li>\r\n            </rdf:Bag>\r\n         </ns1:ArrayProp>\r\n         <ns1:StructProp rdf:parseType=\"Resource\">\r\n            <ns2:Field1>Field1 value</ns2:Field1>\r\n            <ns2:Field2>Field2 value</ns2:Field2>\r\n         </ns1:StructProp>\r\n         <ns1:QualProp rdf:parseType=\"Resource\">\r\n            <rdf:value>Prop value</rdf:value>\r\n            <ns2:Qual>Qual value</ns2:Qual>\r\n         </ns1:QualProp>\r\n         <ns1:AltTextProp>\r\n            <rdf:Alt>\r\n               <rdf:li xml:lang=\"x-one\">x-one value</rdf:li>\r\n               <rdf:li xml:lang=\"x-two\">x-two value</rdf:li>\r\n            </rdf:Alt>\r\n         </ns1:AltTextProp>\r\n         <ns1:ArrayOfStructProp>\r\n            <rdf:Bag>\r\n               <rdf:li rdf:parseType=\"Resource\">\r\n                  <ns2:Field1>Item-1</ns2:Field1>\r\n                  <ns2:Field2>Field 1.2 value</ns2:Field2>\r\n               </rdf:li>\r\n               <rdf:li rdf:parseType=\"Resource\">\r\n                  <ns2:Field1>Item-2</ns2:Field1>\r\n                  <ns2:Field2>Field 2.2 value</ns2:Field2>\r\n               </rdf:li>\r\n            </rdf:Bag>\r\n         </ns1:ArrayOfStructProp>\r\n         <ns2:Another>Something in another schema</ns2:Another>\r\n         <ns2:Yet rdf:parseType=\"Resource\">\r\n            <pdf:More>Yet more in another schema</pdf:More>\r\n         </ns2:Yet>\r\n      </rdf:Description>\r\n   </rdf:RDF>\r\n</x:xmpmeta>\r\n");
 
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_OmitPacketWrapper, 0, "",
-        // "#", 3 ); 	WriteMinorLabel ( log, "Alternate indent serialize"
-        // ); 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+        let s = meta
+            .to_string_with_options(
+                ToStringOptions::default()
+                    .omit_packet_wrapper()
+                    .set_newline("<->".to_owned()),
+            )
+            .unwrap();
 
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, 0, 10 );
-        // 	WriteMinorLabel ( log, "Small padding serialize" );
-        // 	fprintf ( log, "%s\n", tmpStr1.c_str() );
+        println!("Alternate newline serialize = {}", s);
+        assert_eq!(s, "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"><->   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><->      <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\"<->            xmlns:ns1=\"ns:test1/\"<->            xmlns:ns2=\"ns:test2/\"<->            xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\"><->         <ns1:SimpleProp>Simple value</ns1:SimpleProp><->         <ns1:ArrayProp><->            <rdf:Bag><->               <rdf:li>Item1 value</rdf:li><->               <rdf:li>Item2 value</rdf:li><->            </rdf:Bag><->         </ns1:ArrayProp><->         <ns1:StructProp rdf:parseType=\"Resource\"><->            <ns2:Field1>Field1 value</ns2:Field1><->            <ns2:Field2>Field2 value</ns2:Field2><->         </ns1:StructProp><->         <ns1:QualProp rdf:parseType=\"Resource\"><->            <rdf:value>Prop value</rdf:value><->            <ns2:Qual>Qual value</ns2:Qual><->         </ns1:QualProp><->         <ns1:AltTextProp><->            <rdf:Alt><->               <rdf:li xml:lang=\"x-one\">x-one value</rdf:li><->               <rdf:li xml:lang=\"x-two\">x-two value</rdf:li><->            </rdf:Alt><->         </ns1:AltTextProp><->         <ns1:ArrayOfStructProp><->            <rdf:Bag><->               <rdf:li rdf:parseType=\"Resource\"><->                  <ns2:Field1>Item-1</ns2:Field1><->                  <ns2:Field2>Field 1.2 value</ns2:Field2><->               </rdf:li><->               <rdf:li rdf:parseType=\"Resource\"><->                  <ns2:Field1>Item-2</ns2:Field1><->                  <ns2:Field2>Field 2.2 value</ns2:Field2><->               </rdf:li><->            </rdf:Bag><->         </ns1:ArrayOfStructProp><->         <ns2:Another>Something in another schema</ns2:Another><->         <ns2:Yet rdf:parseType=\"Resource\"><->            <pdf:More>Yet more in another schema</pdf:More><->         </ns2:Yet><->      </rdf:Description><->   </rdf:RDF><-></x:xmpmeta><->");
 
-        // 	tmpStr1.erase();
-        // 	tmpStr2.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1 );
-        // 	meta.SerializeToBuffer ( &tmpStr2, kXMP_IncludeThumbnailPad );
-        // 	fprintf ( log, "Thumbnailpad adds %zd bytes\n",
-        // tmpStr2.size()-tmpStr1.size() );
+        let s = meta
+            .to_string_with_options(
+                ToStringOptions::default()
+                    .omit_packet_wrapper()
+                    .set_indent_string("\t".to_owned()),
+            )
+            .unwrap();
 
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_ReadOnlyPacket );
-        // 	size_t minSize = tmpStr1.size();
-        // 	fprintf ( log, "Minimum packet size is %zd bytes\n", minSize );
+        println!("Alternate indent serialize = {}", s);
+        assert_eq!(s, "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n\t<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n\t\t<rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\"\n\t\t\t\txmlns:ns1=\"ns:test1/\"\n\t\t\t\txmlns:ns2=\"ns:test2/\"\n\t\t\t\txmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\">\n\t\t\t<ns1:SimpleProp>Simple value</ns1:SimpleProp>\n\t\t\t<ns1:ArrayProp>\n\t\t\t\t<rdf:Bag>\n\t\t\t\t\t<rdf:li>Item1 value</rdf:li>\n\t\t\t\t\t<rdf:li>Item2 value</rdf:li>\n\t\t\t\t</rdf:Bag>\n\t\t\t</ns1:ArrayProp>\n\t\t\t<ns1:StructProp rdf:parseType=\"Resource\">\n\t\t\t\t<ns2:Field1>Field1 value</ns2:Field1>\n\t\t\t\t<ns2:Field2>Field2 value</ns2:Field2>\n\t\t\t</ns1:StructProp>\n\t\t\t<ns1:QualProp rdf:parseType=\"Resource\">\n\t\t\t\t<rdf:value>Prop value</rdf:value>\n\t\t\t\t<ns2:Qual>Qual value</ns2:Qual>\n\t\t\t</ns1:QualProp>\n\t\t\t<ns1:AltTextProp>\n\t\t\t\t<rdf:Alt>\n\t\t\t\t\t<rdf:li xml:lang=\"x-one\">x-one value</rdf:li>\n\t\t\t\t\t<rdf:li xml:lang=\"x-two\">x-two value</rdf:li>\n\t\t\t\t</rdf:Alt>\n\t\t\t</ns1:AltTextProp>\n\t\t\t<ns1:ArrayOfStructProp>\n\t\t\t\t<rdf:Bag>\n\t\t\t\t\t<rdf:li rdf:parseType=\"Resource\">\n\t\t\t\t\t\t<ns2:Field1>Item-1</ns2:Field1>\n\t\t\t\t\t\t<ns2:Field2>Field 1.2 value</ns2:Field2>\n\t\t\t\t\t</rdf:li>\n\t\t\t\t\t<rdf:li rdf:parseType=\"Resource\">\n\t\t\t\t\t\t<ns2:Field1>Item-2</ns2:Field1>\n\t\t\t\t\t\t<ns2:Field2>Field 2.2 value</ns2:Field2>\n\t\t\t\t\t</rdf:li>\n\t\t\t\t</rdf:Bag>\n\t\t\t</ns1:ArrayOfStructProp>\n\t\t\t<ns2:Another>Something in another schema</ns2:Another>\n\t\t\t<ns2:Yet rdf:parseType=\"Resource\">\n\t\t\t\t<pdf:More>Yet more in another schema</pdf:More>\n\t\t\t</ns2:Yet>\n\t\t</rdf:Description>\n\t</rdf:RDF>\n</x:xmpmeta>\n");
 
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_ExactPacketLength,
-        // minSize+1234 ); 	fprintf ( log, "Minimum+1234 packet size is
-        // %zd bytes\n", tmpStr1.size() ); 	if ( tmpStr1.size() !=
-        // (minSize + 1234) ) fprintf ( log, "** Bad packet length **\n"
-        // );
+        let s = meta
+            .to_string_with_options(ToStringOptions::default().set_padding(10))
+            .unwrap();
 
-        // 	tmpStr1.erase();
-        // 	meta.SerializeToBuffer ( &tmpStr1, kXMP_ExactPacketLength, minSize );
-        // 	fprintf ( log, "Minimum+0 packet size is %zd bytes\n", tmpStr1.size()
-        // ); 	if ( tmpStr1.size() != minSize ) fprintf ( log, "** Bad
-        // packet length **\n" );
+        println!("Small padding serialize = {}", s);
+        assert_eq!(s, "<?xpacket begin=\"\u{feff}\" id=\"W5M0MpCehiHzreSzNTczkc9d\"?>\n<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\">\n   <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n      <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\"\n            xmlns:ns1=\"ns:test1/\"\n            xmlns:ns2=\"ns:test2/\"\n            xmlns:pdf=\"http://ns.adobe.com/pdf/1.3/\">\n         <ns1:SimpleProp>Simple value</ns1:SimpleProp>\n         <ns1:ArrayProp>\n            <rdf:Bag>\n               <rdf:li>Item1 value</rdf:li>\n               <rdf:li>Item2 value</rdf:li>\n            </rdf:Bag>\n         </ns1:ArrayProp>\n         <ns1:StructProp rdf:parseType=\"Resource\">\n            <ns2:Field1>Field1 value</ns2:Field1>\n            <ns2:Field2>Field2 value</ns2:Field2>\n         </ns1:StructProp>\n         <ns1:QualProp rdf:parseType=\"Resource\">\n            <rdf:value>Prop value</rdf:value>\n            <ns2:Qual>Qual value</ns2:Qual>\n         </ns1:QualProp>\n         <ns1:AltTextProp>\n            <rdf:Alt>\n               <rdf:li xml:lang=\"x-one\">x-one value</rdf:li>\n               <rdf:li xml:lang=\"x-two\">x-two value</rdf:li>\n            </rdf:Alt>\n         </ns1:AltTextProp>\n         <ns1:ArrayOfStructProp>\n            <rdf:Bag>\n               <rdf:li rdf:parseType=\"Resource\">\n                  <ns2:Field1>Item-1</ns2:Field1>\n                  <ns2:Field2>Field 1.2 value</ns2:Field2>\n               </rdf:li>\n               <rdf:li rdf:parseType=\"Resource\">\n                  <ns2:Field1>Item-2</ns2:Field1>\n                  <ns2:Field2>Field 2.2 value</ns2:Field2>\n               </rdf:li>\n            </rdf:Bag>\n         </ns1:ArrayOfStructProp>\n         <ns2:Another>Something in another schema</ns2:Another>\n         <ns2:Yet rdf:parseType=\"Resource\">\n            <pdf:More>Yet more in another schema</pdf:More>\n         </ns2:Yet>\n      </rdf:Description>\n   </rdf:RDF>\n</x:xmpmeta>\n         \n<?xpacket end=\"w\"?>");
 
-        // 	try {
-        // 		tmpStr1.erase();
-        // 		meta.SerializeToBuffer ( &tmpStr1, kXMP_ExactPacketLength, minSize-1
-        // ); 		fprintf ( log, "#ERROR: No exception for minimum-1, size
-        // is %zd bytes **\n", tmpStr1.size() ); 	} catch ( XMP_Error &
-        // excep ) { 		fprintf ( log, "Serialize in minimum-1 - threw
-        // XMP_Error #%d : %s\n", excep.GetID(), excep.GetErrMsg() ); 	}
-        // catch ( ... ) { 		fprintf ( log, "Serialize in minimum-1 -
-        // threw unknown exception\n" ); 	}
+        let s1 = meta
+            .to_string_with_options(ToStringOptions::default())
+            .unwrap();
+        let s2 = meta
+            .to_string_with_options(ToStringOptions::default().include_thumbnail_pad())
+            .unwrap();
+        assert_eq!(s2.len() - s1.len(), 10000);
 
-        // 	// *** UTF-16 and UTF-32 encodings
+        let s1 = meta
+            .to_string_with_options(ToStringOptions::default().read_only_packet())
+            .unwrap();
+        assert_eq!(s1.len(), 1914);
+
+        let s1 = meta
+            .to_string_with_options(
+                ToStringOptions::default()
+                    .exact_packet_length()
+                    .set_padding((s1.len() + 1234) as u32),
+            )
+            .unwrap();
+        assert_eq!(s1.len(), 3148);
+
+        let s1 = meta
+            .to_string_with_options(
+                ToStringOptions::default()
+                    .exact_packet_length()
+                    .set_padding(1914),
+            )
+            .unwrap();
+        assert_eq!(s1.len(), 1914);
+
+        assert_eq!(
+            meta.to_string_with_options(
+                ToStringOptions::default()
+                    .exact_packet_length()
+                    .set_padding(1913),
+            )
+            .unwrap_err(),
+            XmpError {
+                error_type: XmpErrorType::BadSerialize,
+                debug_message: "Can't fit into specified packet size".to_owned()
+            }
+        );
     }
 
     // // --------------------------------------------------------------------------------------------
