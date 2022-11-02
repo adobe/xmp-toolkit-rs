@@ -1668,20 +1668,17 @@ impl XmpMeta {
     /// Creates a new `XmpMeta` struct and populates it with metadata from a
     /// string containing serialized RDF. This string must be a complete RDF
     /// parse stream.
-    ///
-    /// ## Arguments
-    ///
-    /// * `s`: XMP string to be read
-    /// * `require_xmp_meta`: if `true`, the `x:xmpmeta` XML element is required
-    ///   around `rdf:RDF`
-    pub fn from_str_requiring_xmp_meta(s: &str, require_xmp_meta: bool) -> XmpResult<Self> {
+    pub fn from_str_with_options(s: &str, options: FromStrOptions) -> XmpResult<Self> {
         let mut err = ffi::CXmpError::default();
         let bytes = s.as_bytes();
 
-        let options = if require_xmp_meta { 1 } else { 0 };
-
         let m = unsafe {
-            ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32, options)
+            ffi::CXmpMetaParseFromBuffer(
+                &mut err,
+                bytes.as_ptr(),
+                bytes.len() as u32,
+                options.options,
+            )
         };
 
         XmpError::raise_from_c(&err)?;
@@ -1859,6 +1856,32 @@ pub(crate) fn no_cpp_toolkit() -> XmpError {
     XmpError {
         error_type: XmpErrorType::NoCppToolkit,
         debug_message: "C++ XMP Toolkit not available".to_owned(),
+    }
+}
+
+/// Provides options for configuring the XMP parsing behavior
+/// provided by [`XmpMeta::from_str_with_options`].
+#[derive(Clone, Default, Debug, Eq, PartialEq)]
+pub struct FromStrOptions {
+    pub(crate) options: u32,
+}
+
+impl FromStrOptions {
+    pub(crate) const REQUIRE_XMP_META: u32 = 0x0001;
+    // pub(crate) const PARSE_MORE_BUFFERS: u32 = 0x0002;
+    pub(crate) const STRICT_ALIASING: u32 = 0x0004;
+
+    /// Require a surrounding `x:xmpmeta` element.
+    pub fn require_xmp_meta(mut self) -> Self {
+        self.options |= Self::REQUIRE_XMP_META;
+        self
+    }
+
+    /// Do not reconcile alias differences. If differences are found,
+    /// return an `Err` result.
+    pub fn strict_aliasing(mut self) -> Self {
+        self.options |= Self::STRICT_ALIASING;
+        self
     }
 }
 
