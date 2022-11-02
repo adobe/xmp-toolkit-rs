@@ -308,13 +308,14 @@ extern "C" {
 
     CXmpMeta* CXmpMetaParseFromBuffer(CXmpError* outError,
                                       const char* buffer,
-                                      AdobeXMPCommon::uint32 buffer_size) {
+                                      AdobeXMPCommon::uint32 buffer_size,
+                                      AdobeXMPCommon::uint32 options) {
         #ifndef NOOP_FFI
             init_xmp();
             CXmpMeta* result = new CXmpMeta;
 
             try {
-                result->m.ParseFromBuffer(buffer, buffer_size);
+                result->m.ParseFromBuffer(buffer, buffer_size, options);
                 return result;
             }
             catch (XMP_Error& e) {

@@ -1665,6 +1665,30 @@ impl XmpMeta {
         }
     }
 
+    /// Creates a new `XmpMeta` struct and populates it with metadata from a
+    /// string containing serialized RDF. This string must be a complete RDF
+    /// parse stream.
+    ///
+    /// ## Arguments
+    ///
+    /// * `s`: XMP string to be read
+    /// * `require_xmp_meta`: if `true`, the `x:xmpmeta` XML element is required
+    ///   around `rdf:RDF`
+    pub fn from_str_requiring_xmp_meta(s: &str, require_xmp_meta: bool) -> XmpResult<Self> {
+        let mut err = ffi::CXmpError::default();
+        let bytes = s.as_bytes();
+
+        let options = if require_xmp_meta { 1 } else { 0 };
+
+        let m = unsafe {
+            ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32, options)
+        };
+
+        XmpError::raise_from_c(&err)?;
+
+        Ok(XmpMeta { m: Some(m) })
+    }
+
     /// Converts metadata in this XMP object into a string as RDF.
     ///
     /// This struct also implements [`std::fmt::Display`] which will provide
@@ -1781,12 +1805,13 @@ impl FromStr for XmpMeta {
     ///
     /// ## Arguments
     ///
-    /// * `xmp`: XMP string to be read
+    /// * `s`: XMP string to be read
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut err = ffi::CXmpError::default();
         let bytes = s.as_bytes();
-        let m =
-            unsafe { ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32) };
+        let m = unsafe {
+            ffi::CXmpMetaParseFromBuffer(&mut err, bytes.as_ptr(), bytes.len() as u32, 0)
+        };
         XmpError::raise_from_c(&err)?;
 
         Ok(XmpMeta { m: Some(m) })
