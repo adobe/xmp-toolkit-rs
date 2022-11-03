@@ -17,10 +17,10 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
 
     println!("> git submodule init\n");
-    git_command(&["submodule", "init"]);
+    git_command(["submodule", "init"]);
 
     println!("> git submodule update\n");
-    git_command(&["submodule", "update"]);
+    git_command(["submodule", "update"]);
 
     // docs.rs builds in an environment that doesn't allow us to modify
     // the underlying source. We don't actually need to fully compile,
@@ -88,7 +88,6 @@ fn main() {
                 .flag("/wd4996")
                 .include("external/xmp_toolkit/XMPCore/resource/win")
                 .include("external/xmp_toolkit/XMPFiles/resource/win")
-                .file("external/xmp_toolkit/XMPCore/source/WXMPIterator.cpp")
                 .file("external/xmp_toolkit/source/Host_IO-Win.cpp")
                 .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_WIN.cpp");
         }
@@ -231,6 +230,7 @@ fn main() {
         .file("external/xmp_toolkit/XMPCore/source/WXMPUtils.cpp")
         .file("external/xmp_toolkit/XMPCore/source/XMPCore_Impl.cpp")
         .file("external/xmp_toolkit/XMPCore/source/XMPIterator.cpp")
+        .file("external/xmp_toolkit/XMPCore/source/WXMPIterator.cpp")
         .file("external/xmp_toolkit/XMPCore/source/XMPMeta.cpp")
         .file("external/xmp_toolkit/XMPCore/source/XMPMeta-GetSet.cpp")
         .file("external/xmp_toolkit/XMPCore/source/XMPMeta-Parse.cpp")

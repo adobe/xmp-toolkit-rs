@@ -50,7 +50,7 @@ fn read_xmp_from_file() -> Result<()> {
     let mut f = XmpFile::new()?;
 
     f.open_file(
-        &path,
+        path,
         OpenFileOptions::default().only_xmp().use_smart_handler(),
     )
     .or_else(|_err| {
