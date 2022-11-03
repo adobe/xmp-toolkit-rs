@@ -78,7 +78,7 @@ impl CXmpError {
         // when this struct is dropped.
 
         Self {
-            had_error: if had_error { 1 } else { 0 },
+            had_error: u32::from(had_error),
             id,
             debug_message: unsafe {
                 match debug_message {
