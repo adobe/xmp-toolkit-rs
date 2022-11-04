@@ -142,10 +142,9 @@ extern "C" {
         #ifdef NOOP_FFI
             int x;
         #else
+            CXmpIterator(SXMPIterator i): i(i) {}
             SXMPIterator i;
         #endif
-
-        CXmpIterator(SXMPIterator i): i(i) {}
     } CXmpIterator;
 
     const char* CXmpStringCopy(const char* str) {
