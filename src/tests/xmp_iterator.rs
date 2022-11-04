@@ -134,6 +134,13 @@ fn default() {
 }
 
 #[test]
+fn init_fail() {
+    let meta = XmpMeta::new_fail();
+    let mut prop_iter = meta.iter(IterOptions::default());
+    assert!(prop_iter.next().is_none());
+}
+
+#[test]
 fn omit_qualifiers() {
     let meta = test_fixture();
 
@@ -959,6 +966,22 @@ fn skip_children_and_siblings() {
             }
         ]
     );
+}
+
+#[test]
+fn init_fail_skip_subtre() {
+    let meta = XmpMeta::new_fail();
+    let mut prop_iter = meta.iter(IterOptions::default());
+    prop_iter.skip_subtree(); // no-op
+    assert!(prop_iter.next().is_none());
+}
+
+#[test]
+fn init_fail_skip_siblings() {
+    let meta = XmpMeta::new_fail();
+    let mut prop_iter = meta.iter(IterOptions::default());
+    prop_iter.skip_siblings(); // no-op
+    assert!(prop_iter.next().is_none());
 }
 
 #[test]
