@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.7.4
+_04 November 2022_
+
+* Add APIs to allow iteration over the XMP data model ([#141](https://github.com/adobe/xmp-toolkit-rs/pull/141))
+
 ## 0.7.3
 _03 November 2022_
 
