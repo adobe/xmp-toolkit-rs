@@ -41,6 +41,7 @@ pub(crate) mod xmp_prop {
     pub(crate) const IS_INTERNAL: u32 = 0x00040000;
     pub(crate) const IS_STABLE: u32 = 0x00100000;
     pub(crate) const IS_DERIVED: u32 = 0x00200000;
+    pub(crate) const IS_SCHEMA_NODE: u32 = 0x80000000;
 }
 
 impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
@@ -285,6 +286,12 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
         }
 
         self
+    }
+
+    /// Returns `true` if this property is an schema node, which is
+    /// created implicitly during iteration via `XmpIterator`.
+    pub fn is_schema_node(&self) -> bool {
+        self.options & xmp_prop::IS_SCHEMA_NODE != 0
     }
 }
 

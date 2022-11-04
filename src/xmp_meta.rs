@@ -15,7 +15,8 @@ use std::{ffi::CString, fmt, os::raw::c_void, path::Path, str::FromStr};
 
 use crate::{
     ffi::{self, CXmpString},
-    OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpResult, XmpValue,
+    IterOptions, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpIterator,
+    XmpResult, XmpValue,
 };
 
 /// An `XmpMeta` struct allows you to inspect and modify the data model
@@ -1722,6 +1723,32 @@ impl XmpMeta {
         } else {
             Err(no_cpp_toolkit())
         }
+    }
+}
+
+impl<'a> XmpMeta {
+    /// Returns an iterator over the schema and properties within an XMP object.
+    ///
+    /// The top of the XMP data tree is a single root node. This does not
+    /// explicitly in an iteration.
+    ///
+    /// Beneath the root are schema nodes; these collect the top-level
+    /// properties in the same namespace. They are created and destroyed
+    /// implicitly.
+    ///
+    /// Beneath the schema nodes are the property nodes. The nodes below a
+    /// property node depend on its type (simple, struct, or array) and whether
+    /// it has qualifiers.
+    ///
+    /// The [`IterOptions`] struct defines a starting point for the iteration,
+    /// and options that control how it proceeds. By default, iteration starts
+    /// at the root and visits all nodes beneath it in a depth-first manner. The
+    /// root node iteself is not visited; the first visited node is a schema
+    /// node. You can provide a schema name or property path to select a
+    /// different starting node. By default, this visits the named root node
+    /// first then all nodes beneath it in a depth-first manner.
+    pub fn iter(&'a self, options: IterOptions) -> XmpIterator<'a> {
+        XmpIterator::new(self, options)
     }
 }
 

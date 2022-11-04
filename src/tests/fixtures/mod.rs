@@ -207,3 +207,97 @@ pub(crate) const INCONSISTENT_RDF: &str = r#"<rdf:RDF xmlns:rdf='http://www.w3.o
     
       </rdf:Description>
     </rdf:RDF>"#;
+
+pub(crate) const RDF_COVERAGE: &str = r#"<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>                
+        <rdf:Description rdf:about='Test:XMPCoreCoverage/kRDFCoverage' xmlns:ns1='ns:test1/' xmlns:ns2='ns:test2/'>              
+                    
+            <ns1:SimpleProp1>Simple1 value</ns1:SimpleProp1>                
+            <ns1:SimpleProp2 xml:lang='x-default'>Simple2 value</ns1:SimpleProp2>                
+                    
+            <ns1:ArrayProp1>                
+                <rdf:Bag>                
+                    <rdf:li>Item1.1 value</rdf:li>              
+                    <rdf:li>Item1.2 value</rdf:li>              
+                </rdf:Bag>              
+            </ns1:ArrayProp1>                
+                    
+            <ns1:ArrayProp2>                
+                <rdf:Alt>                
+                    <rdf:li xml:lang='x-one'>Item2.1 value</rdf:li>              
+                    <rdf:li xml:lang='x-two'>Item2.2 value</rdf:li>              
+                </rdf:Alt>              
+            </ns1:ArrayProp2>                
+                    
+            <ns1:ArrayProp3>                
+                <rdf:Alt>                
+                    <rdf:li xml:lang='x-one'>Item3.1 value</rdf:li>              
+                    <rdf:li>Item3.2 value</rdf:li>              
+                </rdf:Alt>              
+            </ns1:ArrayProp3>                
+                    
+            <ns1:ArrayProp4>                
+                <rdf:Alt>                
+                    <rdf:li>Item4.1 value</rdf:li>              
+                    <rdf:li xml:lang='x-two'>Item4.2 value</rdf:li>              
+                </rdf:Alt>              
+            </ns1:ArrayProp4>                
+                    
+            <ns1:ArrayProp5>                
+                <rdf:Alt>                
+                    <rdf:li xml:lang='x-xxx'>Item5.1 value</rdf:li>              
+                    <rdf:li xml:lang='x-xxx'>Item5.2 value</rdf:li>              
+                </rdf:Alt>              
+            </ns1:ArrayProp5>                
+                    
+            <ns1:StructProp rdf:parseType='Resource'>                
+                <ns2:Field1>Field1 value</ns2:Field1>                
+                <ns2:Field2>Field2 value</ns2:Field2>                
+            </ns1:StructProp>                
+                    
+            <ns1:QualProp1 rdf:parseType='Resource'>                
+                <rdf:value>Prop value</rdf:value>                
+                <ns2:Qual>Qual value</ns2:Qual>              
+            </ns1:QualProp1>                
+                    
+            <ns1:QualProp2 rdf:parseType='Resource'>                
+                <rdf:value xml:lang='x-default'>Prop value</rdf:value>              
+                <ns2:Qual>Qual value</ns2:Qual>              
+            </ns1:QualProp2>                
+                    
+            <!-- NOTE: QualProp3 is not quite kosher. Normally a qualifier on a struct is attached to the -->                
+            <!-- struct node in the XMP tree, and the same for an array. See QualProp4 and QualProp5. But -->                
+            <!-- for the pseudo-struct of a qualified simple property there is no final struct node that    -->              
+            <!-- can own the qualifier. Instead the qualifier is attached to the value. The alternative     -->              
+            <!-- of attaching the qualifier to the value and all other qualifiers is not compelling. This -->                
+            <!-- issue only arises for xml:lang, it is the only qualifier that RDF has as an attribute.     -->              
+                    
+            <ns1:QualProp3 xml:lang='x-default' rdf:parseType='Resource'>                
+                <rdf:value>Prop value</rdf:value>                
+                <ns2:Qual>Qual value</ns2:Qual>              
+            </ns1:QualProp3>                
+                    
+            <ns1:QualProp4 xml:lang='x-default' rdf:parseType='Resource'>                
+                <ns2:Field1>Field1 value</ns2:Field1>                
+                <ns2:Field2>Field2 value</ns2:Field2>                
+            </ns1:QualProp4>                
+                    
+            <ns1:QualProp5 xml:lang='x-default'>                
+                <rdf:Bag>                
+                    <rdf:li>Item1.1 value</rdf:li>              
+                    <rdf:li>Item1.2 value</rdf:li>              
+                </rdf:Bag>              
+            </ns1:QualProp5>                
+                    
+            <ns2:NestedStructProp rdf:parseType='Resource'>              
+                <ns1:Outer rdf:parseType='Resource'>                
+                    <ns1:Middle rdf:parseType='Resource'>                
+                        <ns1:Inner rdf:parseType='Resource'>                
+                            <ns1:Field1>Field1 value</ns1:Field1>                
+                            <ns2:Field2>Field2 value</ns2:Field2>                
+                        </ns1:Inner>                
+                    </ns1:Middle>                
+                </ns1:Outer>                
+            </ns2:NestedStructProp>              
+                    
+        </rdf:Description>              
+    </rdf:RDF>"#;

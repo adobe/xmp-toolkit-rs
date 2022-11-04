@@ -138,6 +138,15 @@ extern "C" {
         #endif
     } CXmpMeta;
 
+    typedef struct CXmpIterator {
+        #ifdef NOOP_FFI
+            int x;
+        #else
+            CXmpIterator(SXMPIterator i): i(i) {}
+            SXMPIterator i;
+        #endif
+    } CXmpIterator;
+
     const char* CXmpStringCopy(const char* str) {
         // This function should be used *only* to test FFI behavior.
         // It copies a Rust-originated string so that it can subsequently
@@ -1205,6 +1214,85 @@ extern "C" {
             }
             catch (...) {
                 // intentional no-op
+            }
+        #endif
+    }
+
+    // --- CXmpIterator ---
+
+    CXmpIterator* CXmpIteratorNew(CXmpMeta* m,
+                                  CXmpError* outError,
+                                  const char* schemaNS,
+                                  const char* propName,
+                                  AdobeXMPCommon::uint32 options) {
+        #ifndef NOOP_FFI
+            try {
+                if (m) {
+                    return new CXmpIterator(SXMPIterator(m->m, schemaNS, propName, options));
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
+    void CXmpIteratorDrop(CXmpIterator* i) {
+        #ifndef NOOP_FFI
+            delete i;
+        #endif
+    }
+
+    bool CXmpIteratorNext(CXmpIterator* i,
+                          CXmpError* outError,
+                          const char** outSchemaNS,
+                          const char** outPropPath,
+                          const char** outPropValue,
+                          AdobeXMPCommon::uint32* outOptions) {
+        #ifndef NOOP_FFI
+            try {
+                if (i) {
+                    std::string schemaNS;
+                    std::string propPath;
+                    std::string propValue;
+                    if (i->i.Next(&schemaNS, &propPath, &propValue, outOptions)) {
+                        *outSchemaNS = copyStringForResult(schemaNS);
+                        *outPropPath = copyStringForResult(propPath);
+                        *outPropValue = copyStringForResult(propValue);
+                        return true;
+                    }
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return false;
+    }
+
+    void CXmpIteratorSkip(CXmpIterator* i,
+                          CXmpError* outError,
+                          AdobeXMPCommon::uint32 options) {
+        #ifndef NOOP_FFI
+            try {
+                if (i) {
+                    i->i.Skip(options);
+                }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
             }
         #endif
     }
