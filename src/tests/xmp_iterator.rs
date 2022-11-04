@@ -503,11 +503,8 @@ fn nested_struct_property() {
 fn empty_namespace() {
     let meta = test_fixture();
 
-    let props: Vec<XmpProperty> = meta
-        .iter(IterOptions::default().schema_ns("ns:empty/"))
-        .collect();
-
-    assert!(props.is_empty());
+    let mut prop_iter = meta.iter(IterOptions::default().schema_ns("ns:empty/"));
+    assert!(prop_iter.next().is_none());
 }
 
 #[test]
@@ -659,36 +656,30 @@ fn skip_children_and_siblings() {
     let mut prop_iter = meta.iter(IterOptions::default());
     let mut filtered_props: Vec<XmpProperty> = vec![];
 
-    loop {
-        if let Some(prop) = prop_iter.next() {
-            println!(
-                "  {} {} = \"{}\" 0x{:#X}",
-                prop.schema_ns, prop.name, prop.value.value, prop.value.options
-            );
+    while let Some(prop) = prop_iter.next() {
+        println!(
+            "  {} {} = \"{}\" 0x{:#X}",
+            prop.schema_ns, prop.name, prop.value.value, prop.value.options
+        );
 
-            if !prop.value.is_schema_node() {
-                let value = meta
-                    .property(&prop.schema_ns, &prop.name)
-                    .unwrap_or_else(|| {
-                        panic!("Property {} {} was missing", prop.schema_ns, prop.name)
-                    });
+        if !prop.value.is_schema_node() {
+            let value = meta
+                .property(&prop.schema_ns, &prop.name)
+                .unwrap_or_else(|| panic!("Property {} {} was missing", prop.schema_ns, prop.name));
 
-                assert_eq!(prop.value, value);
-            }
-
-            if prop.name == "ns1:ArrayProp2" {
-                println!("skipping subtree of ns1:ArrayProp2");
-                prop_iter.skip_subtree();
-            }
-            if prop.name == "ns1:StructProp" {
-                println!("skipping subtree of ns1:StructProp");
-                prop_iter.skip_siblings();
-            }
-
-            filtered_props.push(prop);
-        } else {
-            break;
+            assert_eq!(prop.value, value);
         }
+
+        if prop.name == "ns1:ArrayProp2" {
+            println!("skipping subtree of ns1:ArrayProp2");
+            prop_iter.skip_subtree();
+        }
+        if prop.name == "ns1:StructProp" {
+            println!("skipping subtree of ns1:StructProp");
+            prop_iter.skip_siblings();
+        }
+
+        filtered_props.push(prop);
     }
 
     assert_eq!(
