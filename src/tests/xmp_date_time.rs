@@ -48,6 +48,79 @@ fn current() {
     assert!(date.day <= 31);
 }
 
+mod set_local_time_zone {
+    use crate::{XmpDate, XmpDateTime, XmpError, XmpErrorType, XmpTime, XmpTimeZone};
+
+    #[test]
+    fn no_existing_tz() {
+        let mut dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5,
+            }),
+            time: Some(XmpTime {
+                hour: 14,
+                minute: 40,
+                second: 35,
+                nanosecond: 42,
+                time_zone: None,
+            }),
+        };
+
+        dt.set_local_time_zone().unwrap();
+
+        // We don't know when writing this test what time zone will be used
+        // when running this test. All we can do is verify that *some* time zone
+        // was added and that other fields weren't altered. Print the result so
+        // it can be manually inspected.
+
+        println!("Manually verify correct local time zone: {:#?}", dt);
+
+        assert_eq!(
+            dt.date.unwrap(),
+            XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5
+            }
+        );
+
+        let time = dt.time.unwrap();
+        assert_eq!(time.hour, 14);
+        assert_eq!(time.minute, 40);
+        assert_eq!(time.second, 35);
+        assert_eq!(time.nanosecond, 42);
+        assert!(time.time_zone.is_some());
+    }
+
+    #[test]
+    fn error_existing_tz() {
+        let mut dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5,
+            }),
+            time: Some(XmpTime {
+                hour: 14,
+                minute: 40,
+                second: 35,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone { hour: 1, minute: 2 }),
+            }),
+        };
+
+        assert_eq!(
+            dt.set_local_time_zone().unwrap_err(),
+            XmpError {
+                error_type: XmpErrorType::BadParam,
+                debug_message: "SetTimeZone can only be used on zone-less times".to_owned()
+            }
+        );
+    }
+}
+
 mod from_ffi {
     use crate::{ffi, XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
 
