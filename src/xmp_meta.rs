@@ -1555,6 +1555,55 @@ impl XmpMeta {
         }
     }
 
+    /// Composes the path expression to select an alternate item by language.
+    ///
+    /// Path syntax allows two forms of "content addressing" to select an item
+    /// in an array of alternatives. The form used in this function lets you
+    /// select an item in an alt-text array based on the value of its
+    /// `xml:lang` qualifier. The other form of content addressing is shown
+    /// in `XmpMeta::compose_field_selector()`.
+    ///
+    /// ## Arguments
+    ///
+    /// * `schema_ns` and `array_name`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `lang_name`: The RFC 3066 code for the desired language.
+    ///
+    /// ## Return
+    ///
+    /// If successful, the returned string is in the form
+    /// `schema_ns:array_name[@xml:lang='lang_name']`, where `schema_ns` is the
+    /// prefix for the schema namespace.
+    ///
+    /// This function provides a path expression that is explicitly and only for
+    /// a specific language. In most cases,
+    /// [`XmpMeta::set_localized_text()`] and [`XmpMeta::localized_text()`] are
+    /// preferred, because they provide extra logic to choose the appropriate
+    /// language and maintain consistency with the `x-default` value.
+    pub fn compose_lang_selector(
+        schema_ns: &str,
+        array_name: &str,
+        lang_name: &str,
+    ) -> XmpResult<String> {
+        let c_schema_ns = CString::new(schema_ns).unwrap_or_default();
+        let c_array_name = CString::new(array_name).unwrap_or_default();
+        let c_lang_name = CString::new(lang_name).unwrap_or_default();
+
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            let result = CXmpString::from_ptr(ffi::CXmpMetaComposeLangSelector(
+                &mut err,
+                c_schema_ns.as_ptr(),
+                c_array_name.as_ptr(),
+                c_lang_name.as_ptr(),
+            ));
+
+            XmpError::raise_from_c(&err)?;
+            Ok(result.as_string())
+        }
+    }
+
     /// Composes the path expression for a qualifier.
     ///
     /// ## Arguments

@@ -482,6 +482,13 @@ extern "C" {
         index: i32,
     ) -> *const c_char;
 
+    pub(crate) fn CXmpMetaComposeLangSelector(
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        array_name: *const c_char,
+        lang_name: *const c_char,
+    ) -> *const c_char;
+
     pub(crate) fn CXmpMetaComposeQualifierPath(
         out_error: *mut CXmpError,
         schema_ns: *const c_char,

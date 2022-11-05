@@ -1151,6 +1151,31 @@ extern "C" {
         return NULL;
     }
 
+    const char* CXmpMetaComposeLangSelector(CXmpError* outError,
+                                            const char* schemaNS,
+                                            const char* arrayName,
+                                            const char* langName) {
+        #ifndef NOOP_FFI
+            try {
+                std::string resultPath;
+                SXMPUtils::ComposeLangSelector(schemaNS,
+                                               arrayName,
+                                               langName,
+                                               &resultPath);
+
+                return copyStringForResult(resultPath);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
     const char* CXmpMetaComposeQualifierPath(CXmpError* outError,
                                              const char* schemaNS,
                                              const char* structName,
