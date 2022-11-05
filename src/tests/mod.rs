@@ -24,5 +24,6 @@ mod xmp_date_time;
 mod xmp_error;
 mod xmp_error_type;
 mod xmp_file;
+mod xmp_iterator;
 mod xmp_meta;
 mod xmp_value;

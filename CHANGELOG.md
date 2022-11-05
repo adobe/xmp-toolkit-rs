@@ -6,6 +6,19 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.7.4
+_04 November 2022_
+
+* Add APIs to allow iteration over the XMP data model ([#141](https://github.com/adobe/xmp-toolkit-rs/pull/141))
+
+## 0.7.3
+_03 November 2022_
+
+* Fix misplaced reference to WXMPIterator.cpp ([#139](https://github.com/adobe/xmp-toolkit-rs/pull/139))
+* If property value is empty string, pass it to C++ toolkit as NULL ([#138](https://github.com/adobe/xmp-toolkit-rs/pull/138))
+* Replace `XmpMeta::from_str_requiring_xmp_meta` with `XmpMeta::from_str_with_options` ([#137](https://github.com/adobe/xmp-toolkit-rs/pull/137))
+* Add `XmpMeta::from_str_requiring_xmp_meta` ([#136](https://github.com/adobe/xmp-toolkit-rs/pull/136))
+
 ## 0.7.2
 _01 November 2022_
 

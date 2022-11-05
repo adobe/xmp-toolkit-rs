@@ -22,6 +22,7 @@ mod ffi;
 mod xmp_date_time;
 mod xmp_error;
 mod xmp_file;
+mod xmp_iterator;
 mod xmp_meta;
 pub mod xmp_ns;
 mod xmp_value;
@@ -29,6 +30,7 @@ mod xmp_value;
 pub use xmp_date_time::{XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
 pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
 pub use xmp_file::{OpenFileOptions, XmpFile};
+pub use xmp_iterator::{IterOptions, XmpIterator, XmpProperty};
 pub use xmp_meta::{ArrayProperty, FromStrOptions, ItemPlacement, ToStringOptions, XmpMeta};
 pub use xmp_value::XmpValue;
 

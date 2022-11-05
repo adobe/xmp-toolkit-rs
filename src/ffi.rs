@@ -78,7 +78,7 @@ impl CXmpError {
         // when this struct is dropped.
 
         Self {
-            had_error: if had_error { 1 } else { 0 },
+            had_error: u32::from(had_error),
             id,
             debug_message: unsafe {
                 match debug_message {
@@ -130,6 +130,7 @@ pub(crate) struct CXmpDateTime {
 
 pub(crate) enum CXmpFile {}
 pub(crate) enum CXmpMeta {}
+pub(crate) enum CXmpIterator {}
 
 extern "C" {
     pub(crate) fn CXmpStringCopy(s: *const c_char) -> *const c_char;
@@ -502,6 +503,29 @@ extern "C" {
         out_string: *mut c_void,
         callback: CXmpTextOutputProc,
     );
+
+    // --- CXmpIterator ---
+
+    pub(crate) fn CXmpIteratorNew(
+        m: *const CXmpMeta,
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        prop_name: *const c_char,
+        options: u32,
+    ) -> *mut CXmpIterator;
+
+    pub(crate) fn CXmpIteratorDrop(i: *mut CXmpIterator);
+
+    pub(crate) fn CXmpIteratorNext(
+        i: *mut CXmpIterator,
+        out_error: *mut CXmpError,
+        out_schema_ns: *mut *const c_char,
+        out_prop_path: *mut *const c_char,
+        out_prop_value: *mut *const c_char,
+        out_options: *mut u32,
+    ) -> bool;
+
+    pub(crate) fn CXmpIteratorSkip(i: *mut CXmpIterator, out_error: *mut CXmpError, options: u32);
 
     // --- CXmpDateTime ---
 
