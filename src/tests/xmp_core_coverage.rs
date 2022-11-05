@@ -2513,23 +2513,36 @@ fn xmp_core_coverage() {
             }
         );
 
-        // 	tmpStr1.erase();
-        // 	tmpStr2 = "Item-2";
-        // 	SXMPUtils::ComposeFieldSelector ( NS1, "ArrayOfStructProp", NS2,
-        // "Field1", tmpStr2, &tmpStr1 ); 	fprintf ( log,
-        // "ComposeFieldSelector ns1:ArrayOfStructProp[ns2:
-        // Field1=Item-2] : %s\n", tmpStr1.c_str() );
+        let path = XmpMeta::compose_field_selector(
+            NS1,
+            "ArrayOfStructProp",
+            NS2,
+            "Field1",
+            Some("Item-2"),
+        )
+        .unwrap();
+        println!(
+            "compose_field_selector ns1:ArrayOfStructProp[ns2:Field1=Item-2] : {}",
+            path
+        );
 
-        // 	tmpStr2.erase();
-        // 	SXMPUtils::compose_struct_field_path ( NS1, tmpStr1.c_str(), NS2,
-        // "Field2", &tmpStr2 );
-        // 	fprintf ( log, "compose_struct_field_path
-        // ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2 : %s\n",
-        // tmpStr2.c_str() ); 	meta.set_property ( NS1, tmpStr2.c_str(),
-        // "new ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2
-        // value" );
+        let path = XmpMeta::compose_struct_field_path(NS1, &path, NS2, "Field2").unwrap();
+        println!(
+            "compose_struct_field_path ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2 : {}",
+            path
+        );
 
-        // 	DumpXMPObj ( log, meta, "Modified simple RDF" );
+        meta.set_property(
+            NS1,
+            &path,
+            &"new ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2 value".into(),
+        )
+        .unwrap();
+
+        println!();
+        println!("Modified simple RDF = {:#?}", meta);
+
+        assert_eq!(meta.to_string(),  "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kSimpleRDF\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:SimpleProp>Simple value</ns1:SimpleProp> <ns1:ArrayProp> <rdf:Bag> <rdf:li>Item1 value</rdf:li> <rdf:li>new ns1:ArrayProp[2] value</rdf:li> </rdf:Bag> </ns1:ArrayProp> <ns1:StructProp rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> <ns2:Field3>new ns1:StructProp/ns2:Field3 value</ns2:Field3> </ns1:StructProp> <ns1:QualProp rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>new ns1:QualProp/? ns2:Qual value</ns2:Qual> </ns1:QualProp> <ns1:AltTextProp xml:lang=\"new ns1:alttextprop/?xml:lang value\"> <rdf:Alt> <rdf:li xml:lang=\"x-one\">x-one value</rdf:li> <rdf:li xml:lang=\"x-two\">new ns1:AltTextProp['x-two'] value</rdf:li> </rdf:Alt> </ns1:AltTextProp> <ns1:ArrayOfStructProp> <rdf:Bag> <rdf:li rdf:parseType=\"Resource\"> <ns2:Field1>Item-1</ns2:Field1> <ns2:Field2>Field 1.2 value</ns2:Field2> </rdf:li> <rdf:li rdf:parseType=\"Resource\"> <ns2:Field1>Item-2</ns2:Field1> <ns2:Field2>new ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2 value</ns2:Field2> </rdf:li> </rdf:Bag> </ns1:ArrayOfStructProp> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
     }
 
     //-------------------------------------------------------------------------
