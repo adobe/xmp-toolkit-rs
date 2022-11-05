@@ -489,6 +489,15 @@ extern "C" {
         lang_name: *const c_char,
     ) -> *const c_char;
 
+    pub(crate) fn CXmpMetaComposeFieldSelector(
+        out_error: *mut CXmpError,
+        schema_ns: *const c_char,
+        struct_name: *const c_char,
+        field_ns: *const c_char,
+        field_name: *const c_char,
+        field_value: *const c_char,
+    ) -> *const c_char;
+
     pub(crate) fn CXmpMetaComposeQualifierPath(
         out_error: *mut CXmpError,
         schema_ns: *const c_char,

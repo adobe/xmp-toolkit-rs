@@ -14,6 +14,7 @@
 use crate::XmpMeta;
 
 const NS1: &str = "ns:test1/";
+const NS2: &str = "ns:test2/";
 
 #[test]
 fn new_empty() {
@@ -2769,10 +2770,8 @@ mod qualifier {
 }
 
 mod set_qualifier {
-    use super::NS1;
+    use super::{NS1, NS2};
     use crate::{xmp_ns, XmpErrorType, XmpMeta, XmpValue};
-
-    const NS2: &str = "ns:test2/";
 
     #[test]
     fn happy_path() {
@@ -3223,6 +3222,28 @@ mod compose_lang_selector {
         assert_eq!(
             XmpMeta::compose_lang_selector(NS1, "AltTextProp", "x-two").unwrap(),
             "AltTextProp[?xml:lang=\"x-two\"]"
+        );
+    }
+}
+
+mod compose_field_selector {
+    use super::{NS1, NS2};
+    use crate::XmpMeta;
+
+    #[test]
+    fn happy_path() {
+        assert_eq!(
+            XmpMeta::compose_field_selector(NS1, "StructProp", NS2, "Field", Some("value"))
+                .unwrap(),
+            "StructProp[ns2:Field=\"value\"]"
+        );
+    }
+
+    #[test]
+    fn no_default_value() {
+        assert_eq!(
+            XmpMeta::compose_field_selector(NS1, "StructProp", NS2, "Field", None).unwrap(),
+            "StructProp[ns2:Field=\"\"]"
         );
     }
 }
