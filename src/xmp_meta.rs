@@ -1561,7 +1561,7 @@ impl XmpMeta {
     /// in an array of alternatives. The form used in this function lets you
     /// select an item in an alt-text array based on the value of its
     /// `xml:lang` qualifier. The other form of content addressing is shown
-    /// in `XmpMeta::compose_field_selector()`.
+    /// in [`XmpMeta::compose_field_selector()`].
     ///
     /// ## Arguments
     ///
@@ -1597,6 +1597,97 @@ impl XmpMeta {
                 c_schema_ns.as_ptr(),
                 c_array_name.as_ptr(),
                 c_lang_name.as_ptr(),
+            ));
+
+            XmpError::raise_from_c(&err)?;
+            Ok(result.as_string())
+        }
+    }
+
+    /// Composes a path expression to select an alternate item by a field's
+    /// value.
+    ///
+    /// Path syntax allows two forms of "content addressing" to select an item
+    /// in an array of alternatives. The form used in this function lets you
+    /// select an item in an array of structs based on the value of one of the
+    /// fields in the structs. The other form of content addressing is shown in
+    /// [`XmpMeta::compose_lang_selector()`].
+    ///
+    /// ## Arguments
+    ///
+    /// * `schema_ns` and `struct_name`: See [Accessing
+    ///   properties](#accessing-properties).
+    /// * `field_ns` and `field_name`: See [Accessing
+    ///   properties](#accessing-properties) again.
+    /// * `field_value`: The desired value of the field, specified as a string
+    ///   object.
+    ///
+    /// ## Example
+    ///
+    /// Consider a simple struct that has two fields, the name of a city and the
+    /// URI of an FTP site in that city. Use this to create an array of download
+    /// alternatives. You can show the user a popup built from the values of the
+    /// city fields, then get the corresponding URI as follows:
+    ///
+    /// ```
+    /// use xmp_toolkit::{XmpMeta, XmpResult};
+    ///
+    /// # fn main() -> XmpResult<()> {
+    /// XmpMeta::register_namespace("ns:struct_example/", "struct")?;
+    /// XmpMeta::register_namespace("ns:field_example/", "field")?;
+    ///
+    /// let meta = XmpMeta::default();
+    ///
+    /// let path = XmpMeta::compose_field_selector(
+    ///     "ns:struct_example/",
+    ///     "Downloads",
+    ///     "ns:field_example/",
+    ///     "City",
+    ///     Some("Seattle"),
+    /// )?;
+    /// assert_eq!(path, "Downloads[field:City=\"Seattle\"]");
+    ///
+    /// println!(
+    ///     "field {} exists: {}",
+    ///     path,
+    ///     meta.struct_field("ns:struct_example/", &path, "ns:field_example/", "URI")
+    ///         .is_some()
+    /// );
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Return
+    ///
+    /// If successful, the returned string is in the form
+    /// `schema_ns:struct_name[field_ns:field_name='field_value'].
+    pub fn compose_field_selector(
+        schema_ns: &str,
+        struct_name: &str,
+        field_ns: &str,
+        field_name: &str,
+        field_value: Option<&str>,
+    ) -> XmpResult<String> {
+        let c_schema_ns = CString::new(schema_ns).unwrap_or_default();
+        let c_struct_name = CString::new(struct_name).unwrap_or_default();
+        let c_field_ns = CString::new(field_ns).unwrap_or_default();
+        let c_field_name = CString::new(field_name).unwrap_or_default();
+        let c_field_value = CString::new(field_value.unwrap_or_default()).unwrap_or_default();
+
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            let result = CXmpString::from_ptr(ffi::CXmpMetaComposeFieldSelector(
+                &mut err,
+                c_schema_ns.as_ptr(),
+                c_struct_name.as_ptr(),
+                c_field_ns.as_ptr(),
+                c_field_name.as_ptr(),
+                if c_field_value == CString::default() {
+                    std::ptr::null()
+                } else {
+                    c_field_value.as_ptr()
+                },
             ));
 
             XmpError::raise_from_c(&err)?;

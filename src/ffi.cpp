@@ -1176,6 +1176,35 @@ extern "C" {
         return NULL;
     }
 
+    const char* CXmpMetaComposeFieldSelector(CXmpError* outError,
+                                             const char* schemaNS,
+                                             const char* structName,
+                                             const char* fieldNS,
+                                             const char* fieldName,
+                                             const char* fieldValue) {
+        #ifndef NOOP_FFI
+            try {
+                std::string resultPath;
+                SXMPUtils::ComposeFieldSelector(schemaNS,
+                                                structName,
+                                                fieldNS,
+                                                fieldName,
+                                                fieldValue,
+                                                &resultPath);
+
+                return copyStringForResult(resultPath);
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+
+        return NULL;
+    }
+
     const char* CXmpMetaComposeQualifierPath(CXmpError* outError,
                                              const char* schemaNS,
                                              const char* structName,
