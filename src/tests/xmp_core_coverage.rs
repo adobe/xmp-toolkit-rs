@@ -21,12 +21,15 @@
 
 #![allow(dead_code)] // TEMPORARY while in development
 
-use std::{str::FromStr, string::ToString};
+use std::{
+    str::FromStr,
+    string::{String, ToString},
+};
 
 use crate::{
-    tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, FromStrOptions, ItemPlacement,
-    ToStringOptions, XmpDate, XmpDateTime, XmpError, XmpErrorType, XmpMeta, XmpTime, XmpTimeZone,
-    XmpValue,
+    tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, FromStrOptions, ItemPlacement, IterOptions,
+    ToStringOptions, XmpDate, XmpDateTime, XmpError, XmpErrorType, XmpMeta, XmpProperty, XmpTime,
+    XmpTimeZone, XmpValue,
 };
 
 const NS1: &str = "ns:test1/";
@@ -266,15 +269,12 @@ fn write_major_label(title: &str) {
     println!();
 }
 
-// static void WriteMinorLabel ( FILE * log, const char * title )
-// {
-
-// 	fprintf ( log, "\n// " );
-// 	for ( size_t i = 0; i < strlen(title); ++i ) fprintf ( log, "-" );
-// 	fprintf ( log, "--\n// %s :\n\n", title );
-// 	fflush ( log );
-
-// }	// WriteMinorLabel
+fn write_minor_label(title: &str) {
+    println!();
+    println!("// {}", String::from_utf8(vec![b'-'; title.len()]).unwrap());
+    println!("// {}", title);
+    println!();
+}
 
 // // -------------------------------------------------------------------------------------------------
 
@@ -312,7 +312,7 @@ fn write_major_label(title: &str) {
 // static void DumpXMPObj ( FILE * log, SXMPMeta & meta, const char * title )
 // {
 
-// 	WriteMinorLabel ( log, title );
+// 	write_minor_label(title );
 // 	meta.DumpObject ( DumpToFile, log );
 
 // }	// DumpXMPObj
@@ -330,6 +330,32 @@ fn write_major_label(title: &str) {
 // 		}
 // 	}
 // }
+
+fn check_props_exist(meta: &XmpMeta, props: &[XmpProperty]) {
+    for prop in props {
+        println!(
+            "  {} {} = \"{}\" {:#X}",
+            prop.schema_ns, prop.name, prop.value.value, prop.value.options
+        );
+
+        if !prop.value.is_schema_node() {
+            let value = meta
+                .property(&prop.schema_ns, &prop.name)
+                .unwrap_or_else(|| panic!("Property {} {} was missing", prop.schema_ns, prop.name));
+
+            assert_eq!(prop.value, value);
+        }
+    }
+}
+
+fn print_props(props: &[XmpProperty]) {
+    for prop in props {
+        println!(
+            "  {} {} = \"{}\" {:#X}",
+            prop.schema_ns, prop.name, prop.value.value, prop.value.options
+        );
+    }
+}
 
 #[test]
 fn xmp_core_coverage() {
@@ -1378,263 +1404,1024 @@ fn xmp_core_coverage() {
             "Parse \"coverage\" RDF, add Bag items out of order = {:#?}",
             meta
         );
-        
+
         assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"Test:XMPCoreCoverage/kRDFCoverage\" xmlns:ns1=\"ns:test1/\" xmlns:ns2=\"ns:test2/\"> <ns1:SimpleProp1>Simple1 value</ns1:SimpleProp1> <ns1:SimpleProp2 xml:lang=\"x-default\">Simple2 value</ns1:SimpleProp2> <ns1:ArrayProp1> <rdf:Bag> <rdf:li>Item1.1 value</rdf:li> <rdf:li>Item1.2 value</rdf:li> </rdf:Bag> </ns1:ArrayProp1> <ns1:ArrayProp2> <rdf:Alt> <rdf:li xml:lang=\"x-one\">Item2.1 value</rdf:li> <rdf:li xml:lang=\"x-two\">Item2.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp2> <ns1:ArrayProp3> <rdf:Alt> <rdf:li xml:lang=\"x-one\">Item3.1 value</rdf:li> <rdf:li>Item3.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp3> <ns1:ArrayProp4> <rdf:Alt> <rdf:li>Item4.1 value</rdf:li> <rdf:li xml:lang=\"x-two\">Item4.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp4> <ns1:ArrayProp5> <rdf:Alt> <rdf:li xml:lang=\"x-xxx\">Item5.1 value</rdf:li> <rdf:li xml:lang=\"x-xxx\">Item5.2 value</rdf:li> </rdf:Alt> </ns1:ArrayProp5> <ns1:StructProp rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:StructProp> <ns1:QualProp1 rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp1> <ns1:QualProp2 xml:lang=\"x-default\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp2> <ns1:QualProp3 xml:lang=\"x-default\" rdf:parseType=\"Resource\"> <rdf:value>Prop value</rdf:value> <ns2:Qual>Qual value</ns2:Qual> </ns1:QualProp3> <ns1:QualProp4 xml:lang=\"x-default\" rdf:parseType=\"Resource\"> <ns2:Field1>Field1 value</ns2:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:QualProp4> <ns1:QualProp5 xml:lang=\"x-default\"> <rdf:Bag> <rdf:li>Item1.1 value</rdf:li> <rdf:li>Item1.2 value</rdf:li> </rdf:Bag> </ns1:QualProp5> <ns2:NestedStructProp rdf:parseType=\"Resource\"> <ns1:Outer rdf:parseType=\"Resource\"> <ns1:Middle rdf:parseType=\"Resource\"> <ns1:Inner rdf:parseType=\"Resource\"> <ns1:Field1>Field1 value</ns1:Field1> <ns2:Field2>Field2 value</ns2:Field2> </ns1:Inner> </ns1:Middle> </ns1:Outer> </ns2:NestedStructProp> <ns2:Prop>Prop value</ns2:Prop> <ns2:Bag> <rdf:Bag> <rdf:li>BagItem 1</rdf:li> <rdf:li>BagItem 2</rdf:li> <rdf:li>BagItem 3</rdf:li> </rdf:Bag> </ns2:Bag> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
 
-        // 	{
-        // 		SXMPIterator iter ( meta );
-        // 		WriteMinorLabel ( log, "Default iteration" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+        {
+            write_minor_label("Default iteration");
 
-        // 	{
-        // 		SXMPIterator iter ( meta, kXMP_IterOmitQualifiers );
-        // 		WriteMinorLabel ( log, "Iterate omitting qualifiers" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            let props: Vec<XmpProperty> = meta.iter(IterOptions::default()).collect();
+            check_props_exist(&meta, &props);
 
-        // 	{
-        // 		SXMPIterator iter ( meta, kXMP_IterJustLeafName );
-        // 		WriteMinorLabel ( log, "Iterate with just leaf names" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 		}
-        // 	}
+            assert_eq!(
+                props[0..5],
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 2147483648
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp1".to_owned(),
+                        value: XmpValue {
+                            value: "Simple1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp2".to_owned(),
+                        value: XmpValue {
+                            value: "Simple2 value".to_owned(),
+                            options: 80
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp2/?xml:lang".to_owned(),
+                        value: XmpValue {
+                            value: "x-default".to_owned(),
+                            options: 32
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp1".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 512
+                        }
+                    }
+                ]
+            );
 
-        // 	{
-        // 		SXMPIterator iter ( meta, kXMP_IterJustLeafNodes );
-        // 		WriteMinorLabel ( log, "Iterate just the leaf nodes" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            assert_eq!(props.len(), 56);
+        }
 
-        // 	{
-        // 		SXMPIterator iter ( meta, kXMP_IterJustChildren );
-        // 		WriteMinorLabel ( log, "Iterate just the schema nodes" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 		}
-        // 	}
+        {
+            write_minor_label("Iterate omitting qualifiers");
 
-        // 	{
-        // 		SXMPIterator iter ( meta, NS2 );
-        // 		WriteMinorLabel ( log, "Iterate the ns2: namespace" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            let props: Vec<XmpProperty> = meta
+                .iter(IterOptions::default().omit_qualifiers())
+                .collect();
 
-        // 	{
-        // 		SXMPIterator iter ( meta, NS2, "Bag" );
-        // 		WriteMinorLabel ( log, "Start at ns2:Bag" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            check_props_exist(&meta, &props);
 
-        // 	{
-        // 		SXMPIterator iter ( meta, NS2, "NestedStructProp/ns1:Outer" );
-        // 		WriteMinorLabel ( log, "Start at ns2:NestedStructProp/ns1:Outer" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            assert_eq!(
+                props[0..5],
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 2147483648
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp1".to_owned(),
+                        value: XmpValue {
+                            value: "Simple1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp2".to_owned(),
+                        value: XmpValue {
+                            value: "Simple2 value".to_owned(),
+                            options: 80
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp1".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 512
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp1[1]".to_owned(),
+                        value: XmpValue {
+                            value: "Item1.1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                ]
+            );
 
-        // 	{
-        // 		SXMPIterator iter ( meta, "ns:empty/" );
-        // 		WriteMinorLabel ( log, "Iterate an empty namespace" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            assert_eq!(props.len(), 42);
+        }
 
-        // 	{
-        // 		SXMPIterator iter ( meta, NS2, "", kXMP_IterJustChildren |
-        // kXMP_IterJustLeafName ); 		WriteMinorLabel ( log, "Iterate the top of
-        // the ns2: namespace with just leaf names" ); 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 		}
-        // 	}
+        {
+            write_minor_label("Iterate with just leaf names");
 
-        // 	{
-        // 		SXMPIterator iter ( meta, NS2, "", kXMP_IterJustChildren |
-        // kXMP_IterJustLeafNodes ); 		WriteMinorLabel ( log, "Iterate the top of
-        // the ns2: namespace visiting just leaf nodes" ); 		while ( true
-        // ) { 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            let props: Vec<XmpProperty> =
+                meta.iter(IterOptions::default().leaf_name_only()).collect();
 
-        // 	{
-        // 		SXMPIterator iter ( meta, NS2, "Bag", kXMP_IterJustChildren );
-        // 		WriteMinorLabel ( log, "Iterate just the children of ns2:Bag" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            print_props(&props);
 
-        // 	{
-        // 		SXMPIterator iter ( meta, NS2, "Bag", kXMP_IterJustChildren |
-        // kXMP_IterJustLeafName ); 		WriteMinorLabel ( log, "Iterate just the
-        // children of ns2:Bag with just leaf names" ); 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 		}
-        // 	}
+            assert_eq!(
+                props[0..5],
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 2147483648
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp1".to_owned(),
+                        value: XmpValue {
+                            value: "Simple1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp2".to_owned(),
+                        value: XmpValue {
+                            value: "Simple2 value".to_owned(),
+                            options: 80
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "http://www.w3.org/XML/1998/namespace".to_owned(),
+                        name: "xml:lang".to_owned(),
+                        value: XmpValue {
+                            value: "x-default".to_owned(),
+                            options: 32
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp1".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 512
+                        }
+                    }
+                ]
+            );
 
-        // 	{
-        // 		SXMPIterator iter ( meta, NS2,
-        // "NestedStructProp/ns1:Outer/ns1:Middle",
-        // kXMP_IterJustChildren ); 		WriteMinorLabel ( log, "Iterate just the
-        // children of ns2:NestedStructProp/ns1:Outer/ns1:Middle" ); 		while (
-        // true ) { 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            assert_eq!(props.len(), 56);
+        }
 
-        // 	{
-        // 		SXMPIterator iter ( meta );
-        // 		WriteMinorLabel ( log, "Skip children of ArrayProp2, and siblings
-        // after StructProp" ); 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 			if ( tmpStr2 == "ns1:ArrayProp2" ) iter.Skip ( kXMP_IterSkipSubtree
-        // ); 			if ( tmpStr2 == "ns1:StructProp" ) iter.Skip (
-        // kXMP_IterSkipSiblings ); 		}
-        // 	}
+        {
+            write_minor_label("Iterate just the leaf nodes");
 
-        // 	{
-        // 		SXMPMeta meta;
+            let props: Vec<XmpProperty> = meta
+                .iter(IterOptions::default().leaf_nodes_only())
+                .collect();
 
-        // 		meta.set_property ( xmp_ns::PDF, "Author", "PDF Author" );
-        // 		meta.set_property ( xmp_ns::PDF, "PDFProp", "PDF Prop" );
-        // 		meta.set_property ( xmp_ns::XMP, "XMPProp", "XMP Prop" );
-        // 		meta.set_property ( kXMP_NS_DC, "DCProp", "DC Prop" );
+            check_props_exist(&meta, &props);
 
-        // 		SXMPIterator iter1 ( meta );
-        // 		WriteMinorLabel ( log, "Iterate without showing aliases" );
-        // 		while ( true ) {
-        // 			tmpStr1.erase();  tmpStr2.erase();  tmpStr3.erase();
-        // 			if ( ! iter1.Next ( &tmpStr1, &tmpStr2, &tmpStr3, &options ) ) break;
-        // 			fprintf ( log, "  %s %s = \"%s\", 0x%X\n", tmpStr1.c_str(),
-        // tmpStr2.c_str(), tmpStr3.c_str(), options ); 			if ( ! (options
-        // & kXMP_SchemaNode) ) { 				tmpStr4.erase();
-        // 				options &= kXMP_PropHasAliases;	// So the comparison below works.
-        // 				ok = meta.property ( tmpStr1.c_str(), tmpStr2.c_str(), &tmpStr4,
-        // &opt2 ); 				if ( (! ok) || (tmpStr4 != tmpStr3) || (opt2 !=
-        // options) ) { 					fprintf ( log, "    ** property failed: %s,
-        // \"%s\", 0x%X\n", FoundOrNot(ok), tmpStr4.c_str(), opt2 ); 				}
-        // 			}
-        // 		}
-        // 	}
+            assert_eq!(
+                props[0..5],
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp1".to_owned(),
+                        value: XmpValue {
+                            value: "Simple1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp2".to_owned(),
+                        value: XmpValue {
+                            value: "Simple2 value".to_owned(),
+                            options: 80
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp2/?xml:lang".to_owned(),
+                        value: XmpValue {
+                            value: "x-default".to_owned(),
+                            options: 32
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp1[1]".to_owned(),
+                        value: XmpValue {
+                            value: "Item1.1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp1[2]".to_owned(),
+                        value: XmpValue {
+                            value: "Item1.2 value".to_owned(),
+                            options: 0
+                        }
+                    }
+                ]
+            );
+
+            assert_eq!(props.len(), 39);
+        }
+
+        {
+            write_minor_label("Iterate just the schema nodes");
+
+            let props: Vec<XmpProperty> = meta
+                .iter(IterOptions::default().immediate_children_only())
+                .collect();
+
+            check_props_exist(&meta, &props);
+
+            assert_eq!(
+                props,
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 2147483648
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 2147483648
+                        }
+                    },
+                ]
+            );
+        }
+
+        {
+            write_minor_label("Iterate the ns2: namespace");
+
+            let props: Vec<XmpProperty> =
+                meta.iter(IterOptions::default().schema_ns(NS2)).collect();
+
+            check_props_exist(&meta, &props);
+
+            assert_eq!(
+                props[0..5],
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 2147483648
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle/ns1:Inner".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                ]
+            );
+
+            assert_eq!(props.len(), 12);
+        }
+
+        {
+            write_minor_label("Start at ns2:Bag");
+
+            let props: Vec<XmpProperty> = meta
+                .iter(IterOptions::default().property(NS2, "Bag"))
+                .collect();
+
+            check_props_exist(&meta, &props);
+
+            assert_eq!(
+                props,
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 512
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag[1]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 1".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag[2]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 2".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag[3]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 3".to_owned(),
+                            options: 0
+                        }
+                    }
+                ]
+            );
+        }
+
+        {
+            write_minor_label("Start at ns2:NestedStructProp/ns1:Outer");
+
+            let props: Vec<XmpProperty> = meta
+                .iter(IterOptions::default().property(NS2, "NestedStructProp/ns1:Outer"))
+                .collect();
+
+            check_props_exist(&meta, &props);
+
+            assert_eq!(
+                props,
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle/ns1:Inner".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle/ns1:Inner/ns1:Field1"
+                            .to_owned(),
+                        value: XmpValue {
+                            value: "Field1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle/ns1:Inner/ns2:Field2"
+                            .to_owned(),
+                        value: XmpValue {
+                            value: "Field2 value".to_owned(),
+                            options: 0
+                        }
+                    }
+                ]
+            );
+        }
+
+        {
+            write_minor_label("Iterate an empty namespace");
+
+            let mut prop_iter = meta.iter(IterOptions::default().schema_ns("ns:empty/"));
+            assert!(prop_iter.next().is_none());
+        }
+
+        {
+            write_minor_label("Iterate the top of the ns2: namespace with just leaf names");
+
+            let props: Vec<XmpProperty> = meta
+                .iter(
+                    IterOptions::default()
+                        .schema_ns(NS2)
+                        .immediate_children_only()
+                        .leaf_name_only(),
+                )
+                .collect();
+
+            assert_eq!(
+                props,
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Prop".to_owned(),
+                        value: XmpValue {
+                            value: "Prop value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 512
+                        }
+                    }
+                ]
+            );
+        }
+
+        {
+            write_minor_label("Iterate the top of the ns2: namespace visiting just leaf nodes");
+
+            let props: Vec<XmpProperty> = meta
+                .iter(
+                    IterOptions::default()
+                        .schema_ns(NS2)
+                        .immediate_children_only(),
+                )
+                .collect();
+
+            check_props_exist(&meta, &props);
+
+            assert_eq!(
+                props,
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Prop".to_owned(),
+                        value: XmpValue {
+                            value: "Prop value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 512
+                        }
+                    }
+                ]
+            );
+        }
+
+        {
+            write_minor_label("Iterate just the children of ns2:Bag");
+
+            let props: Vec<XmpProperty> = meta
+                .iter(
+                    IterOptions::default()
+                        .property(NS2, "Bag")
+                        .immediate_children_only(),
+                )
+                .collect();
+
+            check_props_exist(&meta, &props);
+
+            assert_eq!(
+                props,
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag[1]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 1".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag[2]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 2".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag[3]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 3".to_owned(),
+                            options: 0
+                        }
+                    }
+                ]
+            );
+        }
+
+        {
+            write_minor_label(
+                "Iterate just the
+        children of ns2:Bag with just leaf names",
+            );
+
+            let props: Vec<XmpProperty> = meta
+                .iter(
+                    IterOptions::default()
+                        .property(NS2, "Bag")
+                        .immediate_children_only()
+                        .leaf_name_only(),
+                )
+                .collect();
+
+            assert_eq!(
+                props,
+                [
+                    XmpProperty {
+                        schema_ns: "".to_owned(),
+                        name: "[1]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 1".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "".to_owned(),
+                        name: "[2]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 2".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "".to_owned(),
+                        name: "[3]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 3".to_owned(),
+                            options: 0
+                        }
+                    }
+                ]
+            );
+        }
+
+        {
+            write_minor_label(
+                "Iterate just the children of ns2:NestedStructProp/ns1:Outer/ns1:Middle",
+            );
+
+            let props: Vec<XmpProperty> = meta
+                .iter(
+                    IterOptions::default()
+                        .property(NS2, "NestedStructProp/ns1:Outer/ns1:Middle")
+                        .immediate_children_only(),
+                )
+                .collect();
+
+            assert_eq!(
+                props,
+                [XmpProperty {
+                    schema_ns: "ns:test2/".to_owned(),
+                    name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle/ns1:Inner".to_owned(),
+                    value: XmpValue {
+                        value: "".to_owned(),
+                        options: 256
+                    }
+                }]
+            );
+        }
+
+        {
+            write_minor_label("Skip children of ArrayProp2, and siblings after StructProp");
+
+            let mut prop_iter = meta.iter(IterOptions::default());
+            let mut filtered_props: Vec<XmpProperty> = vec![];
+
+            while let Some(prop) = prop_iter.next() {
+                println!(
+                    "  {} {} = \"{}\" 0x{:#X}",
+                    prop.schema_ns, prop.name, prop.value.value, prop.value.options
+                );
+
+                if !prop.value.is_schema_node() {
+                    let value = meta
+                        .property(&prop.schema_ns, &prop.name)
+                        .unwrap_or_else(|| {
+                            panic!("Property {} {} was missing", prop.schema_ns, prop.name)
+                        });
+
+                    assert_eq!(prop.value, value);
+                }
+
+                if prop.name == "ns1:ArrayProp2" {
+                    println!("skipping subtree of ns1:ArrayProp2");
+                    prop_iter.skip_subtree();
+                }
+                if prop.name == "ns1:StructProp" {
+                    println!("skipping subtree of ns1:StructProp");
+                    prop_iter.skip_siblings();
+                }
+
+                filtered_props.push(prop);
+            }
+
+            assert_eq!(
+                filtered_props,
+                [
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 2147483648
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp1".to_owned(),
+                        value: XmpValue {
+                            value: "Simple1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp2".to_owned(),
+                        value: XmpValue {
+                            value: "Simple2 value".to_owned(),
+                            options: 80
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:SimpleProp2/?xml:lang".to_owned(),
+                        value: XmpValue {
+                            value: "x-default".to_owned(),
+                            options: 32
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp1".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 512
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp1[1]".to_owned(),
+                        value: XmpValue {
+                            value: "Item1.1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp1[2]".to_owned(),
+                        value: XmpValue {
+                            value: "Item1.2 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp2".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 7680
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp3".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 3584
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp3[1]".to_owned(),
+                        value: XmpValue {
+                            value: "Item3.1 value".to_owned(),
+                            options: 80
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp3[1]/?xml:lang".to_owned(),
+                        value: XmpValue {
+                            value: "x-one".to_owned(),
+                            options: 32
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp3[2]".to_owned(),
+                        value: XmpValue {
+                            value: "Item3.2 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp4".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 3584
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp4[1]".to_owned(),
+                        value: XmpValue {
+                            value: "Item4.1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp4[2]".to_owned(),
+                        value: XmpValue {
+                            value: "Item4.2 value".to_owned(),
+                            options: 80
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp4[2]/?xml:lang".to_owned(),
+                        value: XmpValue {
+                            value: "x-two".to_owned(),
+                            options: 32
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp5".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 7680
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp5[1]".to_owned(),
+                        value: XmpValue {
+                            value: "Item5.1 value".to_owned(),
+                            options: 80
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp5[1]/?xml:lang".to_owned(),
+                        value: XmpValue {
+                            value: "x-xxx".to_owned(),
+                            options: 32
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp5[2]".to_owned(),
+                        value: XmpValue {
+                            value: "Item5.2 value".to_owned(),
+                            options: 80
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:ArrayProp5[2]/?xml:lang".to_owned(),
+                        value: XmpValue {
+                            value: "x-xxx".to_owned(),
+                            options: 32
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test1/".to_owned(),
+                        name: "ns1:StructProp".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 2147483648
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle/ns1:Inner".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 256
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle/ns1:Inner/ns1:Field1"
+                            .to_owned(),
+                        value: XmpValue {
+                            value: "Field1 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:NestedStructProp/ns1:Outer/ns1:Middle/ns1:Inner/ns2:Field2"
+                            .to_owned(),
+                        value: XmpValue {
+                            value: "Field2 value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Prop".to_owned(),
+                        value: XmpValue {
+                            value: "Prop value".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 512
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag[1]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 1".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag[2]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 2".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "ns:test2/".to_owned(),
+                        name: "ns2:Bag[3]".to_owned(),
+                        value: XmpValue {
+                            value: "BagItem 3".to_owned(),
+                            options: 0
+                        }
+                    }
+                ]
+            );
+        }
+
+        {
+            let mut meta = XmpMeta::default();
+
+            meta.set_property(xmp_ns::PDF, "Author", &"PDF Author".into())
+                .unwrap();
+            meta.set_property(xmp_ns::PDF, "PDFProp", &"PDF Prop".into())
+                .unwrap();
+            meta.set_property(xmp_ns::XMP, "XMPProp", &"XMP Prop".into())
+                .unwrap();
+            meta.set_property(xmp_ns::DC, "DCProp", &"DC Prop".into())
+                .unwrap();
+
+            write_minor_label("Iterate without showing aliases");
+
+            let props: Vec<XmpProperty> = meta
+                .iter(IterOptions::default())
+                .filter(|prop| !(prop.value.is_schema_node() || prop.value.has_aliases()))
+                .collect();
+
+            check_props_exist(&meta, &props);
+
+            assert_eq!(
+                props,
+                [
+                    XmpProperty {
+                        schema_ns: "http://purl.org/dc/elements/1.1/".to_owned(),
+                        name: "dc:creator".to_owned(),
+                        value: XmpValue {
+                            value: "".to_owned(),
+                            options: 1536
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "http://purl.org/dc/elements/1.1/".to_owned(),
+                        name: "dc:creator[1]".to_owned(),
+                        value: XmpValue {
+                            value: "PDF Author".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "http://purl.org/dc/elements/1.1/".to_owned(),
+                        name: "dc:DCProp".to_owned(),
+                        value: XmpValue {
+                            value: "DC Prop".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "http://ns.adobe.com/pdf/1.3/".to_owned(),
+                        name: "pdf:PDFProp".to_owned(),
+                        value: XmpValue {
+                            value: "PDF Prop".to_owned(),
+                            options: 0
+                        }
+                    },
+                    XmpProperty {
+                        schema_ns: "http://ns.adobe.com/xap/1.0/".to_owned(),
+                        name: "xmp:XMPProp".to_owned(),
+                        value: XmpValue {
+                            value: "XMP Prop".to_owned(),
+                            options: 0
+                        }
+                    }
+                ]
+            );
+        }
     }
 
     // // --------------------------------------------------------------------------------------------
