@@ -13,6 +13,8 @@
 
 use crate::XmpMeta;
 
+const NS1: &str = "ns:test1/";
+
 #[test]
 fn new_empty() {
     let m = XmpMeta::new().unwrap();
@@ -2767,9 +2769,9 @@ mod qualifier {
 }
 
 mod set_qualifier {
+    use super::NS1;
     use crate::{xmp_ns, XmpErrorType, XmpMeta, XmpValue};
 
-    const NS1: &str = "ns:test1/";
     const NS2: &str = "ns:test2/";
 
     #[test]
@@ -3209,6 +3211,19 @@ mod compose_array_index_path {
 
         assert_eq!(err.error_type, XmpErrorType::BadParam);
         assert_eq!(err.debug_message, "Array index out of bounds");
+    }
+}
+
+mod compose_lang_selector {
+    use super::NS1;
+    use crate::XmpMeta;
+
+    #[test]
+    fn happy_path() {
+        assert_eq!(
+            XmpMeta::compose_lang_selector(NS1, "AltTextProp", "x-two").unwrap(),
+            "AltTextProp[?xml:lang=\"x-two\"]"
+        );
     }
 }
 
