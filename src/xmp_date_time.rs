@@ -120,6 +120,44 @@ impl XmpDateTime {
         Ok(())
     }
 
+    /// Translate the value to the local time zone.
+    ///
+    /// If the time zone is not the local zone, the time is adjusted and the
+    /// time zone set to be local. The value is not modified if the time zone is
+    /// already the local zone or if the value has no time zone.
+    pub fn convert_to_local_time(&mut self) -> XmpResult<()> {
+        let mut dt = self.as_ffi();
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            ffi::CXmpDateTimeConvertToLocalTime(&mut dt, &mut err);
+        }
+
+        XmpError::raise_from_c(&err)?;
+
+        self.update_from_ffi(&dt);
+        Ok(())
+    }
+
+    /// Translates the value to UTC (Coordinated Universal Time).
+    ///
+    /// If the time zone is not UTC, the time is adjusted and the time zone set
+    /// to be UTC. The value is not modified if the time zone is already UTC or
+    /// if the value has no time zone.
+    pub fn convert_to_utc(&mut self) -> XmpResult<()> {
+        let mut dt = self.as_ffi();
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            ffi::CXmpDateTimeConvertToUTCTime(&mut dt, &mut err);
+        }
+
+        XmpError::raise_from_c(&err)?;
+
+        self.update_from_ffi(&dt);
+        Ok(())
+    }
+
     pub(crate) fn from_ffi(dt: &ffi::CXmpDateTime) -> Self {
         let mut result = Self::default();
         result.update_from_ffi(dt);

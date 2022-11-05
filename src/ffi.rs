@@ -548,6 +548,8 @@ extern "C" {
     pub(crate) fn CXmpDateTimeCurrent(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
 
     pub(crate) fn CXmpDateTimeSetTimeZone(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
+    pub(crate) fn CXmpDateTimeConvertToLocalTime(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
+    pub(crate) fn CXmpDateTimeConvertToUTCTime(dt: *mut CXmpDateTime, out_error: *mut CXmpError);
 
     pub(crate) fn CXmpDateTimeToString(
         dt: *const CXmpDateTime,
