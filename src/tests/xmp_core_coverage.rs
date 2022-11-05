@@ -2424,87 +2424,93 @@ fn xmp_core_coverage() {
         }
     }
 
-    // // --------------------------------------------------------------------------------------------
-    // // XPath composition utilities
-    // // ---------------------------
+    //-------------------------------------------------------------------------
 
-    // {
-    // 	write_major_label("Test XPath composition utilities" );
+    {
+        write_major_label("Test XPath composition utilities");
 
-    // 	SXMPMeta meta ( SIMPLE_RDF, strlen(SIMPLE_RDF) );
-    // 	DumpXMPObj ( log, meta, "Parse simple RDF" );
-    // 	fprintf ( log, "\n" );
+        let mut meta = XmpMeta::from_str(SIMPLE_RDF).unwrap();
+        println!("Parse simple RDF = {:#?}", meta);
 
-    // 	tmpStr1.erase();
-    // 	SXMPUtils::ComposeArrayItemPath ( NS1, "ArrayProp", 2, &tmpStr1 );
-    // 	fprintf ( log, "ComposeArrayItemPath ns1:ArrayProp[2] : %s\n",
-    // tmpStr1.c_str() ); 	meta.set_property ( NS1, tmpStr1.c_str(), "new
-    // ns1:ArrayProp[2] value" );
+        let path = XmpMeta::compose_array_item_path(NS1, "ArrayProp", 2).unwrap();
+        println!("ComposeArrayItemPath ns1:ArrayProp[2] : {}", path);
 
-    // 	fprintf ( log, "\n" );
+        assert_eq!(path, "ArrayProp[2]");
+        meta.set_property(NS1, &path, &"new ns1:ArrayProp[2] value".into())
+            .unwrap();
+        println!();
 
-    // 	tmpStr1.erase();
-    // 	SXMPUtils::ComposeStructFieldPath ( NS1, "StructProp", NS2, "Field3",
-    // &tmpStr1 ); 	fprintf ( log, "ComposeStructFieldPath
-    // ns1:StructProp/ns2:Field3 : %s\n", tmpStr1.c_str() ); 	meta.set_property (
-    // NS1, tmpStr1.c_str(), "new ns1:StructProp/ns2:Field3 value" );
+        let path = XmpMeta::compose_struct_field_path(NS1, "StructProp", NS2, &"Field3").unwrap();
+        println!(
+            "ComposeStructFieldPath ns1:StructProp/ns2:Field3 : {}",
+            path
+        );
 
-    // 	tmpStr1.erase();
-    // 	SXMPUtils::ComposeQualifierPath ( NS1, "QualProp", NS2, "Qual", &tmpStr1 );
-    // 	fprintf ( log, "ComposeQualifierPath ns1:QualProp/?ns2:Qual : %s\n",
-    // tmpStr1.c_str() ); 	meta.set_property ( NS1, tmpStr1.c_str(), "new
-    // ns1:QualProp/?ns2:Qual value" );
+        assert_eq!(path, "StructProp/ns2:Field3");
+        meta.set_property(NS1, &path, &"new ns1:StructProp/ns2:Field3 value".into())
+            .unwrap();
 
-    // 	fprintf ( log, "\n" );
+        let path = XmpMeta::compose_qualifier_path(NS1, "QualProp", NS2, "Qual").unwrap();
+        println!("ComposeQualifierPath ns1:QualProp/?ns2:Qual : {}", path);
 
-    // 	tmpStr1.erase();
-    // 	SXMPUtils::ComposeQualifierPath ( NS1, "AltTextProp", xmp_ns::XML, "lang",
-    // &tmpStr1 ); 	fprintf ( log, "ComposeQualifierPath
-    // ns1:AltTextProp/?xml:lang : %s\n", tmpStr1.c_str() ); 	meta.set_property (
-    // NS1, tmpStr1.c_str(), "new ns1:AltTextProp/?xml:lang value" );
+        assert_eq!(path, "QualProp/?ns2:Qual");
+        meta.set_property(NS1, &path, &"new ns1:QualProp/? ns2:Qual value".into())
+            .unwrap();
+        println!();
 
-    // 	tmpStr1.erase();
-    // 	tmpStr2 = "x-two";
-    // 	SXMPUtils::ComposeLangSelector ( NS1, "AltTextProp", tmpStr2, &tmpStr1 );
-    // 	fprintf ( log, "ComposeLangSelector ns1:AltTextProp['x-two'] : %s\n",
-    // tmpStr1.c_str() ); 	meta.set_property ( NS1, tmpStr1.c_str(), "new
-    // ns1:AltTextProp['x-two'] value" );
+        let path =
+            XmpMeta::compose_qualifier_path(NS1, "AltTextProp", xmp_ns::XML, "lang").unwrap();
+        println!("ComposeQualifierPath ns1:AltTextProp/?xml:lang : {}", path);
 
-    // 	fprintf ( log, "\n" );
+        assert_eq!(path, "AltTextProp/?xml:lang");
+        meta.set_property(NS1, &path, &"new ns1:AltTextProp/?xml:lang value".into())
+            .unwrap();
 
-    // 	fprintf ( log, "Check field selector usage\n" ); fflush ( log );
+        // 	tmpStr1.erase();
+        // 	tmpStr2 = "x-two";
+        // 	SXMPUtils::ComposeLangSelector ( NS1, "AltTextProp", tmpStr2,
+        // &tmpStr1 ); 	fprintf ( log, "ComposeLangSelector
+        // ns1:AltTextProp['x-two'] : %s\n", tmpStr1.c_str() );
+        // meta.set_property ( NS1, tmpStr1.c_str(), "new
+        // ns1:AltTextProp['x-two'] value" );
 
-    // 	tmpStr1.erase();
-    // 	ok = meta.property ( NS1, "ArrayOfStructProp[ns2:Field1='Item-2']",
-    // &tmpStr1, &options );
-    // 	fprintf ( log, "property ArrayOfStructProp[ns2:Field1='Item-2'] : %s, \"%s\",
-    // 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options ); fflush ( log );
+        // 	fprintf ( log, "\n" );
 
-    // 	tmpStr1.erase();
-    // 	ok = meta.property ( NS1,
-    // "ArrayOfStructProp[ns2:Field1='Item-2']/ns2:Field2", &tmpStr1, &options );
-    // 	fprintf ( log, "property ArrayOfStructProp[ns2:Field1='Item-2']/ns2:Field2 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options ); fflush ( log );
+        // 	fprintf ( log, "Check field selector usage\n" ); fflush ( log );
 
-    // 	tmpStr1.erase();
-    // 	tmpStr2 = "Item-2";
-    // 	SXMPUtils::ComposeFieldSelector ( NS1, "ArrayOfStructProp", NS2, "Field1",
-    // tmpStr2, &tmpStr1 ); 	fprintf ( log, "ComposeFieldSelector
-    // ns1:ArrayOfStructProp[ns2:Field1=Item-2] : %s\n", tmpStr1.c_str() );
+        // 	tmpStr1.erase();
+        // 	ok = meta.property ( NS1, "ArrayOfStructProp[ns2:Field1='Item-2']",
+        // &tmpStr1, &options );
+        // 	fprintf ( log, "property ArrayOfStructProp[ns2:Field1='Item-2'] : %s,
+        // \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options
+        // ); fflush ( log );
 
-    // 	tmpStr2.erase();
-    // 	SXMPUtils::ComposeStructFieldPath ( NS1, tmpStr1.c_str(), NS2, "Field2",
-    // &tmpStr2 );
-    // 	fprintf ( log, "ComposeStructFieldPath ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2 : %s\n", tmpStr2.c_str() );
-    // 	meta.set_property ( NS1, tmpStr2.c_str(), "new
-    // ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2 value" );
+        // 	tmpStr1.erase();
+        // 	ok = meta.property ( NS1,
+        // "ArrayOfStructProp[ns2:Field1='Item-2']/ns2:Field2", &tmpStr1,
+        // &options );
+        // 	fprintf ( log, "property ArrayOfStructProp[ns2:Field1='Item-2']/ns2:Field2 : %s, \"%s\", 0x%X\n", FoundOrNot ( ok ), tmpStr1.c_str(), options ); fflush ( log );
 
-    // 	DumpXMPObj ( log, meta, "Modified simple RDF" );
+        // 	tmpStr1.erase();
+        // 	tmpStr2 = "Item-2";
+        // 	SXMPUtils::ComposeFieldSelector ( NS1, "ArrayOfStructProp", NS2,
+        // "Field1", tmpStr2, &tmpStr1 ); 	fprintf ( log,
+        // "ComposeFieldSelector ns1:ArrayOfStructProp[ns2:
+        // Field1=Item-2] : %s\n", tmpStr1.c_str() );
 
-    // }
+        // 	tmpStr2.erase();
+        // 	SXMPUtils::ComposeStructFieldPath ( NS1, tmpStr1.c_str(), NS2,
+        // "Field2", &tmpStr2 );
+        // 	fprintf ( log, "ComposeStructFieldPath
+        // ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2 : %s\n",
+        // tmpStr2.c_str() ); 	meta.set_property ( NS1, tmpStr2.c_str(),
+        // "new ns1:ArrayOfStructProp[ns2:Field1=Item-2]/ns2:Field2
+        // value" );
 
-    // // --------------------------------------------------------------------------------------------
-    // // Value conversion utilities
-    // // --------------------------
+        // 	DumpXMPObj ( log, meta, "Modified simple RDF" );
+    }
+
+    //-------------------------------------------------------------------------
 
     // write_major_label("Test value conversion utilities" );
     // fprintf ( log, "\n" );
