@@ -121,39 +121,9 @@ impl XmpDateTime {
     }
 
     pub(crate) fn from_ffi(dt: &ffi::CXmpDateTime) -> Self {
-        Self {
-            date: if dt.has_date {
-                Some(XmpDate {
-                    year: dt.year,
-                    month: dt.month,
-                    day: dt.day,
-                })
-            } else {
-                None
-            },
-            time: if dt.has_time {
-                Some(XmpTime {
-                    hour: dt.hour,
-                    minute: dt.minute,
-                    second: dt.second,
-                    nanosecond: dt.nanosecond,
-                    time_zone: if dt.has_time_zone {
-                        Some(XmpTimeZone {
-                            hour: if dt.tz_sign < 0 {
-                                -dt.tz_hour
-                            } else {
-                                dt.tz_hour
-                            },
-                            minute: dt.tz_minute,
-                        })
-                    } else {
-                        None
-                    },
-                })
-            } else {
-                None
-            },
-        }
+        let mut result = Self::default();
+        result.update_from_ffi(dt);
+        result
     }
 
     pub(crate) fn update_from_ffi(&mut self, dt: &ffi::CXmpDateTime) {
