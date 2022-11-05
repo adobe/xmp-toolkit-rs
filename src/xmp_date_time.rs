@@ -97,40 +97,68 @@ impl XmpDateTime {
         Ok(Self::from_ffi(&dt))
     }
 
-    pub(crate) fn from_ffi(dt: &ffi::CXmpDateTime) -> Self {
-        Self {
-            date: if dt.has_date {
-                Some(XmpDate {
-                    year: dt.year,
-                    month: dt.month,
-                    day: dt.day,
-                })
-            } else {
-                None
-            },
-            time: if dt.has_time {
-                Some(XmpTime {
-                    hour: dt.hour,
-                    minute: dt.minute,
-                    second: dt.second,
-                    nanosecond: dt.nanosecond,
-                    time_zone: if dt.has_time_zone {
-                        Some(XmpTimeZone {
-                            hour: if dt.tz_sign < 0 {
-                                -dt.tz_hour
-                            } else {
-                                dt.tz_hour
-                            },
-                            minute: dt.tz_minute,
-                        })
-                    } else {
-                        None
-                    },
-                })
-            } else {
-                None
-            },
+    /// Sets the time zone to the local time zone.
+    ///
+    /// Can only be used when there is a time with no existing time zone
+    /// (i.e. `self.time.time_zone.is_none()`). It is an error to call this
+    /// function with an existing time zone.
+    ///
+    /// In that case, the time zone value is replaced with the local time zone.
+    /// The other date/time fields are
+    /// not adjusted in any way.
+    pub fn set_local_time_zone(&mut self) -> XmpResult<()> {
+        let mut dt = self.as_ffi();
+        let mut err = ffi::CXmpError::default();
+
+        unsafe {
+            ffi::CXmpDateTimeSetTimeZone(&mut dt, &mut err);
         }
+
+        XmpError::raise_from_c(&err)?;
+
+        self.update_from_ffi(&dt);
+        Ok(())
+    }
+
+    pub(crate) fn from_ffi(dt: &ffi::CXmpDateTime) -> Self {
+        let mut result = Self::default();
+        result.update_from_ffi(dt);
+        result
+    }
+
+    pub(crate) fn update_from_ffi(&mut self, dt: &ffi::CXmpDateTime) {
+        self.date = if dt.has_date {
+            Some(XmpDate {
+                year: dt.year,
+                month: dt.month,
+                day: dt.day,
+            })
+        } else {
+            None
+        };
+
+        self.time = if dt.has_time {
+            Some(XmpTime {
+                hour: dt.hour,
+                minute: dt.minute,
+                second: dt.second,
+                nanosecond: dt.nanosecond,
+                time_zone: if dt.has_time_zone {
+                    Some(XmpTimeZone {
+                        hour: if dt.tz_sign < 0 {
+                            -dt.tz_hour
+                        } else {
+                            dt.tz_hour
+                        },
+                        minute: dt.tz_minute,
+                    })
+                } else {
+                    None
+                },
+            })
+        } else {
+            None
+        };
     }
 
     pub(crate) fn as_ffi(&self) -> ffi::CXmpDateTime {
