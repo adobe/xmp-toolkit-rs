@@ -1775,6 +1775,38 @@ impl XmpMeta {
         }
     }
 
+    /// Sorts the data model tree of an XMP object.
+    ///
+    /// Use this function to sort the data model of an XMP object into a
+    /// canonical order. This can be convenient when comparing data models,
+    /// (e.g. by text comparison of `{:#?}` output).
+    ///
+    /// At the top level the namespaces are sorted by their prefixes. Within a
+    /// namespace, the top level properties are sorted by name. Within a struct,
+    /// the fields are sorted by their qualified name, i.e. their XML
+    /// `prefix:local` form. Unordered arrays of simple items are sorted by
+    /// value. Language Alternative arrays are sorted by the `xml:lang`
+    /// qualifiers, with the `x-default` item placed first.
+    ///
+    /// If this function is not called, the data model will typically appear
+    /// in order of construction. In other words, content parsed from a file
+    /// or string will appear in the order that it did in the source material.
+    /// Properties added subsequently will generally be appended in the order of
+    /// addition within each container.
+    pub fn sort(&mut self) -> XmpResult<()> {
+        if let Some(m) = self.m {
+            let mut err = ffi::CXmpError::default();
+
+            unsafe {
+                ffi::CXmpMetaSort(m, &mut err);
+            }
+
+            XmpError::raise_from_c(&err)
+        } else {
+            Err(no_cpp_toolkit())
+        }
+    }
+
     /// Returns the client-assigned name of this XMP object.
     ///
     /// This name is the empty string by default.

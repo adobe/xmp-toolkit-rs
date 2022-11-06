@@ -1092,6 +1092,20 @@ extern "C" {
         #endif
     }
 
+    void CXmpMetaSort(CXmpMeta* m, CXmpError* outError) {
+        #ifndef NOOP_FFI
+            try {
+                m->m.Sort();
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     const char* CXmpMetaGetObjectName(CXmpMeta* m, CXmpError* outError) {
         #ifndef NOOP_FFI
             try {
