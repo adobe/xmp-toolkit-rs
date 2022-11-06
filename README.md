@@ -12,6 +12,8 @@ This XMP Toolkit crate implements a subset of the XMP metadata standard. This to
 * Inspect and modify the XMP data model.
 * Embed and update XMP metadata in many file formats.
 
+The [`XmpMeta` struct](https://docs.rs/xmp_toolkit/latest/xmp_toolkit/struct.XmpMeta.html) contains most of the API functions for these features and is the best place to get started in understanding this crate.
+
 ## Contributions and feedback
 
 We welcome contributions to this project. For information on contributing, providing feedback, and about ongoing work, see [Contributing](./CONTRIBUTING.md).

@@ -13,8 +13,7 @@
 
 use std::{convert::From, fmt::Debug};
 
-/// An XMP value consists describes a simple property or an item in an
-/// array property.
+/// Describes a single property or item in an array property.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct XmpValue<T: Clone + Debug + Default + PartialEq> {
     /// Core value for this item (typically a `String` or scalar value).
