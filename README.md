@@ -36,7 +36,7 @@ When a newer version of the C++ XMP Toolkit is incorporated, a new minor (0.x.0)
 
 ## Upgrading from earlier versions
 
-**This version of the crate is a 1.0 release candidate (discussion PR to follow).**
+**This version of the crate is a 1.0 release candidate. Please see [the API stabilization PR (#151)](https://github.com/adobe/xmp-toolkit-rs/pull/151) and add feedback there as appropriate.**
 
 This API is considered to to be stable; in other words, no further breaking changes are anticipated. For instructions on how to upgrade from various 0.x versions to the current version, see the [Upgrading guide](./UPGRADING.md).
 
