@@ -121,6 +121,187 @@ mod set_local_time_zone {
     }
 }
 
+mod convert_to_local_time {
+    use crate::{XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
+
+    #[test]
+    fn no_existing_tz() {
+        let mut dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5,
+            }),
+            time: Some(XmpTime {
+                hour: 14,
+                minute: 40,
+                second: 35,
+                nanosecond: 42,
+                time_zone: None,
+            }),
+        };
+
+        dt.convert_to_local_time().unwrap();
+
+        assert_eq!(
+            dt.date.unwrap(),
+            XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5
+            }
+        );
+
+        let time = dt.time.unwrap();
+        assert_eq!(time.hour, 14);
+        assert_eq!(time.minute, 40);
+        assert_eq!(time.second, 35);
+        assert_eq!(time.nanosecond, 42);
+        assert!(time.time_zone.is_none());
+    }
+
+    #[test]
+    fn existing_tz() {
+        let mut dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5,
+            }),
+            time: Some(XmpTime {
+                hour: 14,
+                minute: 40,
+                second: 35,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone { hour: 1, minute: 2 }),
+                // Use an unusual time zone so we can determine if
+                // *something* changed.
+            }),
+        };
+
+        dt.convert_to_local_time().unwrap();
+
+        // Since we don't know when writing this test what time
+        // zone will be in effect when running this test, we do some
+        // basic sanity checks to ensure that *something* changed.
+
+        println!("Updated date time = {:#?}", dt);
+
+        assert_eq!(dt.date.unwrap().year, 2022);
+
+        let time = dt.time.unwrap();
+
+        assert_ne!(
+            time,
+            XmpTime {
+                hour: 14,
+                minute: 40,
+                second: 35,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone { hour: 1, minute: 2 }),
+            }
+        );
+
+        assert_ne!(time.minute, 40);
+    }
+}
+
+mod convert_to_utc {
+    use crate::{XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
+
+    #[test]
+    fn no_existing_tz() {
+        let original_dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5,
+            }),
+            time: Some(XmpTime {
+                hour: 14,
+                minute: 40,
+                second: 35,
+                nanosecond: 42,
+                time_zone: None,
+            }),
+        };
+
+        let mut dt = original_dt.clone();
+        dt.convert_to_utc().unwrap();
+
+        assert_eq!(original_dt, dt);
+    }
+
+    #[test]
+    fn existing_tz() {
+        let mut dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5,
+            }),
+            time: Some(XmpTime {
+                hour: 19,
+                minute: 40,
+                second: 35,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone {
+                    hour: -7,
+                    minute: 0,
+                }),
+            }),
+        };
+
+        dt.convert_to_utc().unwrap();
+
+        println!("Updated date time = {:#?}", dt);
+
+        assert_eq!(
+            dt,
+            XmpDateTime {
+                date: Some(XmpDate {
+                    year: 2022,
+                    month: 11,
+                    day: 6,
+                }),
+                time: Some(XmpTime {
+                    hour: 2,
+                    minute: 40,
+                    second: 35,
+                    nanosecond: 42,
+                    time_zone: Some(XmpTimeZone { hour: 0, minute: 0 }),
+                }),
+            }
+        );
+    }
+
+    #[test]
+    fn already_utc() {
+        let original_dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5,
+            }),
+            time: Some(XmpTime {
+                hour: 19,
+                minute: 40,
+                second: 35,
+                nanosecond: 42,
+                time_zone: Some(XmpTimeZone { hour: 0, minute: 0 }),
+            }),
+        };
+
+        let mut dt = original_dt.clone();
+
+        dt.convert_to_utc().unwrap();
+
+        println!("Updated date time = {:#?}", dt);
+
+        assert_eq!(original_dt, dt);
+    }
+}
+
 mod from_ffi {
     use crate::{ffi, XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
 
