@@ -2629,53 +2629,19 @@ fn xmp_core_coverage() {
         // 	println!( "CompareDateTime with a > b : %d\n", i );
     }
 
-    // // --------------------------------------------------------------------------------------------
-    // // Miscellaneous utilities
-    // // -----------------------
+    //-------------------------------------------------------------------------
 
-    // {
-    // 	write_major_label("Test CatenateArrayItems and SeparateArrayItems" );
-    // 	println!( "\n" );
+    {
+        write_major_label("Test CatenateArrayItems and SeparateArrayItems");
+        println!("SKIPPING: CatenateArrayItems and SeparateArrayItems not ported to Rust");
+        // This can be implemented by using `split` or `join`.
 
-    // 	SXMPMeta meta;
+        println!();
+    }
 
-    // 	meta.AppendArrayItem ( NS1, "Array1", kXMP_PropValueIsArray, "one" );
-    // 	meta.AppendArrayItem ( NS1, "Array1", 0, "two" );
-    // 	meta.AppendArrayItem ( NS1, "Array1", kXMP_PropValueIsArray, "3, three" );
-    // 	meta.AppendArrayItem ( NS1, "Array1", 0, "4; four" );
+    //-------------------------------------------------------------------------
 
-    // 	DumpXMPObj ( log, meta, "Initial array" );
-    // 	println!( "\n" );
-
-    // 	tmpStr1.erase();
-    // 	SXMPUtils::CatenateArrayItems ( meta, NS1, "Array1", "; ", "\"",
-    // kXMP_NoOptions, &tmpStr1 ); 	println!( "CatenateArrayItems, no commas
-    // : %s\n", tmpStr1.c_str() );
-
-    // 	tmpStr2.erase();
-    // 	SXMPUtils::CatenateArrayItems ( meta, NS1, "Array1", " ; ", "\"",
-    // kXMPUtil_AllowCommas, &tmpStr2 ); 	println!( "CatenateArrayItems,
-    // allow commas : %s\n", tmpStr2.c_str() );
-
-    // 	SXMPUtils::SeparateArrayItems ( &meta, NS1, "Array2-1", kXMP_NoOptions,
-    // tmpStr1.c_str() ); 	SXMPUtils::SeparateArrayItems ( &meta, NS1,
-    // "Array2-2", kXMPUtil_AllowCommas, tmpStr1.c_str() );
-
-    // 	SXMPUtils::SeparateArrayItems ( &meta, NS1, "Array3-1",
-    // kXMP_PropArrayIsOrdered, tmpStr2 ); 	SXMPUtils::SeparateArrayItems (
-    // &meta, NS1, "Array3-2", (kXMP_PropArrayIsOrdered | kXMPUtil_AllowCommas),
-    // tmpStr2 );
-
-    // 	DumpXMPObj ( log, meta, "Set Array1, cat and split into others" );
-
-    // 	SXMPUtils::SeparateArrayItems ( &meta, NS1, "Array2-2", kXMP_NoOptions,
-    // tmpStr1.c_str() );	// Repeat into existing arrays.
-    // 	SXMPUtils::SeparateArrayItems ( &meta, NS1, "Array3-2",
-    // kXMP_PropArrayIsOrdered, tmpStr2.c_str() );
-
-    // }
-
-    // // --------------------------------------------------------------------------------------------
+    println!("Remaining items in this test not planned for Rust 1.0 toolkit");
 
     // {
     // 	write_major_label("Test RemoveProperties and AppendProperties" );
@@ -2713,9 +2679,9 @@ fn xmp_core_coverage() {
     // 	meta2.set_property ( xmp_ns::XMP, "Format", "new Format" );
     // 	DumpXMPObj ( log, meta2, "Create 2nd XMP object with new values" );
 
-    // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties );
-    // 	DumpXMPObj ( log, meta1, "Append 2nd to 1st, keeping old values, external
-    // only" );
+    // 	SXMPUtils::ApplyTemplate ( &meta1, meta2, kXMPTemplate_AddNewProperties
+    // ); 	DumpXMPObj ( log, meta1, "Append 2nd to 1st, keeping old values,
+    // external only" );
 
     // 	meta2.set_property ( xmp_ns::XMP, "CreatorTool", "newer CreatorTool" );
     // 	meta2.set_property ( xmp_ns::XMP, "Nickname", "newer Nickname" );
@@ -2755,23 +2721,23 @@ fn xmp_core_coverage() {
     // 	#if 1	// The underlying old toolkit does not support changing the schema
     // namespace.
 
-    // 		SXMPUtils::DuplicateSubtree ( meta1, &meta2, NS1, "ArrayOfStructProp", NS2,
-    // "NewAoS" ); 		DumpXMPObj ( log, meta2, "DuplicateSubtree to different
-    // destination" );
+    // 		SXMPUtils::DuplicateSubtree ( meta1, &meta2, NS1, "ArrayOfStructProp",
+    // NS2, "NewAoS" ); 		DumpXMPObj ( log, meta2, "DuplicateSubtree to
+    // different destination" );
 
-    // 		SXMPUtils::DuplicateSubtree ( meta1, &meta1, NS1, "ArrayOfStructProp", NS2,
-    // "NewAoS" ); 		DumpXMPObj ( log, meta1, "DuplicateSubtree to different
-    // destination in same object" );
+    // 		SXMPUtils::DuplicateSubtree ( meta1, &meta1, NS1, "ArrayOfStructProp",
+    // NS2, "NewAoS" ); 		DumpXMPObj ( log, meta1, "DuplicateSubtree to
+    // different destination in same object" );
 
     // 	#else
 
-    // 		SXMPUtils::DuplicateSubtree ( meta1, &meta2, NS1, "ArrayOfStructProp", NS1,
-    // "NewAoS" ); 		DumpXMPObj ( log, meta2, "DuplicateSubtree to different
-    // destination" );
+    // 		SXMPUtils::DuplicateSubtree ( meta1, &meta2, NS1, "ArrayOfStructProp",
+    // NS1, "NewAoS" ); 		DumpXMPObj ( log, meta2, "DuplicateSubtree to
+    // different destination" );
 
-    // 		SXMPUtils::DuplicateSubtree ( meta1, &meta1, NS1, "ArrayOfStructProp", NS1,
-    // "NewAoS" ); 		DumpXMPObj ( log, meta1, "DuplicateSubtree to different
-    // destination in same object" );
+    // 		SXMPUtils::DuplicateSubtree ( meta1, &meta1, NS1, "ArrayOfStructProp",
+    // NS1, "NewAoS" ); 		DumpXMPObj ( log, meta1, "DuplicateSubtree to
+    // different destination in same object" );
 
     // 	#endif
 
@@ -2816,5 +2782,5 @@ fn xmp_core_coverage() {
     // write_major_label("XMPCoreCoverage done" );
     // println!( "\n" );
 
-    panic!("\n\n---\n\naborting test for now so we can inspect output");
+    // panic!("\n\n---\n\naborting test for now so we can inspect output");
 }
