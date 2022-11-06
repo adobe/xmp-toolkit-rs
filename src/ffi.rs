@@ -464,6 +464,8 @@ extern "C" {
         options: u32,
     );
 
+    pub(crate) fn CXmpMetaSort(meta: *mut CXmpMeta, out_error: *mut CXmpError);
+
     pub(crate) fn CXmpMetaGetObjectName(
         meta: *mut CXmpMeta,
         out_error: *mut CXmpError,
