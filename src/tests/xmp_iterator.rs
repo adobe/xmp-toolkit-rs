@@ -515,6 +515,50 @@ fn empty_namespace() {
 }
 
 #[test]
+fn schema_ns_immediate_children_leaf_name_only() {
+    let meta = test_fixture();
+
+    let props: Vec<XmpProperty> = meta
+        .iter(
+            IterOptions::default()
+                .schema_ns(NS2)
+                .immediate_children_only()
+                .leaf_name_only(),
+        )
+        .collect();
+
+    assert_eq!(
+        props,
+        [
+            XmpProperty {
+                schema_ns: "ns:test2/".to_owned(),
+                name: "ns2:NestedStructProp".to_owned(),
+                value: XmpValue {
+                    value: "".to_owned(),
+                    options: 256
+                }
+            },
+            XmpProperty {
+                schema_ns: "ns:test2/".to_owned(),
+                name: "ns2:Prop".to_owned(),
+                value: XmpValue {
+                    value: "Prop value".to_owned(),
+                    options: 0
+                }
+            },
+            XmpProperty {
+                schema_ns: "ns:test2/".to_owned(),
+                name: "ns2:Bag".to_owned(),
+                value: XmpValue {
+                    value: "".to_owned(),
+                    options: 512
+                }
+            }
+        ]
+    );
+}
+
+#[test]
 fn namespace_immediate_children_only() {
     let meta = test_fixture();
 
@@ -622,6 +666,51 @@ fn property_immediate_children_leaf_name_only() {
             XmpProperty {
                 schema_ns: "".to_owned(),
                 name: "[3]".to_owned(),
+                value: XmpValue {
+                    value: "BagItem 3".to_owned(),
+                    options: 0
+                }
+            }
+        ]
+    );
+}
+
+#[test]
+fn property_immediate_children() {
+    let meta = test_fixture();
+
+    let props: Vec<XmpProperty> = meta
+        .iter(
+            IterOptions::default()
+                .property(NS2, "Bag")
+                .immediate_children_only(),
+        )
+        .collect();
+
+    check_props_exist(&meta, &props);
+
+    assert_eq!(
+        props,
+        [
+            XmpProperty {
+                schema_ns: "ns:test2/".to_owned(),
+                name: "ns2:Bag[1]".to_owned(),
+                value: XmpValue {
+                    value: "BagItem 1".to_owned(),
+                    options: 0
+                }
+            },
+            XmpProperty {
+                schema_ns: "ns:test2/".to_owned(),
+                name: "ns2:Bag[2]".to_owned(),
+                value: XmpValue {
+                    value: "BagItem 2".to_owned(),
+                    options: 0
+                }
+            },
+            XmpProperty {
+                schema_ns: "ns:test2/".to_owned(),
+                name: "ns2:Bag[3]".to_owned(),
                 value: XmpValue {
                     value: "BagItem 3".to_owned(),
                     options: 0

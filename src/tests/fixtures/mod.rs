@@ -184,6 +184,19 @@ pub(crate) const LOCALIZED_TEXT_EXAMPLE: &str = r#"<rdf:RDF xmlns:rdf="http://ww
         </rdf:Description>
     </rdf:RDF>"#;
 
+// NOTE: Not using r# syntax here because we need the CR/LF chars
+// in these values to be parsed as such.
+pub(crate) const NEWLINE_RDF: &str =
+    "<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
+<rdf:Description rdf:about='Test:XMPCoreCoverage/kNewlineRDF' xmlns:ns1='ns:test1/'>
+
+  <ns1:HasCR>ASCII \u{D} CR</ns1:HasCR>
+  <ns1:HasLF>ASCII \u{A} LF</ns1:HasLF>
+  <ns1:HasCRLF>ASCII \u{D}\u{A} CRLF</ns1:HasCRLF>
+
+</rdf:Description>
+</rdf:RDF>";
+
 pub(crate) const INCONSISTENT_RDF: &str = r#"<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
       <rdf:Description rdf:about='Test:XMPCoreCoverage/kInconsistentRDF'
                        xmlns:pdf='http://ns.adobe.com/pdf/1.3/'
