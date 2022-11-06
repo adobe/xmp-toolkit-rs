@@ -324,7 +324,7 @@ fn write_minor_label(title: &str) {
 // 	for ( size_t i = 0; i < xmp.size(); ++i ) {
 // 		if ( (xmp[i] == '\x0A') || (xmp[i] == '\x0D') ) {
 // 			if ( strncmp ( &xmp[i], newline, strlen(newline) ) != 0 ) {
-// 				fprintf ( log, "** Wrong newline at offset %zd\n", i );
+// 				println!( "** Wrong newline at offset %zd\n", i );
 // 			}
 // 			if ( strlen(newline) == 2 ) ++i;
 // 		}
@@ -2550,57 +2550,84 @@ fn xmp_core_coverage() {
     write_major_label("Test value conversion utilities");
     println!("SKIPPING: Value conversion utilities not ported to Rust");
 
-    // // --------------------------------------------------------------------------------------------
-    // // Date/Time utilities
-    // // -------------------
+    //-------------------------------------------------------------------------
 
-    // {
-    // 	write_major_label("Test date/time utilities and special values" );
-    // 	fprintf ( log, "\n" );
+    {
+        write_major_label("Test date/time utilities and special values");
+        println!();
 
-    // 	XMP_DateTime utcNow, localNow;
+        let mut dt = XmpDateTime {
+            date: Some(XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5,
+            }),
+            time: Some(XmpTime {
+                hour: 14,
+                minute: 40,
+                second: 35,
+                nanosecond: 42,
+                time_zone: None,
+            }),
+        };
 
-    // 	SXMPUtils::SetTimeZone ( &utcNow );
-    // 	fprintf ( log, "SetTimeZone : %d-%02d-%02d %02d:%02d:%02d %d*%02d:%02d %d\n",
-    // 			  utcNow.year, utcNow.month, utcNow.day, utcNow.hour, utcNow.minute,
-    // utcNow.second, 			  utcNow.tzSign, utcNow.tzHour, utcNow.tzMinute,
-    // utcNow.nanoSecond );
+        dt.set_local_time_zone().unwrap();
 
-    // 	SXMPUtils::CurrentDateTime ( &utcNow );
-    // 	fprintf ( log, "CurrentDateTime : %d-%02d-%02d %02d:%02d:%02d %d*%02d:%02d
-    // %d\n", 			  utcNow.year, utcNow.month, utcNow.day, utcNow.hour,
-    // utcNow.minute, utcNow.second, 			  utcNow.tzSign, utcNow.tzHour,
-    // utcNow.tzMinute, utcNow.nanoSecond );
+        // We don't know when writing this test what time zone will be used
+        // when running this test. All we can do is verify that *some* time zone
+        // was added and that other fields weren't altered. Print the result so
+        // it can be manually inspected.
 
-    // 	localNow = utcNow;
-    // 	SXMPUtils::ConvertToLocalTime ( &localNow );
-    // 	fprintf ( log, "ConvertToLocalTime : %d-%02d-%02d %02d:%02d:%02d %d*%02d:%02d
-    // %d\n", 			  localNow.year, localNow.month, localNow.day, localNow.hour,
-    // localNow.minute, localNow.second, 			  localNow.tzSign, localNow.tzHour,
-    // localNow.tzMinute, localNow.nanoSecond );
+        println!("Manually verify correct local time zone: {:#?}", dt);
 
-    // 	utcNow = localNow;
-    // 	SXMPUtils::ConvertToUTCTime ( &utcNow );
-    // 	fprintf ( log, "ConvertToUTCTime : %d-%02d-%02d %02d:%02d:%02d %d*%02d:%02d
-    // %d\n", 			  utcNow.year, utcNow.month, utcNow.day, utcNow.hour,
-    // utcNow.minute, utcNow.second, 			  utcNow.tzSign, utcNow.tzHour,
-    // utcNow.tzMinute, utcNow.nanoSecond );
+        assert_eq!(
+            dt.date.unwrap(),
+            XmpDate {
+                year: 2022,
+                month: 11,
+                day: 5
+            }
+        );
 
-    // 	fprintf ( log, "\n" );
+        let time = dt.time.unwrap();
+        assert_eq!(time.hour, 14);
+        assert_eq!(time.minute, 40);
+        assert_eq!(time.second, 35);
+        assert_eq!(time.nanosecond, 42);
+        assert!(time.time_zone.is_some());
 
-    // 	i = SXMPUtils::CompareDateTime ( utcNow, localNow );
-    // 	fprintf ( log, "CompareDateTime with a == b : %d\n", i );
+        let now = XmpDateTime::current().unwrap();
+        println!("Manually verify current date/time: {:#?}", now);
 
-    // 	utcNow.second = 0;
-    // 	localNow.second = 30;
-    // 	i = SXMPUtils::CompareDateTime ( utcNow, localNow );
-    // 	fprintf ( log, "CompareDateTime with a < b : %d\n", i );
+        let mut local_now = now;
+        local_now.convert_to_local_time().unwrap();
+        println!(
+            "Manually verify current date/time (LOCAL): {:#?}",
+            local_now
+        );
 
-    // 	utcNow.second = 59;
-    // 	i = SXMPUtils::CompareDateTime ( utcNow, localNow );
-    // 	fprintf ( log, "CompareDateTime with a > b : %d\n", i );
+        let mut utc_now = local_now;
+        utc_now.convert_to_utc().unwrap();
+        println!("Manually verify current date/time (UTC): {:#?}", utc_now);
 
-    // }
+        println!();
+
+        println!("SKIPPING: Date/time comparisons not ported to Rust");
+        // TO DO (https://github.com/adobe/xmp-toolkit-rs/issues/150):
+        // Decide how to port the CompareDateTime to Rust. Skipping for now.
+
+        // 	i = SXMPUtils::CompareDateTime ( utcNow, localNow );
+        // 	println!( "CompareDateTime with a == b : %d\n", i );
+
+        // 	utcNow.second = 0;
+        // 	localNow.second = 30;
+        // 	i = SXMPUtils::CompareDateTime ( utcNow, localNow );
+        // 	println!( "CompareDateTime with a < b : %d\n", i );
+
+        // 	utcNow.second = 59;
+        // 	i = SXMPUtils::CompareDateTime ( utcNow, localNow );
+        // 	println!( "CompareDateTime with a > b : %d\n", i );
+    }
 
     // // --------------------------------------------------------------------------------------------
     // // Miscellaneous utilities
@@ -2608,7 +2635,7 @@ fn xmp_core_coverage() {
 
     // {
     // 	write_major_label("Test CatenateArrayItems and SeparateArrayItems" );
-    // 	fprintf ( log, "\n" );
+    // 	println!( "\n" );
 
     // 	SXMPMeta meta;
 
@@ -2618,16 +2645,16 @@ fn xmp_core_coverage() {
     // 	meta.AppendArrayItem ( NS1, "Array1", 0, "4; four" );
 
     // 	DumpXMPObj ( log, meta, "Initial array" );
-    // 	fprintf ( log, "\n" );
+    // 	println!( "\n" );
 
     // 	tmpStr1.erase();
     // 	SXMPUtils::CatenateArrayItems ( meta, NS1, "Array1", "; ", "\"",
-    // kXMP_NoOptions, &tmpStr1 ); 	fprintf ( log, "CatenateArrayItems, no commas
+    // kXMP_NoOptions, &tmpStr1 ); 	println!( "CatenateArrayItems, no commas
     // : %s\n", tmpStr1.c_str() );
 
     // 	tmpStr2.erase();
     // 	SXMPUtils::CatenateArrayItems ( meta, NS1, "Array1", " ; ", "\"",
-    // kXMPUtil_AllowCommas, &tmpStr2 ); 	fprintf ( log, "CatenateArrayItems,
+    // kXMPUtil_AllowCommas, &tmpStr2 ); 	println!( "CatenateArrayItems,
     // allow commas : %s\n", tmpStr2.c_str() );
 
     // 	SXMPUtils::SeparateArrayItems ( &meta, NS1, "Array2-1", kXMP_NoOptions,
@@ -2754,7 +2781,7 @@ fn xmp_core_coverage() {
 
     // {
     // 	write_major_label("Test EncodeToBase64 and DecodeFromBase64" );
-    // 	fprintf ( log, "\n" );
+    // 	println!( "\n" );
 
     // 	unsigned long m;
 
@@ -2774,12 +2801,12 @@ fn xmp_core_coverage() {
 
     // 	tmpStr2.erase();
     // 	SXMPUtils::EncodeToBase64 ( tmpStr1, &tmpStr2 );
-    // 	fprintf ( log, "Encoded sequence (should be A-Za-z0-9+/) : %s\n",
+    // 	println!( "Encoded sequence (should be A-Za-z0-9+/) : %s\n",
     // tmpStr2.c_str() );
 
     // 	tmpStr3.erase();
     // 	SXMPUtils::DecodeFromBase64 ( tmpStr2, &tmpStr3 );
-    // 	if ( tmpStr1 != tmpStr3 ) fprintf ( log, "** Error in base 64 round trip\n"
+    // 	if ( tmpStr1 != tmpStr3 ) println!( "** Error in base 64 round trip\n"
     // );
 
     // }
@@ -2787,7 +2814,7 @@ fn xmp_core_coverage() {
     // // --------------------------------------------------------------------------------------------
 
     // write_major_label("XMPCoreCoverage done" );
-    // fprintf ( log, "\n" );
+    // println!( "\n" );
 
     panic!("\n\n---\n\naborting test for now so we can inspect output");
 }
