@@ -100,7 +100,7 @@ impl XmpDateTime {
     /// Sets the time zone to the local time zone.
     ///
     /// Can only be used when there is a time with no existing time zone
-    /// (i.e. `self.time.time_zone.is_none()`). It is an error to call this
+    /// (i.e. `self.time.time_zone.is_none`). It is an error to call this
     /// function with an existing time zone.
     ///
     /// In that case, the time zone value is replaced with the local time zone.

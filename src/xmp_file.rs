@@ -64,15 +64,15 @@ impl XmpFile {
     /// `kXMPFiles_OpenOnlyXMP` is passed.
     ///
     /// If the file is opened for read-only access (passing
-    /// [`OpenFileOptions::for_read()`]), the disk file is closed
+    /// [`OpenFileOptions::for_read`]), the disk file is closed
     /// immediately after reading the data from it; the `XMPFile` struct,
-    /// however, remains in the open state until `drop()` is called.
+    /// however, remains in the open state until `drop` is called.
     ///
-    /// If you update the XMP, you must call [`XmpFile::put_xmp()`] before the
+    /// If you update the XMP, you must call [`XmpFile::put_xmp`] before the
     /// struct is dropped; if you do not, any pending updates are lost.
     ///
     /// Typically, the XMP is not parsed and legacy reconciliation is not
-    /// performed until [`XmpFile::xmp()`] is called, but this is not
+    /// performed until [`XmpFile::xmp`] is called, but this is not
     /// guaranteed. Specific file handlers might do earlier parsing of the
     /// XMP. Delayed parsing and early disk file close for read-only
     /// access are optimizations to help clients implementing file browsers, so
@@ -84,7 +84,7 @@ impl XmpFile {
     /// * `path`: The path for the file.
     ///
     /// * `flags`: A set of option flags that describe the desired access. By
-    ///   default ([`OpenFileOptions::default()`]), the file is opened for
+    ///   default ([`OpenFileOptions::default`]), the file is opened for
     ///   read-only access and the format handler decides on the level of
     ///   reconciliation that will be performed. See [`OpenFileOptions`] for
     ///   other options.
@@ -138,7 +138,7 @@ impl XmpFile {
     /// Updates the XMP metadata in this object without writing out the file.
     ///
     /// This function supplies new XMP for the file. However, the disk file is
-    /// not written until the struct is closed with [`XmpFile::close()`].
+    /// not written until the struct is closed with [`XmpFile::close`].
     /// The options provided when the file was opened determine if
     /// reconciliation is done with other forms of metadata.
     pub fn put_xmp(&mut self, meta: &XmpMeta) -> XmpResult<()> {
@@ -157,28 +157,28 @@ impl XmpFile {
     /// opened for update are written to only when closing.
     ///
     /// If the file is opened for read-only access (passing
-    /// [`OpenFileOptions::for_read()`]), the disk file is closed
+    /// [`OpenFileOptions::for_read`]), the disk file is closed
     /// immediately after reading the data from it; the `XMPFile`
     /// struct, however, remains in the open state. You must call
-    /// [`XmpFile::close()`] when finished using it. Other methods, such as
-    /// [`XmpFile::xmp()`], can only be used between the
-    /// [`XmpFile::open_file()`] and [`XmpFile::close()`] calls. The `XMPFile`
-    /// destructor does not call [`XmpFile::close()`]; if the struct is
+    /// [`XmpFile::close`] when finished using it. Other methods, such as
+    /// [`XmpFile::xmp`], can only be used between the
+    /// [`XmpFile::open_file`] and [`XmpFile::close`] calls. The `XMPFile`
+    /// destructor does not call [`XmpFile::close`]; if the struct is
     /// dropped without closing, any pending updates are lost.
     ///
     /// If the file is opened for update (passing
-    /// [`OpenFileOptions::for_update()`]), the disk file remains open until
-    /// [`XmpFile::close()`] is called. The disk file is only updated once,
-    /// when [`XmpFile::close()`] is called, regardless of how many calls are
-    /// made to [`XmpFile::put_xmp()`].
+    /// [`OpenFileOptions::for_update`]), the disk file remains open until
+    /// [`XmpFile::close`] is called. The disk file is only updated once,
+    /// when [`XmpFile::close`] is called, regardless of how many calls are
+    /// made to [`XmpFile::put_xmp`].
     pub fn close(&mut self) {
         unsafe { ffi::CXmpFileClose(self.f) };
     }
 }
 
-/// Option flags for [`XmpFile::open_file()`].
+/// Option flags for [`XmpFile::open_file`].
 ///
-/// Invoke by calling [`OpenFileOptions::default()`] and then calling methods
+/// Invoke by calling [`OpenFileOptions::default`] and then calling methods
 /// on this struct to add options as needed.
 #[derive(Default)]
 pub struct OpenFileOptions {

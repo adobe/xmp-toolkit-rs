@@ -859,7 +859,7 @@ impl XmpMeta {
 
     /// Provides access to items within an array.
     ///
-    /// Use `XmpMeta::compose_array_item_path()` to create a complex path.
+    /// Use `XmpMeta::compose_array_item_path` to create a complex path.
     ///
     /// ## Arguments
     ///
@@ -901,11 +901,11 @@ impl XmpMeta {
     ///
     /// Items are accessed by an integer index, where the first item has index
     /// 1. This function creates the item if necessary, but the array itself
-    /// must already exist. Use [`XmpMeta::append_array_item()`] to create
+    /// must already exist. Use [`XmpMeta::append_array_item`] to create
     /// arrays. A new item is automatically appended if the index is the array
     /// size plus 1.
     ///
-    /// Use `XmpMeta::compose_array_item_path()` to create a complex path.
+    /// Use `XmpMeta::compose_array_item_path` to create a complex path.
     ///
     /// ## Arguments
     ///
@@ -969,7 +969,7 @@ impl XmpMeta {
     ///
     /// Each call appends a new item to the array.
     ///
-    /// Use `XmpMeta::compose_array_item_path()` to create a complex path.
+    /// Use `XmpMeta::compose_array_item_path` to create a complex path.
     ///
     /// ## Arguments
     ///
@@ -1011,7 +1011,7 @@ impl XmpMeta {
     /// Deletes an XMP subtree rooted at a given array item.
     ///
     /// It is not an error if the array item does not exist. Use
-    /// [`XmpMeta::compose_array_item_path()`] to create a complex path.
+    /// [`XmpMeta::compose_array_item_path`] to create a complex path.
     ///
     /// ## Arguments
     ///
@@ -1088,7 +1088,7 @@ impl XmpMeta {
     /// empty structure of any depth. If you set a field in a structure
     /// that does not exist, the structure is automatically created.
     ///
-    /// Use [`XmpMeta::compose_struct_field_path()`] to create a complex path.
+    /// Use [`XmpMeta::compose_struct_field_path`] to create a complex path.
     ///
     /// ## Arguments
     ///
@@ -1137,7 +1137,7 @@ impl XmpMeta {
     ///
     /// It is not an error if the field does not exist.
     ///
-    /// Use [`XmpMeta::compose_struct_field_path()`] to create a complex path.
+    /// Use [`XmpMeta::compose_struct_field_path`] to create a complex path.
     ///
     /// ## Arguments
     ///
@@ -1227,7 +1227,7 @@ impl XmpMeta {
     /// Use this to set a value for an existing qualifier, or create a new
     /// qualifier.
     ///
-    /// Use [`XmpMeta::compose_qualifier_path()`] to create a complex path.
+    /// Use [`XmpMeta::compose_qualifier_path`] to create a complex path.
     ///
     /// ## Arguments
     ///
@@ -1354,7 +1354,7 @@ impl XmpMeta {
     ///   artificial language, `x-default`, that is used to explicitly denote a
     ///   default item in an alt-text array. The XMP toolkit normalizes alt-text
     ///   arrays such that the x-default item is the first item. The
-    ///   [`XmpMeta::set_localized_text()`] function has several special
+    ///   [`XmpMeta::set_localized_text`] function has several special
     ///   features related to the `x-default` item. See its description for
     ///   details. The array item is selected according to these rules:
     /// * Look for an exact match with the specific language.
@@ -1561,7 +1561,7 @@ impl XmpMeta {
     /// in an array of alternatives. The form used in this function lets you
     /// select an item in an alt-text array based on the value of its
     /// `xml:lang` qualifier. The other form of content addressing is shown
-    /// in [`XmpMeta::compose_field_selector()`].
+    /// in [`XmpMeta::compose_field_selector`].
     ///
     /// ## Arguments
     ///
@@ -1577,7 +1577,7 @@ impl XmpMeta {
     ///
     /// This function provides a path expression that is explicitly and only for
     /// a specific language. In most cases,
-    /// [`XmpMeta::set_localized_text()`] and [`XmpMeta::localized_text()`] are
+    /// [`XmpMeta::set_localized_text`] and [`XmpMeta::localized_text`] are
     /// preferred, because they provide extra logic to choose the appropriate
     /// language and maintain consistency with the `x-default` value.
     pub fn compose_lang_selector(
@@ -1611,7 +1611,7 @@ impl XmpMeta {
     /// in an array of alternatives. The form used in this function lets you
     /// select an item in an array of structs based on the value of one of the
     /// fields in the structs. The other form of content addressing is shown in
-    /// [`XmpMeta::compose_lang_selector()`].
+    /// [`XmpMeta::compose_lang_selector`].
     ///
     /// ## Arguments
     ///
@@ -1866,7 +1866,7 @@ impl XmpMeta {
     /// Converts metadata in this XMP object into a string as RDF.
     ///
     /// This struct also implements [`std::fmt::Display`] which will provide
-    /// a reasonable default behavior via `XmpMeta::to_string()`.
+    /// a reasonable default behavior via `XmpMeta::to_string`.
     ///
     /// Use this function, together with [`ToStringOptions`] if you
     /// need more control over output formats.
@@ -2161,9 +2161,9 @@ impl ToStringOptions {
     /// Do not include an XML packet wrapper.
     ///
     /// This can not be specified together with
-    /// [`ToStringOptions::read_only_packet()`],
-    /// [`ToStringOptions::include_thumbnail_pad()`], or
-    /// [`ToStringOptions::exact_packet_length()`].
+    /// [`ToStringOptions::read_only_packet`],
+    /// [`ToStringOptions::include_thumbnail_pad`], or
+    /// [`ToStringOptions::exact_packet_length`].
     pub fn omit_packet_wrapper(mut self) -> Self {
         self.options |= Self::OMIT_PACKET_WRAPPER;
         self
