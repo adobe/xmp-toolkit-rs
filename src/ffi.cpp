@@ -1369,6 +1369,54 @@ extern "C" {
         #endif
     }
 
+    void CXmpDateTimeSetTimeZone(XMP_DateTime* dt, CXmpError* outError) {
+        #ifndef NOOP_FFI
+        try {
+            if (dt) {
+                SXMPUtils::SetTimeZone(dt);
+            }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
+    void CXmpDateTimeConvertToLocalTime(XMP_DateTime* dt, CXmpError* outError) {
+        #ifndef NOOP_FFI
+        try {
+            if (dt) {
+                SXMPUtils::ConvertToLocalTime(dt);
+            }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
+    void CXmpDateTimeConvertToUTCTime(XMP_DateTime* dt, CXmpError* outError) {
+        #ifndef NOOP_FFI
+        try {
+            if (dt) {
+                SXMPUtils::ConvertToUTCTime(dt);
+            }
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
+        #endif
+    }
+
     const char* CXmpDateTimeToString(const XMP_DateTime* dt, CXmpError* outError) {
         #ifndef NOOP_FFI
             try {
