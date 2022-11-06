@@ -21,7 +21,7 @@ use thiserror::Error;
 
 use crate::ffi::CXmpError;
 
-/// Describes error conditions returned by most XMP Toolkit operations.
+/// Describes error conditions returned by XMP Toolkit operations.
 #[derive(Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub struct XmpError {

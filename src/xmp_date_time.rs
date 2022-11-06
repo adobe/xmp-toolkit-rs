@@ -18,20 +18,20 @@ use crate::{
     XmpError, XmpResult,
 };
 
-/// The `XmpDateTime` struct allows easy conversion between ISO8601 format
-/// (the "native" representation of dates and times in XMP) and other formats.
+/// Represents the concept of date and time as expressed in XMP.
+///
+/// XMP understands a close variant of the ISO8601 format, where date, time,
+/// and time zone are all optional fields. These possibilities are expressed
+/// using [`Option`]s.
 ///
 /// All of the fields are signed 32 bit integers, even though most could be 8
 /// bit. (The same is true in the underlying C++ XMP Toolkit.) This avoids
 /// overflow when doing carries for arithmetic or normalization.
 ///
-/// `XmpDateTime` values are occasionally used with only a date or only a time
-/// component. These possibilities are expressed using `Option`s.
-///
-/// Note that the [`DateTime` struct in the `chrono` crate](https://docs.rs/chrono/0.4.22/chrono/struct.DateTime.html)
-/// is _similar_ to this struct. We chose not to use that in the
-/// Rust XMP Toolkit in order to provide a more precise mapping
-/// to the API provided by the underlying C++ XMP Toolkit.
+/// The [`DateTime` struct in the `chrono` crate](https://docs.rs/chrono/latest/chrono/struct.DateTime.html)
+/// is _similar_ to this struct, but does not provide a way to express
+/// the optionality of date, time, and time zone in a single struct. For that
+/// reason, we did not use it in this crate.
 #[derive(Clone, Default, Debug, Eq, PartialEq)]
 pub struct XmpDateTime {
     /// The date, if known.

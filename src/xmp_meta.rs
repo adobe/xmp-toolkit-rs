@@ -19,13 +19,15 @@ use crate::{
     XmpResult, XmpValue,
 };
 
-/// An `XmpMeta` struct allows you to inspect and modify the data model
-/// of an XMP packet.
+/// Represents the data model of an XMP packet.
 ///
 /// You can create an `XmpMeta` struct by:
-/// * Creating an empty struct ([`XmpMeta::new`])
-/// * Reading metadata from a file ([`XmpFile::xmp`])
-/// * Parsing a string containing metadata ([`XmpMeta::from_str`])
+/// * Creating an empty struct ([`XmpMeta::new`]).
+/// * Reading metadata from a file ([`XmpFile::xmp`]).
+/// * Parsing a string containing metadata ([`XmpMeta::from_str`]).
+///
+/// There are many methods on this struct which allow you to inspect
+/// and modify the XMP data model.
 ///
 /// ## Accessing properties
 ///
@@ -107,6 +109,11 @@ impl XmpMeta {
     /// The actual registered prefix is returned. It is not an error
     /// if the URI is already registered, regardless of the prefix.
     ///
+    /// **IMPORTANT:** Namespace registrations are global state in
+    /// the C++ XMP Toolkit and not related to any single data model.
+    /// For this reason, the corresponding function (i.e. to unregister
+    /// a namespace) is not provided.
+    ///
     /// ## Arguments
     ///
     /// * `namespace_uri`: The URI for the namespace. Must be a valid XML URI.
@@ -136,6 +143,9 @@ impl XmpMeta {
 
     /// Returns the prefix for a registered namespace URI if it exists.
     ///
+    /// **IMPORTANT:** Namespace registrations are global state in
+    /// the C++ XMP Toolkit and not related to any single data model.
+    ///
     /// ## Arguments
     ///
     /// * `namespace_uri`: The URI for the namespace. Must be a valid XML URI.
@@ -153,6 +163,9 @@ impl XmpMeta {
     }
 
     /// Returns the URL for a registered namespace prefix if it exists.
+    ///
+    /// **IMPORTANT:** Namespace registrations are global state in
+    /// the C++ XMP Toolkit and not related to any single data model.
     ///
     /// ## Arguments
     ///
@@ -173,6 +186,9 @@ impl XmpMeta {
     /// Returns a list of registered namespaces as a string.
     ///
     /// Intended for debugging/logging use.
+    ///
+    /// **IMPORTANT:** Namespace registrations are global state in
+    /// the C++ XMP Toolkit and not related to any single data model.
     pub fn debug_dump_namespaces() -> String {
         let mut result = String::default();
 
@@ -1354,9 +1370,9 @@ impl XmpMeta {
     ///   artificial language, `x-default`, that is used to explicitly denote a
     ///   default item in an alt-text array. The XMP toolkit normalizes alt-text
     ///   arrays such that the x-default item is the first item. The
-    ///   [`XmpMeta::set_localized_text`] function has several special
-    ///   features related to the `x-default` item. See its description for
-    ///   details. The array item is selected according to these rules:
+    ///   [`XmpMeta::set_localized_text`] function has several special features
+    ///   related to the `x-default` item. See its description for details. The
+    ///   array item is selected according to these rules:
     /// * Look for an exact match with the specific language.
     /// * If a generic language is given, look for a partial match.
     /// * Look for an `x-default` item.
@@ -2172,7 +2188,7 @@ impl ToStringOptions {
     /// Create a read-only XML packet wapper.
     ///
     /// This can not be specified together with
-    /// [`ToStringOptions::omit_packet_wrapper()].
+    /// [`ToStringOptions::omit_packet_wrapper`].
     pub fn read_only_packet(mut self) -> Self {
         self.options |= Self::READ_ONLY_PACKET;
         self
@@ -2194,7 +2210,7 @@ impl ToStringOptions {
     /// no `xmp:Thumbnails` property is present.
     ///
     /// This can not be specified together with
-    /// [`ToStringOptions::omit_packet_wrapper()].
+    /// [`ToStringOptions::omit_packet_wrapper`].
     pub fn include_thumbnail_pad(mut self) -> Self {
         self.options |= Self::INCLUDE_THUMBNAIL_PAD;
         self
@@ -2205,7 +2221,7 @@ impl ToStringOptions {
     /// if the packet exceeds this length with no padding.
     ///
     /// This can not be specified together with
-    /// [`ToStringOptions::omit_packet_wrapper()].
+    /// [`ToStringOptions::omit_packet_wrapper`].
     pub fn exact_packet_length(mut self) -> Self {
         self.options |= Self::EXACT_PACKET_LENGTH;
         self

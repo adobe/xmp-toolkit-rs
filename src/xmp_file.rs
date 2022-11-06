@@ -15,12 +15,11 @@ use std::{ffi::CString, path::Path};
 
 use crate::{ffi, XmpError, XmpErrorType, XmpMeta, XmpResult};
 
-/// The `XmpFile` struct allows access to the main (document-level) metadata in
-/// a file.
+/// Provides access to the main (document-level) metadata in many file formats.
 ///
 /// This provides convenient access to the main, or document level, XMP for a
 /// file. Use it to obtain metadata from a file, which you can then manipulate
-/// with the [`XmpMeta`] struct; and to write new or changed metadata back out
+/// with the [`XmpMeta`] struct and to write new or changed metadata back out
 /// to a file.
 ///
 /// The functions allow you to open a file, read and write the metadata, then
