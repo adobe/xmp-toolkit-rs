@@ -2939,7 +2939,7 @@ mod delete_qualifier {
 mod localized_text {
     use std::str::FromStr;
 
-    use crate::{tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, XmpMeta};
+    use crate::{tests::fixtures::LOCALIZED_TEXT_EXAMPLE, xmp_ns, xmp_value::xmp_prop, XmpMeta};
 
     #[test]
     fn happy_path() {
