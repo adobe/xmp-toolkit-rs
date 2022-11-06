@@ -32,15 +32,13 @@ The toolkit has been tested on the following operating systems:
 
 This crate incorporates the June 2022 version of the C++ [Adobe XMP Toolkit SDK](https://github.com/adobe/XMP-Toolkit-SDK/).
 
-When a newer version of the C++ XMP Toolkit is incorporated, a new minor (0.x.0) version of this crate will be released.
+When a newer version of the C++ XMP Toolkit is incorporated, a new minor (1.x.0) version of this crate will be released.
 
 ## Upgrading from earlier versions
 
-**This version of the crate is a 1.0 release candidate (discussion PR to follow).**
+This API is considered to to be stable; in other words, no further breaking changes are anticipated. For instructions on how to upgrade from various 0.x versions to 1.x, see the [Upgrading guide](./UPGRADING.md).
 
-This API is considered to to be stable; in other words, no further breaking changes are anticipated. For instructions on how to upgrade from various 0.x versions to the current version, see the [Upgrading guide](./UPGRADING.md).
-
-Minor, non-breaking additions to the API surface may be added as the few remaining APIs in the `XMP_Meta`, `XMP_Files`, `TXMPUtils` interfaces are exposed. Such changes will trigger minor (0.x.0) version increments when they happen.
+Minor, non-breaking additions to the API surface may be added as the few remaining APIs in the `XMP_Meta`, `XMP_Files`, `TXMPUtils` interfaces are exposed. Such changes will trigger minor (1.x.0) version increments when they happen.
 
 ### Usage
 
