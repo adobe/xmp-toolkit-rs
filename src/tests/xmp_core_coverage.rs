@@ -2440,7 +2440,7 @@ fn xmp_core_coverage() {
             .unwrap();
         println!();
 
-        let path = XmpMeta::compose_struct_field_path(NS1, "StructProp", NS2, &"Field3").unwrap();
+        let path = XmpMeta::compose_struct_field_path(NS1, "StructProp", NS2, "Field3").unwrap();
         println!(
             "compose_struct_field_path ns1:StructProp/ns2:Field3 : {}",
             path
