@@ -223,8 +223,7 @@ jobs:
           args: --all-targets --all-features
 
   version_bump:
-    name: Ensure (MINOR) tag is used when making an API breaking change
-    # Change all of these steps to (MAJOR) after 1.0 release
+    name: Ensure (MAJOR) tag is used when making an API breaking change
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -270,7 +269,7 @@ jobs:
         env:
           VERSION: ${{ steps.set-version.outputs.version }}
 
-      - name: If this step fails, change title of the PR to include (MINOR) tag
+      - name: If this step fails, change title of the PR to include (MAJOR) tag
         uses: obi1kenobi/cargo-semver-checks-action@v1
         with:
           crate-name: xmp_toolkit
