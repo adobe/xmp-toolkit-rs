@@ -6,6 +6,23 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 0.7.6
+_06 November 2022_
+
+* Review API documentation ([#153](https://github.com/adobe/xmp-toolkit-rs/pull/153))
+* Add `XmpMeta::sort` ([#152](https://github.com/adobe/xmp-toolkit-rs/pull/152))
+
+## 0.7.5
+_06 November 2022_
+
+* Add reference to API stabilization PR
+* New README; propose 1.0 release candidate status
+* Port XMP_CoreCoverage.cpp test suite ([#108](https://github.com/adobe/xmp-toolkit-rs/pull/108))
+* Add `XmpDateTime::convert_to_local_time` and `XmpDateTime::convert_to_utc` ([#149](https://github.com/adobe/xmp-toolkit-rs/pull/149))
+* Add `XmpDateTime::set_local_time_zone` ([#148](https://github.com/adobe/xmp-toolkit-rs/pull/148))
+* Add `XmpMeta::compose_field_selector` ([#147](https://github.com/adobe/xmp-toolkit-rs/pull/147))
+* Add `XmpMeta::compose_lang_selector` ([#146](https://github.com/adobe/xmp-toolkit-rs/pull/146))
+
 ## 0.7.4
 _04 November 2022_
 

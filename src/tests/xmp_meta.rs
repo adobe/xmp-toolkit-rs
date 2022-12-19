@@ -71,7 +71,7 @@ mod from_file {
     #[test]
     fn file_not_found() {
         let bad_path = PathBuf::from("doesnotexist.jpg");
-        let err = XmpMeta::from_file(&bad_path).unwrap_err();
+        let err = XmpMeta::from_file(bad_path).unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NoFile);
     }
@@ -3142,6 +3142,55 @@ mod set_localized_text {
                 error_type: XmpErrorType::BadXPath,
                 debug_message: "Empty array name".to_owned()
             })
+        );
+    }
+}
+
+mod sort {
+    use std::string::ToString;
+
+    use crate::{xmp_ns, XmpError, XmpErrorType, XmpMeta};
+
+    #[test]
+    fn happy_path() {
+        let mut m = XmpMeta::new().unwrap();
+
+        XmpMeta::register_namespace("http://purl.org/dc/terms/", "dcterms").unwrap();
+
+        m.set_property_bool(xmp_ns::XMP_RIGHTS, "Marked", &true.into())
+            .unwrap();
+
+        m.set_property("http://purl.org/dc/terms/", "provenance", &"blah".into())
+            .unwrap();
+
+        println!("UNSORTED?\n\n{:#?}\n", m);
+
+        assert_eq!(m.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:xmpRights=\"http://ns.adobe.com/xap/1.0/rights/\" xmlns:dcterms=\"http://purl.org/dc/terms/\"> <xmpRights:Marked>True</xmpRights:Marked> <dcterms:provenance>blah</dcterms:provenance> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+
+        m.sort().unwrap();
+
+        println!("SORTED?\n\n{:#?}\n", m);
+
+        assert_eq!(m.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xmpRights=\"http://ns.adobe.com/xap/1.0/rights/\"> <dcterms:provenance>blah</dcterms:provenance> <xmpRights:Marked>True</xmpRights:Marked> </rdf:Description> </rdf:RDF> </x:xmpmeta>");
+    }
+
+    #[test]
+    fn empty() {
+        let mut m = XmpMeta::new().unwrap();
+        m.sort().unwrap();
+
+        assert_eq!(m.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\"/> </rdf:RDF> </x:xmpmeta>");
+    }
+
+    #[test]
+    fn init_fail() {
+        let mut m = XmpMeta::new_fail();
+        assert_eq!(
+            m.sort().unwrap_err(),
+            XmpError {
+                error_type: XmpErrorType::NoCppToolkit,
+                debug_message: "C++ XMP Toolkit not available".to_owned()
+            }
         );
     }
 }

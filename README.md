@@ -12,6 +12,8 @@ This XMP Toolkit crate implements a subset of the XMP metadata standard. This to
 * Inspect and modify the XMP data model.
 * Embed and update XMP metadata in many file formats.
 
+The [`XmpMeta` struct](https://docs.rs/xmp_toolkit/latest/xmp_toolkit/struct.XmpMeta.html) contains most of the API functions for these features and is the best place to get started in understanding this crate.
+
 ## Contributions and feedback
 
 We welcome contributions to this project. For information on contributing, providing feedback, and about ongoing work, see [Contributing](./CONTRIBUTING.md).
@@ -38,7 +40,7 @@ When a newer version of the C++ XMP Toolkit is incorporated, a new minor (1.x.0)
 
 This API is considered to to be stable; in other words, no further breaking changes are anticipated. For instructions on how to upgrade from various 0.x versions to 1.x, see the [Upgrading guide](./UPGRADING.md).
 
-Minor, non-breaking additions to the API surface may be added as the few remaining APIs in the `XMP_Meta`, `XMP_Files`, `TXMPUtils` interfaces are exposed. Such changes will trigger minor (1.x.0) version increments when they happen.
+Minor, non-breaking additions to the API surface may be added as the few remaining APIs in the C++ `XMP_Meta`, `XMP_Files`, `TXMPUtils` interfaces are exposed. Such changes will trigger minor (1.x.0) version increments when they happen.
 
 ### Usage
 
@@ -46,7 +48,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-xmp_toolkit = "0.7.4"
+xmp_toolkit = "0.7.6"
 ```
 
 ## License

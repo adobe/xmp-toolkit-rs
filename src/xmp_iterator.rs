@@ -20,7 +20,7 @@ use crate::{
 
 /// Iterator over an XMP data model or a subset thereof.
 ///
-/// Create via [`XmpMeta::iter()`].
+/// Create via [`XmpMeta::iter`].
 pub struct XmpIterator<'a> {
     #[allow(dead_code)]
     pub(crate) m: &'a XmpMeta,
@@ -123,7 +123,7 @@ impl<'a> Iterator for XmpIterator<'a> {
 }
 
 /// Provides options for configuring the XMP iteration behavior
-/// provided by [`XmpMeta::iter()`].
+/// provided by [`XmpMeta::iter`].
 ///
 /// This struct defines a starting point for the iteration, and options that
 /// control how it proceeds.
