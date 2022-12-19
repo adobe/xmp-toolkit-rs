@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.0.0
+_19 December 2022_
+
+* (MAJOR) Prepare for stable API (1.0) release ([#151](https://github.com/adobe/xmp-toolkit-rs/pull/151))
+* Fix new Clippy warning in Rust 1.66 ([#154](https://github.com/adobe/xmp-toolkit-rs/pull/154))
+
 ## 0.7.6
 _06 November 2022_
 
