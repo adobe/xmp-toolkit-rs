@@ -71,7 +71,7 @@ mod from_file {
     #[test]
     fn file_not_found() {
         let bad_path = PathBuf::from("doesnotexist.jpg");
-        let err = XmpMeta::from_file(&bad_path).unwrap_err();
+        let err = XmpMeta::from_file(bad_path).unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NoFile);
     }
