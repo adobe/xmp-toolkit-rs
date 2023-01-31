@@ -30,6 +30,8 @@ The toolkit has been tested on the following operating systems:
 * MacOS (Intel and Apple silicon)
 * Ubuntu Linux
 
+NOTE: As of this writing, only the MSVC build chain is supported on Windows. As discussed in [#155](https://github.com/adobe/xmp-toolkit-rs/issues/155), we would welcome a PR to enable GNU build chain support on Windows.
+
 ## C++ XMP Toolkit
 
 This crate incorporates the June 2022 version of the C++ [Adobe XMP Toolkit SDK](https://github.com/adobe/XMP-Toolkit-SDK/).
