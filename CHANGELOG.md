@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.0.1
+_31 January 2023_
+
+* Add a note to README stating that only MSVC build chain is supported currently on Windows
+* Don't call exit(1) if unable to initialize C++ XMP Toolkit ([#156](https://github.com/adobe/xmp-toolkit-rs/pull/156))
+
 ## 1.0.0
 _19 December 2022_
 
