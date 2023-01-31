@@ -28,12 +28,10 @@ static volatile bool xmp_init_succeeded = false;
 
 inline void init_xmp_fn() {
     #ifndef NOOP_FFI
-        // TO DO (#100): Check return status from Initialize functions
-        // and eliminate call to exit(1).
         try {
-            // SXMPMeta::Initialize();
-            // SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText);
-            // xmp_init_succeeded = true;
+            SXMPMeta::Initialize();
+            SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText);
+            xmp_init_succeeded = true;
         }
         catch (XMP_Error& e) {
             fprintf(stderr, "Failed to initialize XMP Toolkit: %s\n", e.GetErrMsg());
