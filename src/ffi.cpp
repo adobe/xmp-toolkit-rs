@@ -24,24 +24,24 @@
 #endif
 
 std::once_flag xmp_init_flag;
+static volatile bool xmp_init_succeeded = false;
 
 inline void init_xmp_fn() {
     #ifndef NOOP_FFI
-        // TO DO (#100): Check return status from Initialize functions
-        // and eliminate call to exit(1).
         try {
             SXMPMeta::Initialize();
             SXMPFiles::Initialize(kXMPFiles_IgnoreLocalText);
+            xmp_init_succeeded = true;
         }
         catch (XMP_Error& e) {
             fprintf(stderr, "Failed to initialize XMP Toolkit: %s\n", e.GetErrMsg());
-            exit(1);
         }
     #endif
 }
 
-static void init_xmp() {
+static bool init_xmp() {
     std::call_once(xmp_init_flag, init_xmp_fn);
+    return xmp_init_succeeded;
 }
 
 static const char* copyStringForResult(const std::string& result) {
@@ -93,6 +93,15 @@ static void signalUnknownError(CXmpError* outError) {
         outError->id = kXMPErr_Unknown;
         free((void*) outError->debugMessage);
         outError->debugMessage = NULL;
+    }
+}
+
+static void signalXmpInitFailure(CXmpError* outError) {
+    if (outError) {
+        outError->hadError = 1;
+        outError->id = kXMPErr_Unknown;
+        free((void*) outError->debugMessage);
+        outError->debugMessage = copyStringForResult("XMP Toolkit unavailable");
     }
 }
 
@@ -164,7 +173,10 @@ extern "C" {
 
     CXmpFile* CXmpFileNew(CXmpError* outError) {
         #ifndef NOOP_FFI
-            init_xmp();
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
             try {
                 return new CXmpFile;
             }
@@ -275,7 +287,10 @@ extern "C" {
 
     CXmpMeta* CXmpMetaNew(CXmpError* outError) {
         #ifndef NOOP_FFI
-            init_xmp();
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
             try {
                 return new CXmpMeta;
             }
@@ -320,7 +335,10 @@ extern "C" {
                                       AdobeXMPCommon::uint32 buffer_size,
                                       AdobeXMPCommon::uint32 options) {
         #ifndef NOOP_FFI
-            init_xmp();
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
             CXmpMeta* result = new CXmpMeta;
 
             try {
@@ -348,7 +366,10 @@ extern "C" {
                                           const char* indent,
                                           AdobeXMPCommon::uint32 baseIndent) {
         #ifndef NOOP_FFI
-            init_xmp();
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
 
             try {
                 std::string buffer;
@@ -370,7 +391,10 @@ extern "C" {
                                           const char* namespaceURI,
                                           const char* suggestedPrefix) {
         #ifndef NOOP_FFI
-            init_xmp();
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
 
             try {
                 std::string registeredPrefix;
@@ -392,7 +416,10 @@ extern "C" {
     const char* CXmpMetaGetNamespacePrefix(CXmpError* outError,
                                            const char* namespaceURI) {
         #ifndef NOOP_FFI
-            init_xmp();
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
 
             try {
                 std::string outPrefix;
@@ -414,7 +441,10 @@ extern "C" {
     const char* CXmpMetaGetNamespaceURI(CXmpError* outError,
                                         const char* namespacePrefix) {
         #ifndef NOOP_FFI
-            init_xmp();
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
 
             try {
                 std::string outURI;
@@ -435,13 +465,13 @@ extern "C" {
 
     void CXmpDumpNamespaces(void* rustString, XMP_TextOutputProc callback) {
         #ifndef NOOP_FFI
-            init_xmp();
-
-            try {
-                SXMPMeta::DumpNamespaces(callback, rustString);
-            }
-            catch (...) {
-                // intentional no-op
+            if (init_xmp()) {
+                try {
+                    SXMPMeta::DumpNamespaces(callback, rustString);
+                }
+                catch (...) {
+                    // intentional no-op
+                }
             }
         #endif
     }
@@ -1145,6 +1175,11 @@ extern "C" {
                                              const char* arrayName,
                                              AdobeXMPCommon::int32 index) {
         #ifndef NOOP_FFI
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
+
             try {
                 std::string resultPath;
                 SXMPUtils::ComposeArrayItemPath(schemaNS,
@@ -1170,6 +1205,11 @@ extern "C" {
                                             const char* arrayName,
                                             const char* langName) {
         #ifndef NOOP_FFI
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
+
             try {
                 std::string resultPath;
                 SXMPUtils::ComposeLangSelector(schemaNS,
@@ -1197,6 +1237,11 @@ extern "C" {
                                              const char* fieldName,
                                              const char* fieldValue) {
         #ifndef NOOP_FFI
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
+
             try {
                 std::string resultPath;
                 SXMPUtils::ComposeFieldSelector(schemaNS,
@@ -1225,6 +1270,11 @@ extern "C" {
                                              const char* qualNS,
                                              const char* qualName) {
         #ifndef NOOP_FFI
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
+
             try {
                 std::string resultPath;
                 SXMPUtils::ComposeQualifierPath(schemaNS,
@@ -1252,6 +1302,11 @@ extern "C" {
                                                const char* fieldNS,
                                                const char* fieldName) {
         #ifndef NOOP_FFI
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
+
             try {
                 std::string resultPath;
                 SXMPUtils::ComposeStructFieldPath(schemaNS,
@@ -1385,10 +1440,15 @@ extern "C" {
 
     void CXmpDateTimeSetTimeZone(XMP_DateTime* dt, CXmpError* outError) {
         #ifndef NOOP_FFI
-        try {
-            if (dt) {
-                SXMPUtils::SetTimeZone(dt);
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return;
             }
+
+            try {
+                if (dt) {
+                    SXMPUtils::SetTimeZone(dt);
+                }
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
@@ -1401,10 +1461,15 @@ extern "C" {
 
     void CXmpDateTimeConvertToLocalTime(XMP_DateTime* dt, CXmpError* outError) {
         #ifndef NOOP_FFI
-        try {
-            if (dt) {
-                SXMPUtils::ConvertToLocalTime(dt);
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return;
             }
+
+            try {
+                if (dt) {
+                    SXMPUtils::ConvertToLocalTime(dt);
+                }
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
@@ -1417,10 +1482,15 @@ extern "C" {
 
     void CXmpDateTimeConvertToUTCTime(XMP_DateTime* dt, CXmpError* outError) {
         #ifndef NOOP_FFI
-        try {
-            if (dt) {
-                SXMPUtils::ConvertToUTCTime(dt);
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return;
             }
+
+            try {
+                if (dt) {
+                    SXMPUtils::ConvertToUTCTime(dt);
+                }
             }
             catch (XMP_Error& e) {
                 copyErrorForResult(e, outError);
@@ -1433,6 +1503,11 @@ extern "C" {
 
     const char* CXmpDateTimeToString(const XMP_DateTime* dt, CXmpError* outError) {
         #ifndef NOOP_FFI
+            if (!init_xmp()) {
+                signalXmpInitFailure(outError);
+                return NULL;
+            }
+
             try {
                 if (dt) {
                     std::string dtAsString;
