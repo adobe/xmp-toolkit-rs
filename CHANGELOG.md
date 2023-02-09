@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.0.2
+_09 February 2023_
+
+* Implement Send for XmpMeta ([#158](https://github.com/adobe/xmp-toolkit-rs/pull/158))
+
 ## 1.0.1
 _31 January 2023_
 
