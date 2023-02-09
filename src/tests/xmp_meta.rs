@@ -3405,3 +3405,41 @@ mod impl_display {
         );
     }
 }
+
+mod impl_send {
+    use std::str::FromStr;
+
+    use crate::{tests::fixtures::*, XmpMeta, XmpValue};
+
+    #[test]
+    fn happy_path() {
+        use std::thread;
+
+        let other_thread = thread::spawn(|| XmpMeta::from_str(PURPLE_SQUARE_XMP));
+
+        let result = other_thread.join().unwrap();
+        let m = result.unwrap();
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/xap/1.0/", "CreatorTool")
+                .unwrap(),
+            XmpValue {
+                value: "Adobe Photoshop CS2 Windows".to_owned(),
+                options: 0
+            }
+        );
+
+        assert_eq!(
+            m.property("http://ns.adobe.com/photoshop/1.0/", "ICCProfile")
+                .unwrap(),
+            XmpValue {
+                value: "Dell 1905FP Color Profile".to_owned(),
+                options: 0
+            }
+        );
+
+        assert!(m
+            .property("http://ns.adobe.com/photoshop/1.0/", "ICCProfilx")
+            .is_none());
+    }
+}
