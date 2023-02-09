@@ -2034,6 +2034,17 @@ impl FromStr for XmpMeta {
     }
 }
 
+/// Per _XMP Toolkit SDK Programmer's Guide_, section _Multi-threading in the
+/// API:_
+///
+/// > The functions in XMPCore and XMPFiles are thread safe. You must call the
+/// > initialization and termination
+/// > functions in a single-threaded manner; between those calls, you can use
+/// > threads freely, following a
+/// > multi-read, single-writer locking model. All locking is automatic and
+/// > transparent.
+unsafe impl Send for XmpMeta {}
+
 /// An iterator that provides access to items within a property array.
 ///
 /// Create via [`XmpMeta::property_array`].
