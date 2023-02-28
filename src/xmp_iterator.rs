@@ -12,6 +12,7 @@
 // each license.
 
 use std::ffi::CString;
+use std::os::raw::c_char;
 
 use crate::{
     ffi::{self, CXmpString},
@@ -91,9 +92,9 @@ impl<'a> Iterator for XmpIterator<'a> {
         if !self.i.is_null() {
             unsafe {
                 let mut err = ffi::CXmpError::default();
-                let mut c_schema_ns: *const i8 = std::ptr::null_mut();
-                let mut c_prop_path: *const i8 = std::ptr::null_mut();
-                let mut c_prop_value: *const i8 = std::ptr::null_mut();
+                let mut c_schema_ns: *const c_char = std::ptr::null_mut();
+                let mut c_prop_path: *const c_char = std::ptr::null_mut();
+                let mut c_prop_value: *const c_char = std::ptr::null_mut();
                 let mut options: u32 = 0;
 
                 if ffi::CXmpIteratorNext(
