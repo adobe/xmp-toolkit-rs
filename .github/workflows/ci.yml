@@ -80,6 +80,36 @@ jobs:
           # args: --all-targets --all-features (waiting on bug fix)
           args: --all-features
 
+  cross-build:
+    name: Cross build
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [aarch64-unknown-linux-gnu]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v1
+
+      - name: Run cross build
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --all-targets --all-features --target ${{ matrix.target }}
+
   publish-preflight:
     name: Preflight crate publish
     runs-on: ${{ matrix.os }}
