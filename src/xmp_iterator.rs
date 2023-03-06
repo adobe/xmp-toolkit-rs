@@ -11,8 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::ffi::CString;
-use std::os::raw::c_char;
+use std::{ffi::CString, os::raw::c_char};
 
 use crate::{
     ffi::{self, CXmpString},
