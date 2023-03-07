@@ -78,15 +78,15 @@ jobs:
           # args: --all-targets --all-features (waiting on bug fix)
           args: --all-features
 
-  cross-tests:
-    name: Unit tests (cross compilation)
+  tests-cross:
+    name: Unit tests
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        rust_version: [stable, 1.60.0]
         target: [aarch64-unknown-linux-gnu]
+        rust_version: [stable, 1.60.0]
 
     steps:
       - name: Checkout repository
