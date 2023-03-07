@@ -27,10 +27,12 @@ The toolkit requires **Rust version 1.56.0** or newer.
 The toolkit has been tested on the following operating systems:
 
 * Windows
-* MacOS (Intel and Apple silicon)
-* Ubuntu Linux
+  * Only the MSVC build chain is supported on Windows. As discussed in [#155](https://github.com/adobe/xmp-toolkit-rs/issues/155), we would welcome a PR to enable GNU build chain support on Windows.
 
-NOTE: As of this writing, only the MSVC build chain is supported on Windows. As discussed in [#155](https://github.com/adobe/xmp-toolkit-rs/issues/155), we would welcome a PR to enable GNU build chain support on Windows.
+* MacOS (Intel and Apple silicon)
+
+* Ubuntu Linux on x86 and ARM v8 (aarch64)
+  * On ARM, the minimum supported Rust version (MSRV) is 1.60.0.
 
 ## C++ XMP Toolkit
 
