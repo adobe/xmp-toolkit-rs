@@ -11,7 +11,13 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{ffi::CString, fmt, os::raw::c_void, path::Path, str::FromStr};
+use std::{
+    ffi::CString,
+    fmt,
+    os::raw::{c_char, c_void},
+    path::Path,
+    str::FromStr,
+};
 
 use crate::{
     ffi::{self, CXmpString},
@@ -1423,7 +1429,7 @@ impl XmpMeta {
             let mut err = ffi::CXmpError::default();
 
             unsafe {
-                let mut c_actual_lang: *const i8 = std::ptr::null_mut();
+                let mut c_actual_lang: *const c_char = std::ptr::null_mut();
 
                 CXmpString::from_ptr(ffi::CXmpMetaGetLocalizedText(
                     m,
