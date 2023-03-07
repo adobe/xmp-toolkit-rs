@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.0.3
+_07 March 2023_
+
+* Officially support aarch64 on Linux ([#162](https://github.com/adobe/xmp-toolkit-rs/pull/162))
+* CI: actions-rs/toolchain is no longer maintained; replace with dtolnay/rust-toolchain ([#161](https://github.com/adobe/xmp-toolkit-rs/pull/161))
+* Fix aarch64 compilation issues ([#159](https://github.com/adobe/xmp-toolkit-rs/pull/159))
+
 ## 1.0.2
 _09 February 2023_
 
