@@ -24,6 +24,7 @@ fn exif_latitude_to_decimal() {
     assert_eq!(ltd("47,0E"), None);
     assert_eq!(ltd("47,4.580"), None);
     assert_eq!(ltd("47,4.580NN"), None);
+    assert_eq!(ltd("48,6,750N"), None);
 
     assert_eq!(ltd("4x7,4.580N"), None);
     assert_eq!(ltd("47,4.58x0N"), None);
@@ -42,6 +43,7 @@ fn exif_longitude_to_decimal() {
     assert_eq!(ltd("47,0N"), None);
     assert_eq!(ltd("47,4.580"), None);
     assert_eq!(ltd("47,4.580EE"), None);
+    assert_eq!(ltd("48,6,750E"), None);
 
     assert_eq!(ltd("4x7,4.580E"), None);
     assert_eq!(ltd("47,4.58x0E"), None);
