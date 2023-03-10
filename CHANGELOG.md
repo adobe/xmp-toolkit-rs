@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.1.0
+_10 March 2023_
+
+* (MINOR) Add new `xmp_gps` module to help with Exif -> decimal conversions ([#163](https://github.com/adobe/xmp-toolkit-rs/pull/163))
+* Require fs_extra 1.3 or newer ([#164](https://github.com/adobe/xmp-toolkit-rs/pull/164))
+
 ## 1.0.3
 _07 March 2023_
 
