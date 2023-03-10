@@ -22,6 +22,7 @@ mod ffi;
 mod xmp_date_time;
 mod xmp_error;
 mod xmp_file;
+pub mod xmp_gps;
 mod xmp_iterator;
 mod xmp_meta;
 pub mod xmp_ns;
