@@ -50,7 +50,7 @@ pub fn exif_latitude_to_decimal(lat: &str) -> Option<f64> {
 }
 
 /// Convert an `exif:GPSLongitude` value from XMP/Exif format
-/// to the corresponding decimal latitude.
+/// to the corresponding decimal longitude.
 ///
 /// Will return `None` if the value can not be parsed.
 ///
