@@ -22,6 +22,10 @@ We welcome contributions to this project. For information on contributing, provi
 
 The toolkit requires **Rust version 1.60.0** or newer.
 
+## Crate features
+
+* `chrono` - When enabled, adds conversions between `XmpDateTime` and `chrono::DateTime<FixedOffset>`. (Disabled by default.)
+
 ### Supported platforms
 
 The toolkit has been tested on the following operating systems:
