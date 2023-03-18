@@ -26,7 +26,11 @@ exclude = [
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
+[features]
+chrono = ["dep:chrono"]
+
 [dependencies]
+chrono = { version = "0.4.24", optional = true }
 num_enum = "0.5.7"
 thiserror = "1.0"
 
