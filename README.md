@@ -20,7 +20,7 @@ We welcome contributions to this project. For information on contributing, provi
 
 ## Requirements
 
-The toolkit requires **Rust version 1.56.0** or newer.
+The toolkit requires **Rust version 1.60.0** or newer.
 
 ### Supported platforms
 
