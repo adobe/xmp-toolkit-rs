@@ -169,3 +169,44 @@ mod from_date_time {
         );
     }
 }
+
+mod to_date_time {
+    use std::convert::Into;
+
+    use chrono::{FixedOffset, NaiveDate};
+
+    use crate::{XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
+
+    #[test]
+    fn happy_path() {
+        let dt = NaiveDate::from_ymd_opt(2023, 3, 18)
+            .unwrap()
+            .and_hms_nano_opt(13, 42, 21, 987_654_321)
+            .unwrap()
+            .and_local_timezone(FixedOffset::east_opt(-6 * 3600).unwrap())
+            .unwrap();
+
+        let dt: XmpDateTime = dt.into();
+
+        assert_eq!(
+            dt,
+            XmpDateTime {
+                date: Some(XmpDate {
+                    year: 2023,
+                    month: 3,
+                    day: 18,
+                }),
+                time: Some(XmpTime {
+                    hour: 13,
+                    minute: 42,
+                    second: 21,
+                    nanosecond: 987_654_321,
+                    time_zone: Some(XmpTimeZone {
+                        hour: -6,
+                        minute: 0,
+                    })
+                }),
+            }
+        );
+    }
+}
