@@ -288,3 +288,123 @@ impl fmt::Display for XmpDateTime {
         }
     }
 }
+
+#[cfg(feature = "chrono")]
+use std::convert::TryFrom;
+
+#[cfg(feature = "chrono")]
+use chrono::{DateTime, Datelike, FixedOffset, LocalResult, NaiveDate, Timelike};
+#[cfg(feature = "chrono")]
+use thiserror::Error;
+
+#[cfg(feature = "chrono")]
+impl TryFrom<XmpDateTime> for DateTime<FixedOffset> {
+    type Error = DateTimeConvertError;
+
+    fn try_from(dt: XmpDateTime) -> Result<Self, Self::Error> {
+        Self::try_from(&dt)
+    }
+}
+
+#[cfg(feature = "chrono")]
+impl TryFrom<&XmpDateTime> for DateTime<FixedOffset> {
+    type Error = DateTimeConvertError;
+
+    fn try_from(dt: &XmpDateTime) -> Result<Self, Self::Error> {
+        let date = dt.date.as_ref().ok_or(DateTimeConvertError::NoDate)?;
+        let time = dt.time.as_ref().ok_or(DateTimeConvertError::NoTime)?;
+        let tz = time
+            .time_zone
+            .as_ref()
+            .ok_or(DateTimeConvertError::NoTimeZone)?;
+
+        let offset = FixedOffset::east_opt(tz.hour * 3600 + tz.minute * 60)
+            .ok_or(DateTimeConvertError::InvalidTimeZone)?;
+
+        match NaiveDate::from_ymd_opt(date.year, date.month as u32, date.day as u32)
+            .ok_or(DateTimeConvertError::InvalidDate)?
+            .and_hms_nano_opt(
+                time.hour as u32,
+                time.minute as u32,
+                time.second as u32,
+                time.nanosecond as u32,
+            )
+            .ok_or(DateTimeConvertError::InvalidTime)?
+            .and_local_timezone(offset)
+        {
+            LocalResult::Single(t) => Ok(t),
+            _ => Err(DateTimeConvertError::InvalidTimeZone),
+        }
+    }
+}
+
+/// Represents various reasons why an [`XmpDateTime`]
+/// can not be converted to a [`DateTime`].
+///
+/// [`DateTime`]: chrono::DateTime
+#[cfg(feature = "chrono")]
+#[derive(Debug, Eq, Error, PartialEq)]
+pub enum DateTimeConvertError {
+    /// The [`XmpDateTime`] struct's `date` value is `None`.
+    #[error("the date value is None")]
+    NoDate,
+
+    /// The [`XmpDateTime`] struct's `time` value is `None`.
+    #[error("the time value is None")]
+    NoTime,
+
+    /// The [`XmpDateTime`] struct's `time.time_zone` value is `None`.
+    #[error("the time.time_zone value is None")]
+    NoTimeZone,
+
+    /// The [`XmpDateTime`] struct's `date` is out of bounds.
+    #[error("the date value is out of bounds")]
+    InvalidDate,
+
+    /// The [`XmpDateTime`] struct's `time` is out of bounds.
+    #[error("the time value is out of bounds")]
+    InvalidTime,
+
+    /// The [`XmpDateTime`] struct's `time.time_zone` is out of bounds.
+    #[error("the time.time_zone value is out of bounds")]
+    InvalidTimeZone,
+}
+
+#[cfg(feature = "chrono")]
+impl From<DateTime<FixedOffset>> for XmpDateTime {
+    fn from(dt: DateTime<FixedOffset>) -> Self {
+        Self::from(&dt)
+    }
+}
+
+#[cfg(feature = "chrono")]
+impl From<&DateTime<FixedOffset>> for XmpDateTime {
+    fn from(dt: &DateTime<FixedOffset>) -> Self {
+        let nd = dt.date_naive();
+        let date = XmpDate {
+            year: nd.year(),
+            month: nd.month() as i32,
+            day: nd.day() as i32,
+        };
+
+        let tz = dt.timezone().local_minus_utc();
+        let tz = XmpTimeZone {
+            hour: tz / 3600,
+            minute: (tz.abs() % 3600) / 60,
+        };
+
+        let nt = dt.time();
+        let time = XmpTime {
+            hour: nt.hour() as i32,
+            minute: nt.minute() as i32,
+            second: nt.second() as i32,
+            nanosecond: nt.nanosecond() as i32,
+            time_zone: Some(tz),
+        };
+
+        Self {
+            date: Some(date),
+            time: Some(time),
+        }
+    }
+}

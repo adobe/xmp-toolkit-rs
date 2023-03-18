@@ -10,7 +10,7 @@ authors = ["Eric Scouten <scouten@adobe.com>"]
 keywords = ["xmp", "metadata"]
 categories = ["api-bindings"]
 edition = "2018"
-rust-version = "1.56.0"
+rust-version = "1.60.0"
 exclude = [
     "external/xmp_toolkit/docs",
     "external/xmp_toolkit/samples",
@@ -26,7 +26,11 @@ exclude = [
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
+[features]
+chrono = ["dep:chrono"]
+
 [dependencies]
+chrono = { version = "0.4.24", optional = true }
 num_enum = "0.5.7"
 thiserror = "1.0"
 

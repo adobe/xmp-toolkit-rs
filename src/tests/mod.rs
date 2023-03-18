@@ -21,6 +21,8 @@
 mod fixtures;
 mod xmp_core_coverage;
 mod xmp_date_time;
+#[cfg(feature = "chrono")]
+mod xmp_date_time_chrono;
 mod xmp_error;
 mod xmp_error_type;
 mod xmp_file;
