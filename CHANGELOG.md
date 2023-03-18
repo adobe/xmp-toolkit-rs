@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.2.0
+_18 March 2023_
+
+* (MINOR) Add crate feature to convert XmpDateTime to/from chrono DateTime<FixedOffset> ([#165](https://github.com/adobe/xmp-toolkit-rs/pull/165))
+
 ## 1.1.0
 _10 March 2023_
 
