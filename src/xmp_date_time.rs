@@ -32,6 +32,9 @@ use crate::{
 /// is _similar_ to this struct, but does not provide a way to express
 /// the optionality of date, time, and time zone in a single struct. For that
 /// reason, we did not use it in this crate.
+///
+/// Enable crate feature `chrono` to enable conversions between this struct
+/// and [`chrono::DateTime<FixedOffset>`](https://docs.rs/chrono/latest/chrono/struct.DateTime.html).
 #[derive(Clone, Default, Debug, Eq, PartialEq)]
 pub struct XmpDateTime {
     /// The date, if known.
@@ -44,7 +47,7 @@ pub struct XmpDateTime {
 /// The date portion of [`XmpDateTime`].
 #[derive(Clone, Default, Debug, Eq, PartialEq)]
 pub struct XmpDate {
-    /// The year, can be negative.
+    /// The year, which can be negative.
     pub year: i32,
 
     /// The month in the range 1..12.
@@ -100,7 +103,7 @@ impl XmpDateTime {
     /// Sets the time zone to the local time zone.
     ///
     /// Can only be used when there is a time with no existing time zone
-    /// (i.e. `self.time.time_zone.is_none`). It is an error to call this
+    /// (i.e. `self.time.time_zone.is_none()`). It is an error to call this
     /// function with an existing time zone.
     ///
     /// In that case, the time zone value is replaced with the local time zone.
@@ -357,15 +360,15 @@ pub enum DateTimeConvertError {
     #[error("the time.time_zone value is None")]
     NoTimeZone,
 
-    /// The [`XmpDateTime`] struct's `date` is out of bounds.
+    /// The [`XmpDateTime`] struct's `date` value is out of bounds.
     #[error("the date value is out of bounds")]
     InvalidDate,
 
-    /// The [`XmpDateTime`] struct's `time` is out of bounds.
+    /// The [`XmpDateTime`] struct's `time` value is out of bounds.
     #[error("the time value is out of bounds")]
     InvalidTime,
 
-    /// The [`XmpDateTime`] struct's `time.time_zone` is out of bounds.
+    /// The [`XmpDateTime`] struct's `time.time_zone` value is out of bounds.
     #[error("the time.time_zone value is out of bounds")]
     InvalidTimeZone,
 }

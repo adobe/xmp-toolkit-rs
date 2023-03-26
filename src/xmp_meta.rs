@@ -502,7 +502,7 @@ impl XmpMeta {
     ///
     /// If the value can not be parsed as a number, the function will
     /// return `None`. Note that ratio values, such as those found in
-    /// TIFF and EXIF blocks, are not parsed.
+    /// TIFF and Exif blocks, are not parsed.
     pub fn property_f64(&self, namespace: &str, path: &str) -> Option<XmpValue<f64>> {
         if let Some(m) = self.m {
             let c_ns = CString::new(namespace).unwrap_or_default();
@@ -991,7 +991,7 @@ impl XmpMeta {
     ///
     /// Each call appends a new item to the array.
     ///
-    /// Use `XmpMeta::compose_array_item_path` to create a complex path.
+    /// Use [`XmpMeta::compose_array_item_path`] to create a complex path.
     ///
     /// ## Arguments
     ///
@@ -1367,7 +1367,7 @@ impl XmpMeta {
     /// at <https://www.w3.org/International/articles/language-tags/>.
     ///
     /// **Note:** RFC 3066 language tags must be treated in a case insensitive
-    /// manner. The XMP toolkit does this by normalizing their capitalization:
+    /// manner. The XMP Toolkit does this by normalizing their capitalization:
     ///
     /// * The primary subtag is lower case, the suggested practice of ISO 639.
     /// * All 2-letter secondary subtags are upper case, the suggested practice
@@ -1411,7 +1411,7 @@ impl XmpMeta {
     /// ## Error handling
     ///
     /// Any errors (for instance, empty or invalid namespace or property name)
-    /// are ignored; the function will return `false` in such cases.
+    /// are ignored; the function will return `None` in such cases.
     pub fn localized_text(
         &self,
         namespace: &str,
@@ -1550,7 +1550,7 @@ impl XmpMeta {
     ///   **IMPORTANT:** Indices in XMP are 1-based, not zero-based as in most
     ///   of Rust.
     ///
-    /// ## Return
+    /// ## Return value
     ///
     /// If successful, the returned string is in the form
     /// `array_name[array_index]`.
@@ -1679,7 +1679,7 @@ impl XmpMeta {
     /// # }
     /// ```
     ///
-    /// ## Return
+    /// ## Return value
     ///
     /// If successful, the returned string is in the form
     /// `schema_ns:struct_name[field_ns:field_name='field_value'].
@@ -1726,7 +1726,7 @@ impl XmpMeta {
     /// * `qual_ns` and `qual_name` take the same form (i.e. see [Accessing
     ///   properties](#accessing-properties) again.)
     ///
-    /// ## Return
+    /// ## Return value
     ///
     /// If successful, the returned string is in the form
     /// `schema_ns:prop_name/?qual_ns:qual_name`.
@@ -1766,7 +1766,7 @@ impl XmpMeta {
     /// * `field_ns` and `field_name` take the same form (i.e. see [Accessing
     ///   properties](#accessing-properties) again.)
     ///
-    /// ## Return
+    /// ## Return value
     ///
     /// If successful, the returned string is in the form
     /// `struct_ns:struct_name/field_ns:field_name`.
@@ -1833,7 +1833,7 @@ impl XmpMeta {
     ///
     /// This name is the empty string by default.
     ///
-    /// See also `XmpMeta::set_name`.
+    /// See also [`XmpMeta::set_name`].
     pub fn name(&self) -> String {
         if let Some(m) = self.m {
             let mut err = ffi::CXmpError::default();
@@ -1845,7 +1845,7 @@ impl XmpMeta {
 
     /// Assigns a name to this XMP object.
     ///
-    /// This name can be retrieved via `XmpMeta::name`.
+    /// This name can be retrieved via [`XmpMeta::name`].
     ///
     /// This name is for client use only and it not interpreted by
     /// the XMP Toolkit.
@@ -1887,11 +1887,15 @@ impl XmpMeta {
 
     /// Converts metadata in this XMP object into a string as RDF.
     ///
-    /// This struct also implements [`std::fmt::Display`] which will provide
-    /// a reasonable default behavior via `XmpMeta::to_string`.
+    /// In many cases, this struct's implementation of [`Display`]
+    /// will provide reasonable default behavior. (In other words,
+    /// you can often call `xmp.to_string()` or include an `XmpMeta`
+    /// object directly in a format string).
     ///
     /// Use this function, together with [`ToStringOptions`] if you
     /// need more control over output formats.
+    ///
+    /// [`Display`]: std::fmt::Display
     pub fn to_string_with_options(&self, options: ToStringOptions) -> XmpResult<String> {
         if let Some(m) = self.m {
             let c_newline = CString::new(options.newline).unwrap_or_default();
@@ -2043,12 +2047,10 @@ impl FromStr for XmpMeta {
 /// Per _XMP Toolkit SDK Programmer's Guide_, section _Multi-threading in the
 /// API:_
 ///
-/// > The functions in XMPCore and XMPFiles are thread safe. You must call the
-/// > initialization and termination
-/// > functions in a single-threaded manner; between those calls, you can use
-/// > threads freely, following a
-/// > multi-read, single-writer locking model. All locking is automatic and
-/// > transparent.
+/// > The functions in XMPCore and XMPFiles are thread safe. You must call
+/// > the initialization and termination functions in a single-threaded manner;
+/// > between those calls, you can use threads freely, following a multi-read,
+/// > single-writer locking model. All locking is automatic and transparent.
 unsafe impl Send for XmpMeta {}
 
 /// An iterator that provides access to items within a property array.

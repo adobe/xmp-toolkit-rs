@@ -31,7 +31,7 @@ pub const PDF: &str = "http://ns.adobe.com/pdf/1.3/";
 /// The XML namespace for the Photoshop custom schema.
 pub const PHOTOSHOP: &str = "http://ns.adobe.com/photoshop/1.0/";
 
-/// The XML namespace for Adobe's EXIF schema.
+/// The XML namespace for Adobe's Exif schema.
 pub const EXIF: &str = "http://ns.adobe.com/exif/1.0/";
 
 /// The XML namespace for Adobe's TIFF schema.

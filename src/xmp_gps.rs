@@ -14,7 +14,7 @@
 //! Contains utility functions for mapping XMP/Exif-formatted GPS coordinates
 //! to decimal values.
 
-/// Convert an `exif:GPSLatitude` value from XMP/Exif format
+/// Converts an `exif:GPSLatitude` value from XMP/Exif format
 /// to the corresponding decimal latitude.
 ///
 /// Will return `None` if the value can not be parsed.
@@ -49,7 +49,7 @@ pub fn exif_latitude_to_decimal(lat: &str) -> Option<f64> {
     None
 }
 
-/// Convert an `exif:GPSLongitude` value from XMP/Exif format
+/// Converts an `exif:GPSLongitude` value from XMP/Exif format
 /// to the corresponding decimal longitude.
 ///
 /// Will return `None` if the value can not be parsed.
