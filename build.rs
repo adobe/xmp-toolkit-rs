@@ -62,6 +62,9 @@ fn main() {
                 .include("external/xmp_toolkit/XMPCore/resource/win")
                 .include("external/xmp_toolkit/XMPFiles/resource/win");
 
+            if cfg!(feature = "crt_static") {
+                xmp_config.static_crt(true);
+            }
             xmp_config
                 .define("WIN_ENV", "1")
                 .define("XMP_WinBuild", "1")
