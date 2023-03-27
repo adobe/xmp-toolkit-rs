@@ -24,7 +24,12 @@ The toolkit requires **Rust version 1.60.0** or newer. When a newer version of R
 
 ## Crate features
 
-* `chrono` - When enabled, adds conversions between `XmpDateTime` and `chrono::DateTime<FixedOffset>`. (Disabled by default.)
+This crate comes with the following features, which you can enable via your `Cargo.toml` file:
+
+* `chrono` - When enabled, adds conversions between `XmpDateTime` and `chrono::DateTime<FixedOffset>`.
+* `crt_static` - When enabled on Windows, uses the MSVC `/MT` build flag to request the static version of the C runtime instead of the dynamic version. This may help with avoiding conflicts with other libraries in the overall application. (This feature has no effect on any platform other than Windows.)
+
+None of these features are enabled by default.
 
 ### Supported platforms
 
