@@ -20,7 +20,7 @@ We welcome contributions to this project. For information on contributing, provi
 
 ## Requirements
 
-The toolkit requires **Rust version 1.60.0** or newer.
+The toolkit requires **Rust version 1.60.0** or newer. When a newer version of Rust becomes required, a new minor (1.x.0) version of this crate will be released.
 
 ## Crate features
 
@@ -36,7 +36,6 @@ The toolkit has been tested on the following operating systems:
 * MacOS (Intel and Apple silicon)
 
 * Ubuntu Linux on x86 and ARM v8 (aarch64)
-  * On ARM, the minimum supported Rust version (MSRV) is 1.60.0.
 
 ## C++ XMP Toolkit
 
@@ -48,7 +47,7 @@ When a newer version of the C++ XMP Toolkit is incorporated, a new minor (1.x.0)
 
 This API is considered to to be stable; in other words, no further breaking changes are anticipated. For instructions on how to upgrade from various 0.x versions to 1.x, see the [Upgrading guide](./UPGRADING.md).
 
-Minor, non-breaking additions to the API surface may be added as the few remaining APIs in the C++ `XMP_Meta`, `XMP_Files`, `TXMPUtils` interfaces are exposed. Such changes will trigger minor (1.x.0) version increments when they happen.
+Minor, non-breaking additions to the API surface may be added as the few remaining APIs in the C++ `XMP_Meta`, `XMP_Files`, and `TXMPUtils` interfaces are exposed. Such changes will trigger minor (1.x.0) version increments when they happen.
 
 ### Usage
 

@@ -77,6 +77,8 @@ impl fmt::Display for XmpError {
 impl std::error::Error for XmpError {}
 
 /// Describes which error type occurred.
+///
+/// Represents a specific error code from the underlying C++ XMP Toolkit.
 #[derive(Debug, Eq, Error, FromPrimitive, PartialEq)]
 #[non_exhaustive]
 #[repr(i32)]

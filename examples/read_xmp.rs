@@ -19,7 +19,7 @@
 // properties and print those values to stdout.
 
 // The application reads properties from three different schemas:
-// the XMP Basic schema, the Dublin Core schema, and the EXIF
+// the XMP Basic schema, the Dublin Core schema, and the Exif
 // schema.
 
 // Based on the example titled "Creating the MyReadXMP application"
@@ -110,7 +110,7 @@ fn read_xmp_from_file() -> Result<()> {
         println!("meta:MetadataDate = {}", value.value);
     }
 
-    // Discover if the EXIF Flash structure is available. If so, display the
+    // Discover if the Exif Flash structure is available. If so, display the
     // flash status at the time the photograph was taken.
     if xmp.contains_struct_field(xmp_ns::EXIF, "Flash", xmp_ns::EXIF, "Fired") {
         let path = XmpMeta::compose_struct_field_path(xmp_ns::EXIF, "Flash", xmp_ns::EXIF, "Fired")

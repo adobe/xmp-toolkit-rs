@@ -109,28 +109,36 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
 
     /// Returns `true` if this property has an `xml:lang` qualifier.
     ///
-    /// Implies `has_qualifiers` will also be true.
+    /// Implies [`has_qualifiers`] will also be true.
+    ///
+    /// [`has_qualifiers`]: Self::has_qualifiers
     pub fn has_lang(&self) -> bool {
         self.options & xmp_prop::HAS_LANG != 0
     }
 
     /// Set this flag if this property has an `xml:lang` qualifier.
     ///
-    /// Implies `has_qualifiers` will also be true.
+    /// Implies [`has_qualifiers`] will also be true.
+    ///
+    /// [`has_qualifiers`]: Self::has_qualifiers
     pub fn set_has_lang(self, value: bool) -> Self {
         self.set_flag(value, xmp_prop::HAS_LANG)
     }
 
     /// Returns `true` if this property has an `rdf:type` qualifier.
     ///
-    /// Implies `has_qualifiers` will also be true.
+    /// Implies [`has_qualifiers`] will also be true.
+    ///
+    /// [`has_qualifiers`]: Self::has_qualifiers
     pub fn has_type(&self) -> bool {
         self.options & xmp_prop::HAS_TYPE != 0
     }
 
     /// Set this flag if this property has an `rdf:type` qualifier.
     ///
-    /// Implies `has_qualifiers` will also be true.
+    /// Implies [`has_qualifiers`] will also be true.
+    ///
+    /// [`has_qualifiers`]: Self::has_qualifiers
     pub fn set_has_type(self, value: bool) -> Self {
         self.set_flag(value, xmp_prop::HAS_TYPE)
     }
@@ -149,16 +157,20 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
 
     /// Returns `true` if this value is an array (RDF alt/bag/seq).
     ///
-    /// This may mean the array is ordered or unordered. Use the `is_ordered`
+    /// This may mean the array is ordered or unordered. Use the [`is_ordered`]
     /// query to discern between the two.
+    ///
+    /// [`is_ordered`]: Self::is_ordered
     pub fn is_array(&self) -> bool {
         self.options & xmp_prop::VALUE_IS_ARRAY != 0
     }
 
     /// Set this flag if this value is an array (RDF alt/bag/seq).
     ///
-    /// This may mean the array is ordered or unordered. Use the `is_ordered`
+    /// This may mean the array is ordered or unordered. Use the [`is_ordered`]
     /// query to discern between the two.
+    ///
+    /// [`is_ordered`]: Self::is_ordered
     pub fn set_is_array(self, value: bool) -> Self {
         self.set_flag(value, xmp_prop::VALUE_IS_ARRAY)
     }
@@ -167,6 +179,8 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
     /// array has been serialized using an `rdf:Seq` container.
     ///
     /// Implies that `is_array` is also `true`.
+    ///
+    /// [`is_array`]: Self::is_array
     pub fn is_ordered(&self) -> bool {
         self.options & xmp_prop::ARRAY_IS_ORDERED != 0
     }
@@ -174,7 +188,9 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
     /// Set this flag if the item order matters. In other words, this
     /// array has been serialized using an `rdf:Seq` container.
     ///
-    /// Implies that `is_array` is also `true`.
+    /// Implies that [`is_array`] is also `true`.
+    ///
+    /// [`is_array`]: Self::is_array
     pub fn set_is_ordered(self, value: bool) -> Self {
         self.set_flag(value, xmp_prop::ARRAY_IS_ORDERED)
     }
@@ -182,7 +198,10 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
     /// Returns `true` if the items in this array are alternates. In other
     /// words, this array has been serialized using an `rdf:Alt` container.
     ///
-    /// Implies that `is_array` and `is_ordered` are also `true`.
+    /// Implies that [`is_array`] and [`is_ordered`] are also `true`.
+    ///
+    /// [`is_array`]: Self::is_array
+    /// [`is_ordered`]: Self::is_ordered
     pub fn is_alternate(&self) -> bool {
         self.options & xmp_prop::ARRAY_IS_ALTERNATE != 0
     }
@@ -190,7 +209,10 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
     /// Set this flag if the items in this array are alternates. In other
     /// words, this array has been serialized using an `rdf:Alt` container.
     ///
-    /// Implies that `is_array` and `is_ordered` are also `true`.
+    /// Implies that [`is_array`] and [`is_ordered`] are also `true`.
+    ///
+    /// [`is_array`]: Self::is_array
+    /// [`is_ordered`]: Self::is_ordered
     pub fn set_is_alternate(self, value: bool) -> Self {
         self.set_flag(value, xmp_prop::ARRAY_IS_ALTERNATE)
     }
@@ -199,6 +221,8 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
     /// a simple property with an `xml:lang` attribute.
     ///
     /// Implies `is_alternate` is also true.
+    ///
+    /// [`is_alternate`]: Self::is_alternate
     pub fn is_alt_text(&self) -> bool {
         self.options & xmp_prop::ARRAY_IS_ALT_TEXT != 0
     }
@@ -206,7 +230,9 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
     /// Set this flag if items are localized text. Each array element will be
     /// a simple property with an `xml:lang` attribute.
     ///
-    /// Implies `is_alternate` is also true.
+    /// Implies [`is_alternate`] is also true.
+    ///
+    /// [`is_alternate`]: Self::is_alternate
     pub fn set_is_alt_text(self, value: bool) -> Self {
         self.set_flag(value, xmp_prop::ARRAY_IS_ALT_TEXT)
     }
@@ -288,7 +314,9 @@ impl<T: Clone + Debug + Default + PartialEq> XmpValue<T> {
     }
 
     /// Returns `true` if this property is an schema node, which is
-    /// created implicitly during iteration via `XmpIterator`.
+    /// created implicitly during iteration via [`XmpIterator`].
+    ///
+    /// [`XmpIterator`]: crate::XmpIterator
     pub fn is_schema_node(&self) -> bool {
         self.options & xmp_prop::IS_SCHEMA_NODE != 0
     }
