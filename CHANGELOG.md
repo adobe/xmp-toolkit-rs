@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.2.1
+_27 March 2023_
+
+* README update for `crt_static` crate feature ([#167](https://github.com/adobe/xmp-toolkit-rs/pull/167))
+* Added option for static crt using MT flag. ([#166](https://github.com/adobe/xmp-toolkit-rs/pull/166))
+* Minor updates to documentation and doc links ([#168](https://github.com/adobe/xmp-toolkit-rs/pull/168))
+
 ## 1.2.0
 _18 March 2023_
 
