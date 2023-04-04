@@ -32,7 +32,7 @@ crt_static = []
 
 [dependencies]
 chrono = { version = "0.4.24", optional = true }
-num_enum = "0.5.7"
+num_enum = "0.6.0"
 thiserror = "1.0"
 
 [build-dependencies]
