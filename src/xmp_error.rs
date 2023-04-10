@@ -289,6 +289,17 @@ pub enum XmpErrorType {
     /// C++ toolkit did not initialize properly.
     #[error("C++ XMP toolkit did not initialize properly")]
     NoCppToolkit = -433,
+
+    /// An `x:xmpmeta` wrapper was required, but not found.
+    ///
+    /// This error can only occur if you call
+    /// [`XmpMeta::from_str_with_options()`]
+    /// with [`FromStrOptions::require_xmp_meta()`].
+    ///
+    /// [`XmpMeta::from_str_with_options()`]: crate::XmpMeta::from_str_with_options
+    /// [`FromStrOptions::require_xmp_meta()`]: crate::FromStrOptions::require_xmp_meta
+    #[error("x:xmpmeta element not found")]
+    XmpMetaElementMissing = -434,
 }
 
 /// A specialized `Result` type for XMP Toolkit operations.

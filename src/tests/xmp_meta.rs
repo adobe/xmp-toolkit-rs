@@ -247,20 +247,17 @@ mod from_str_with_options {
 
     #[test]
     fn missing_xmp_meta_required() {
-        // TODO (https://github.com/adobe/xmp-toolkit-rs/issues/135):
-        // I think this should be an error response, not a silent
-        // Ok(default) response.
-        assert!(XmpMeta::from_str_with_options(
-            NO_META,
-            FromStrOptions::default().require_xmp_meta()
-        )
-        .is_ok());
+        let err =
+            XmpMeta::from_str_with_options(NO_META, FromStrOptions::default().require_xmp_meta())
+                .unwrap_err();
 
-        // Should be:
-        // XmpError {
-        //     error_type: XmpErrorType::BadSerialize,
-        //     debug_message: "x".to_owned()
-        // }
+        assert_eq!(
+            err,
+            XmpError {
+                error_type: XmpErrorType::XmpMetaElementMissing,
+                debug_message: "x:xmpmeta element not found".to_owned()
+            }
+        );
     }
 
     #[test]

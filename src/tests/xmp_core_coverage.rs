@@ -1098,21 +1098,19 @@ fn xmp_core_coverage() {
     write_major_label("Test parsing with multiple buffers and various options");
 
     {
-        // TODO (https://github.com/adobe/xmp-toolkit-rs/issues/135):
-        // I think this should be an error response, not a silent
-        // Ok(default) response.
-        let meta = XmpMeta::from_str_with_options(
+        let err = XmpMeta::from_str_with_options(
             SIMPLE_RDF,
             FromStrOptions::default().require_xmp_meta(),
         )
-        .unwrap();
+        .unwrap_err();
 
-        println!(
-            "Parse and require xmpmeta element, which is missing = {:#?}",
-            meta
+        assert_eq!(
+            err,
+            XmpError {
+                error_type: XmpErrorType::XmpMetaElementMissing,
+                debug_message: "x:xmpmeta element not found".to_owned()
+            }
         );
-
-        assert_eq!(meta.to_string(), "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 6.0.0\"> <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"> <rdf:Description rdf:about=\"\"/> </rdf:RDF> </x:xmpmeta>");
     }
 
     {
