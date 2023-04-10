@@ -28,7 +28,7 @@ mod xmp_meta;
 pub mod xmp_ns;
 mod xmp_value;
 
-#[cfg(feature = "chronox")]
+#[cfg(feature = "chrono")]
 pub use xmp_date_time::DateTimeConvertError;
 pub use xmp_date_time::{XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
 pub use xmp_error::{XmpError, XmpErrorType, XmpResult};
