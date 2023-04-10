@@ -86,7 +86,7 @@ pub enum XmpErrorType {
     // --- Generic error codes ---
     /// Generic unknown error.
     #[error("Unknown error")]
-    #[num_enum(default)]
+    #[default]
     Unknown = 0,
 
     /// Generic undefined error.
