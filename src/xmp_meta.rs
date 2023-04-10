@@ -1882,7 +1882,26 @@ impl XmpMeta {
 
         XmpError::raise_from_c(&err)?;
 
-        Ok(XmpMeta { m: Some(m) })
+        let result = XmpMeta { m: Some(m) };
+
+        if options.options & 0x01 != 0 {
+            // Caller has asked that we require an `<x:xmpmeta>` element
+            // when parsing this XMP payload. If no such element is found,
+            // the C++ XMP Toolkit will "succeed" and return an `SXMPMeta`
+            // object with no content. In Rust, we translate that to
+            // an error condition signaling that the `<x:xmpmeta>` element
+            // was missing.
+
+            let mut prop_iter = result.iter(IterOptions::default());
+            if prop_iter.next().is_none() {
+                return Err(XmpError {
+                    error_type: XmpErrorType::XmpMetaElementMissing,
+                    debug_message: "x:xmpmeta element not found".to_owned(),
+                });
+            }
+        }
+
+        Ok(result)
     }
 
     /// Converts metadata in this XMP object into a string as RDF.
