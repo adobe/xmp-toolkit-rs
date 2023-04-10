@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.3.0
+_10 April 2023_
+
+* Fix #135: `XmpMeta::from_str_with_options` returns empty data model if no `xmp_meta` wrapper exists ([#174](https://github.com/adobe/xmp-toolkit-rs/pull/174))
+* (MINOR) Update to Rust 2021 edition ([#173](https://github.com/adobe/xmp-toolkit-rs/pull/173))
+* Update num_enum requirement from 0.5.7 to 0.6.0 ([#169](https://github.com/adobe/xmp-toolkit-rs/pull/169))
+
 ## 1.2.1
 _27 March 2023_
 
