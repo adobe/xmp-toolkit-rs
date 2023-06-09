@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.4.0
+_09 June 2023_
+
+* (MINOR) Bump MSRV to 1.64.0 ([#176](https://github.com/adobe/xmp-toolkit-rs/pull/176))
+
 ## 1.3.0
 _10 April 2023_
 
