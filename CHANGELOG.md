@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.5.0
+_16 October 2023_
+
+* Use new Mac ARM runner in CI builds ([#180](https://github.com/adobe/xmp-toolkit-rs/pull/180))
+* (MINOR) Bump MSRV to 1.66.0 ([#179](https://github.com/adobe/xmp-toolkit-rs/pull/179))
+* (MINOR) Update num_enum requirement from 0.6.0 to 0.7.0 ([#178](https://github.com/adobe/xmp-toolkit-rs/pull/178))
 ## 1.4.0
 _09 June 2023_
 
