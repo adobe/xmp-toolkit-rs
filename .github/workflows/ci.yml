@@ -310,9 +310,9 @@ jobs:
           VERSION: ${{ steps.set-version.outputs.version }}
 
       - name: If this step fails, change title of the PR to include (MAJOR) tag
-        uses: obi1kenobi/cargo-semver-checks-action@v1
+        uses: obi1kenobi/cargo-semver-checks-action@v2
         with:
-          crate-name: xmp_toolkit
+          package: xmp_toolkit
 
   read_xmp_example:
     name: ReadXMP example
