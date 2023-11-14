@@ -10,6 +10,7 @@ Do not manually edit this file. It will be automatically updated when a new rele
 _14 November 2023_
 
 * (MINOR) Bump MSRV to 1.67 ([#182](https://github.com/adobe/xmp-toolkit-rs/pull/182))
+
 ## 1.5.0
 _16 October 2023_
 
