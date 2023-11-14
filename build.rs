@@ -106,6 +106,7 @@ fn main() {
                 .define("XMP_MacBuild", "1")
                 .define("_LARGEFILE64_SOURCE", None)
                 .define("XML_DEV_URANDOM", None)
+                .flag("-stdlib=libc++")
                 .flag("-Wno-deprecated-declarations")
                 .flag("-Wno-deprecated-register")
                 .flag("-Wno-int-in-bool-context")
