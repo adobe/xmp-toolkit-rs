@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.7.0
+_15 January 2024_
+
+* (MINOR) Force minor release upgrade for MSRV and C++ Toolkit changes ([#189](https://github.com/adobe/xmp-toolkit-rs/pull/189))
+* [fix] Use links and export includes ([#187](https://github.com/adobe/xmp-toolkit-rs/pull/187))
+* [MINOR] Adopt 2023.12 version of C++ XMP Toolkit ([#188](https://github.com/adobe/xmp-toolkit-rs/pull/188))
+
 ## 1.6.0
 _14 November 2023_
 
