@@ -202,6 +202,11 @@ fn main() {
         &out_dir
     );
 
+    println!(
+        "cargo:include={}/external/xmp_toolkit/public/include",
+        std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get CARGO_MANIFEST_DIR")
+    );
+
     xmp_config
         .cpp(true)
         .define("TXMP_STRING_TYPE", "std::string")

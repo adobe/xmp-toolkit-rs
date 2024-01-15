@@ -11,6 +11,7 @@ keywords = ["xmp", "metadata"]
 categories = ["api-bindings"]
 edition = "2021"
 rust-version = "1.70.0"
+links = "xmp_toolkit"
 exclude = [
     "external/xmp_toolkit/docs",
     "external/xmp_toolkit/samples",
