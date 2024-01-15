@@ -1137,6 +1137,9 @@ local unsigned bi_reverse(
     unsigned code, /* the value to invert */
     int len)       /* its bit length */
 {
+    #define register
+    /* [scouten 2024-01-15]: C++ 17 doesn't allow register storage class */
+
     register unsigned res = 0;
     do {
         res |= code & 1;
