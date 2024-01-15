@@ -1278,6 +1278,8 @@ local uInt longest_match(
     deflate_state *s,
     IPos cur_match)                             /* current match */
 {
+    #define register
+    /* [scouten 2024-01-15]: C++ 17 doesn't allow register storage class */
     unsigned chain_length = s->max_chain_length;/* max hash chain length */
     register Bytef *scan = s->window + s->strstart; /* current string */
     register Bytef *match;                      /* matched string */
