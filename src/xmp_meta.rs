@@ -1947,7 +1947,7 @@ impl<'a> XmpMeta {
     /// Returns an iterator over the schema and properties within an XMP object.
     ///
     /// The top of the XMP data tree is a single root node. This does not
-    /// explicitly in an iteration.
+    /// appear explicitly in an iteration.
     ///
     /// Beneath the root are schema nodes; these collect the top-level
     /// properties in the same namespace. They are created and destroyed
