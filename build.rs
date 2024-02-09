@@ -109,6 +109,7 @@ fn main() {
                 .define("XMP_OSX_SDK", Some("13.1"))
                 .define("XMP_OSX_TARGET", Some("10.15"))
                 .define("APPLE_UNIVERSAL", Some("1"))
+                .flag("-Wno-bitwise-instead-of-logical")
                 .flag("-Wno-deprecated-declarations")
                 .flag("-Wno-deprecated-register")
                 .flag("-Wno-int-in-bool-context")
