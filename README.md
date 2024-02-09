@@ -44,7 +44,7 @@ The toolkit has been tested on the following operating systems:
 
 ## C++ XMP Toolkit
 
-This crate incorporates the June 2022 version of the C++ [Adobe XMP Toolkit SDK](https://github.com/adobe/XMP-Toolkit-SDK/).
+This crate incorporates the December 2023 version of the C++ [Adobe XMP Toolkit SDK](https://github.com/adobe/XMP-Toolkit-SDK/).
 
 When a newer version of the C++ XMP Toolkit is incorporated, a new minor (1.x.0) version of this crate will be released.
 
