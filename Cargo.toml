@@ -37,7 +37,10 @@ num_enum = "0.7.0"
 thiserror = "1.0"
 
 [build-dependencies]
-cc = "1.0"
+cc = "=1.0.83"
+    # Emergency patch: 1.0.86 breaks our ability to link to the expat .o files.
+    # 1.0.84 and .85 were yanked, so going back to last known-good release.
+
 fs_extra = "1.3"
 
 [dev-dependencies]
