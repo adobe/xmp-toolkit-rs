@@ -21,10 +21,7 @@
 
 #![allow(dead_code)] // TEMPORARY while in development
 
-use std::{
-    str::FromStr,
-    string::{String, ToString},
-};
+use std::str::FromStr;
 
 use crate::{
     tests::fixtures::*, xmp_ns, xmp_value::xmp_prop, FromStrOptions, ItemPlacement, IterOptions,

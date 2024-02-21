@@ -12,8 +12,6 @@
 // each license.
 
 mod from_date_time {
-    use std::convert::TryInto;
-
     use chrono::{DateTime, Datelike, FixedOffset, Timelike};
 
     use crate::{DateTimeConvertError, XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
@@ -171,8 +169,6 @@ mod from_date_time {
 }
 
 mod to_date_time {
-    use std::convert::Into;
-
     use chrono::{FixedOffset, NaiveDate};
 
     use crate::{XmpDate, XmpDateTime, XmpTime, XmpTimeZone};
