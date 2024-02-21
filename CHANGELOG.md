@@ -9,6 +9,15 @@ Do not manually edit this file. It will be automatically updated when a new rele
 ## 1.7.1
 _21 February 2024_
 
+* Prepare 1.7.1 release
+* Emergency patch: cc 1.0.86 (just released) breaks xmp_toolkit_rs when used in downstream `cargo install` ([#194](https://github.com/adobe/xmp-toolkit-rs/pull/194))
+* [IGNORE] Fix reference to C++ XMP Toolkit to point to December 2023 ([#192](https://github.com/adobe/xmp-toolkit-rs/pull/192))
+* Silence new C++ build warning on MacOS ([#191](https://github.com/adobe/xmp-toolkit-rs/pull/191))
+* [IGNORE] Fix a typo in API documentation ([#190](https://github.com/adobe/xmp-toolkit-rs/pull/190))
+
+## 1.7.1
+_21 February 2024_
+
 * Emergency patch: cc 1.0.86 (just released) breaks xmp_toolkit_rs when used in downstream `cargo install` ([#194](https://github.com/adobe/xmp-toolkit-rs/pull/194))
 * [IGNORE] Fix reference to C++ XMP Toolkit to point to December 2023 ([#192](https://github.com/adobe/xmp-toolkit-rs/pull/192))
 * Silence new C++ build warning on MacOS ([#191](https://github.com/adobe/xmp-toolkit-rs/pull/191))
