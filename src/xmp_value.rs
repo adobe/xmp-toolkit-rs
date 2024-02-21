@@ -11,7 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{convert::From, fmt::Debug};
+use std::fmt::Debug;
 
 /// Describes a single property or item in an array property.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
