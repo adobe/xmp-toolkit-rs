@@ -86,11 +86,10 @@ jobs:
         commit_user_name: Adobe CAI Team
         commit_user_email: noreply@adobe.com
 
-    # TEMPORARY: Disable since we can no longer build 1.7.0.
-    # - name: Ensure semantic versioning requirements are met
-    #   uses: obi1kenobi/cargo-semver-checks-action@v2
-    #   with:
-    #     package: xmp_toolkit
+    - name: Ensure semantic versioning requirements are met
+      uses: obi1kenobi/cargo-semver-checks-action@v2
+      with:
+        package: xmp_toolkit
 
     - name: Create release
       uses: ncipollo/release-action@v1
