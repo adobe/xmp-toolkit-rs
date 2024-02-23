@@ -60,7 +60,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-xmp_toolkit = "1.7.1"
+xmp_toolkit = "1.7.2"
 ```
 
 ## License

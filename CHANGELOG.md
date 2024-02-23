@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.7.2
+_23 February 2024_
+
+* Relax the requirement on `cc` crate to increase compatibility with other crates ([#198](https://github.com/adobe/xmp-toolkit-rs/pull/198))
+* Restore sem ver check
+
 ## 1.7.1
 _21 February 2024_
 
