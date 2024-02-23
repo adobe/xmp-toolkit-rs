@@ -37,9 +37,11 @@ num_enum = "0.7.0"
 thiserror = "1.0"
 
 [build-dependencies]
-cc = "=1.0.83"
-    # Emergency patch: 1.0.86 breaks our ability to link to the expat .o files.
-    # 1.0.84 and .85 were yanked, so going back to last known-good release.
+cc = "> 1.0.60, <=1.0.83"
+    # IMPORTANT: We can not upgrade to 1.0.86 or later until
+    # https://github.com/adobe/xmp-toolkit-rs/issues/197 is resolved.
+    # If someone has time to address that issue before we get to it,
+    # a PR would be very welcome.
 
 fs_extra = "1.3"
 
