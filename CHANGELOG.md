@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.7.3
+_19 March 2024_
+
+* Allow build.rs to succeed if git is not present ([#203](https://github.com/adobe/xmp-toolkit-rs/pull/203))
+
 ## 1.7.2
 _23 February 2024_
 

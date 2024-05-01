@@ -379,22 +379,17 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let output = std::process::Command::new("git")
-        .args(args)
-        .output()
-        .unwrap();
-
-    println!(
-        "--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
-        String::from_utf8(output.stdout).unwrap(),
-        String::from_utf8(output.stderr).unwrap()
-    );
-
-    // When we run inside the docs.rs environment (and, presumably,
-    // any client that is building xmp-toolkit-rs as a dependency),
-    // the submodule doesn't exist, so we should ignore any
-    // error from git.
-    // assert_eq!(output.status.code().unwrap(), 0);
+    if let Ok(output) = std::process::Command::new("git").args(args).output() {
+        println!(
+            "--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
+            String::from_utf8(output.stdout).unwrap(),
+            String::from_utf8(output.stderr).unwrap()
+        );
+    } else {
+        eprintln!("INFO: git command failed");
+        eprintln!("  If building from crates.io, this should be OK.");
+        eprintln!("  Otherwise, please manually ensure that submodules are up to date.");
+    }
 }
 
 fn compile_for_docs() {
