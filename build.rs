@@ -45,15 +45,19 @@ fn main() {
     zlib_adler_c_path.push("external/xmp_toolkit/third-party/zlib/adler.c");
     if !zlib_adler_c_path.is_file() {
         zlib_adler_c_path.pop();
-        let _ignore = std::fs::remove_dir_all(zlib_adler_c_path);
+        // let _ignore = std::fs::remove_dir_all(zlib_adler_c_path);
         copy_external_to_third_party("zlib", "zlib");
     }
+
+    let out_dir = std::env::var("OUT_DIR").expect("OUT_DIR not defined");
+    let out_dir = PathBuf::from(out_dir);
 
     // C vs C++ compilation approach adapted from
     // https://github.com/rust-lang/rust/blob/7510b0ca45d1204f8f0e9dc1bb2dc7d95b279c9a/library/unwind/build.rs.
 
     let mut expat_config = cc::Build::new();
     let mut xmp_config = cc::Build::new();
+    xmp_config.include(out_dir.join("external/xmp_toolkit"));
 
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not defined");
     match target_os.as_ref() {
@@ -168,37 +172,30 @@ fn main() {
         }
     };
 
-    expat_config
+    let objects = expat_config
         .cpp(false)
         .define("HAVE_EXPAT_CONFIG_H", "1")
         .define("NDEBUG", "")
         .flag_if_supported("-Wno-enum-conversion")
         .flag_if_supported("-Wno-missing-field-initializers")
         .flag_if_supported("-Wno-unused-parameter")
-        .file("external/xmp_toolkit/third-party/expat/lib/xmlparse.c")
-        .file("external/xmp_toolkit/third-party/expat/lib/xmlrole.c")
-        .file("external/xmp_toolkit/third-party/expat/lib/xmltok.c")
+        .file("external/libexpat/expat/lib/xmlparse.c")
+        .file("external/libexpat/expat/lib/xmlrole.c")
+        .file("external/libexpat/expat/lib/xmltok.c")
         .cargo_metadata(false)
-        .compile("libexpat.a");
+        .compile_intermediates();
 
     let out_dir = env::var("OUT_DIR").expect("OUT_DIR not defined");
     println!("cargo:rustc-link-search=native={}", &out_dir);
+    let out_dir = PathBuf::from(out_dir);
 
-    let mut expat_dir = PathBuf::from(&out_dir);
-    expat_dir.push("external/xmp_toolkit/third-party/expat/lib");
+    objects.iter().for_each(|obj| {
+        xmp_config.object(obj);
+    });
 
-    let mut count = 0;
-    for entry in std::fs::read_dir(&expat_dir).unwrap() {
-        let obj = entry.unwrap().path().canonicalize().unwrap();
-        if let Some(ext) = obj.extension() {
-            if ext == "o" {
-                xmp_config.object(&obj);
-                count += 1;
-            }
-        }
-    }
     assert_eq!(
-        count, 3,
+        objects.len(),
+        3,
         "Didn't find expected object files from {:?}",
         &out_dir
     );
@@ -328,21 +325,21 @@ fn main() {
         .file("external/xmp_toolkit/XMPFiles/source/WXMPFiles.cpp")
         .file("external/xmp_toolkit/XMPFiles/source/XMPFiles.cpp")
         .file("external/xmp_toolkit/XMPFiles/source/XMPFiles_Impl.cpp")
-        .file("external/xmp_toolkit/third-party/zlib/adler32.c")
-        .file("external/xmp_toolkit/third-party/zlib/compress.c")
-        .file("external/xmp_toolkit/third-party/zlib/crc32.c")
-        .file("external/xmp_toolkit/third-party/zlib/deflate.c")
-        .file("external/xmp_toolkit/third-party/zlib/gzclose.c")
-        .file("external/xmp_toolkit/third-party/zlib/gzlib.c")
-        .file("external/xmp_toolkit/third-party/zlib/gzread.c")
-        .file("external/xmp_toolkit/third-party/zlib/gzwrite.c")
-        .file("external/xmp_toolkit/third-party/zlib/infback.c")
-        .file("external/xmp_toolkit/third-party/zlib/inffast.c")
-        .file("external/xmp_toolkit/third-party/zlib/inflate.c")
-        .file("external/xmp_toolkit/third-party/zlib/inftrees.c")
-        .file("external/xmp_toolkit/third-party/zlib/trees.c")
-        .file("external/xmp_toolkit/third-party/zlib/uncompr.c")
-        .file("external/xmp_toolkit/third-party/zlib/zutil.c")
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/adler32.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/compress.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/crc32.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/deflate.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/gzclose.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/gzlib.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/gzread.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/gzwrite.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/infback.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/inffast.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/inflate.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/inftrees.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/trees.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/uncompr.c"))
+        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/zutil.c"))
         .file("src/ffi.cpp")
         .file("external/xmp_toolkit/third-party/zuid/interfaces/MD5.cpp")
         .compile("libxmp.a");
@@ -351,9 +348,12 @@ fn main() {
 fn copy_external_to_third_party(from_path: &str, to_path: &str) {
     use fs_extra::dir::{copy, CopyOptions};
 
-    let mut dest_path = env::current_dir().unwrap();
+    // let mut dest_path = env::current_dir().unwrap();
+    let mut dest_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     dest_path.push("external/xmp_toolkit/third-party");
     dest_path.push(to_path);
+    std::fs::create_dir_all(&dest_path).ok();
+    std::fs::remove_dir_all(&dest_path).ok();
 
     if !dest_path.is_dir() {
         let mut src_path = env::current_dir().unwrap();
@@ -365,7 +365,11 @@ fn copy_external_to_third_party(from_path: &str, to_path: &str) {
         dest_path.pop();
 
         let copy_options = CopyOptions::new();
-        println!("COPYING {} to {}", src_path.display(), dest_path.display());
+        println!(
+            "cargo:info=COPYING {} to {}",
+            src_path.display(),
+            dest_path.display()
+        );
         copy(src_path, dest_path, &copy_options).unwrap();
     }
 }
