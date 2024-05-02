@@ -37,7 +37,7 @@ num_enum = "0.7.0"
 thiserror = "1.0"
 
 [build-dependencies]
-cc = { version = "1", features = ["parallel"] }
+cc = { version = ">= 1.0.86", features = ["parallel"] }
 fs_extra = "1.3"
 
 [dev-dependencies]
