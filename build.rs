@@ -11,7 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{env, ffi::OsStr, path::PathBuf};
+use std::{env, ffi::OsStr};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
