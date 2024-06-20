@@ -11,7 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{env, ffi::OsStr};
+use std::{env, ffi::OsStr, path::PathBuf};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
@@ -45,15 +45,18 @@ fn main() {
     zlib_adler_c_path.push("external/xmp_toolkit/third-party/zlib/adler.c");
     if !zlib_adler_c_path.is_file() {
         zlib_adler_c_path.pop();
-        let _ignore = std::fs::remove_dir_all(zlib_adler_c_path);
         copy_external_to_third_party("zlib", "zlib");
     }
+
+    let out_dir = std::env::var("OUT_DIR").expect("OUT_DIR not defined");
+    let out_dir = PathBuf::from(out_dir);
 
     // C vs C++ compilation approach adapted from
     // https://github.com/rust-lang/rust/blob/7510b0ca45d1204f8f0e9dc1bb2dc7d95b279c9a/library/unwind/build.rs.
 
     let mut expat_config = cc::Build::new();
     let mut xmp_config = cc::Build::new();
+    xmp_config.include(out_dir.join("external/xmp_toolkit"));
 
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not defined");
     match target_os.as_ref() {
