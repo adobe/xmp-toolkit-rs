@@ -149,15 +149,15 @@ impl IterOptions {
     /// Restrict iteration to those properties that are part of the named
     /// schema.
     pub fn schema_ns(mut self, schema_ns: &str) -> Self {
-        self.schema_ns = schema_ns.to_owned();
+        schema_ns.clone_into(&mut self.schema_ns);
         self.prop_name = String::default();
         self
     }
 
     /// Restrict iteration to properties within a specific property.
     pub fn property(mut self, schema_ns: &str, prop_name: &str) -> Self {
-        self.schema_ns = schema_ns.to_owned();
-        self.prop_name = prop_name.to_owned();
+        schema_ns.clone_into(&mut self.schema_ns);
+        prop_name.clone_into(&mut self.prop_name);
         self
     }
 
