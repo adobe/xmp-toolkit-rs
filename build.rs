@@ -179,29 +179,11 @@ fn main() {
         .file("external/xmp_toolkit/third-party/expat/lib/xmlrole.c")
         .file("external/xmp_toolkit/third-party/expat/lib/xmltok.c")
         .cargo_metadata(false)
-        .compile("libexpat.a");
+        .compile("expat");
 
     let out_dir = env::var("OUT_DIR").expect("OUT_DIR not defined");
     println!("cargo:rustc-link-search=native={}", &out_dir);
-
-    let mut expat_dir = PathBuf::from(&out_dir);
-    expat_dir.push("external/xmp_toolkit/third-party/expat/lib");
-
-    let mut count = 0;
-    for entry in std::fs::read_dir(&expat_dir).unwrap() {
-        let obj = entry.unwrap().path().canonicalize().unwrap();
-        if let Some(ext) = obj.extension() {
-            if ext == "o" {
-                xmp_config.object(&obj);
-                count += 1;
-            }
-        }
-    }
-    assert_eq!(
-        count, 3,
-        "Didn't find expected object files from {:?}",
-        &out_dir
-    );
+    // ^^ Is this still needed?
 
     println!(
         "cargo:include={}/external/xmp_toolkit/public/include",
@@ -345,7 +327,7 @@ fn main() {
         .file("external/xmp_toolkit/third-party/zlib/zutil.c")
         .file("src/ffi.cpp")
         .file("external/xmp_toolkit/third-party/zuid/interfaces/MD5.cpp")
-        .compile("libxmp.a");
+        .compile("xmp");
 }
 
 fn copy_external_to_third_party(from_path: &str, to_path: &str) {
@@ -454,5 +436,5 @@ fn compile_for_docs() {
         .include("external/xmp_toolkit/public/include")
         .include("external/xmp_toolkit/XMPFilesPlugins/api/source")
         .file("src/ffi.cpp")
-        .compile("libxmp.a");
+        .compile("xmp");
 }
