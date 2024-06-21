@@ -48,15 +48,11 @@ fn main() {
         copy_external_to_third_party("zlib", "zlib");
     }
 
-    let out_dir = std::env::var("OUT_DIR").expect("OUT_DIR not defined");
-    let out_dir = PathBuf::from(out_dir);
-
     // C vs C++ compilation approach adapted from
     // https://github.com/rust-lang/rust/blob/7510b0ca45d1204f8f0e9dc1bb2dc7d95b279c9a/library/unwind/build.rs.
 
     let mut expat_config = cc::Build::new();
     let mut xmp_config = cc::Build::new();
-    xmp_config.include(out_dir.join("external/xmp_toolkit"));
 
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not defined");
     match target_os.as_ref() {
@@ -188,10 +184,10 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", &out_dir);
     // ^^ Is this still needed?
 
-    println!(
-        "cargo:include={}/external/xmp_toolkit/public/include",
-        std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get CARGO_MANIFEST_DIR")
-    );
+    // println!(
+    //     "cargo:include={}/external/xmp_toolkit/public/include",
+    //     std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get
+    // CARGO_MANIFEST_DIR") );
 
     xmp_config
         .cpp(true)
@@ -209,7 +205,10 @@ fn main() {
         .flag_if_supported("-Wno-unused-variable")
         .flag_if_supported("-Wnon-virtual-dtor")
         .flag_if_supported("-Woverloaded-virtual")
-        .include("external/xmp_toolkit")
+        .include(format!(
+            "{root}/external/xmp_toolkit",
+            root = std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get CARGO_MANIFEST_DIR")
+        ))
         .include("external/xmp_toolkit/build")
         .include("external/xmp_toolkit/public/include")
         .include("external/xmp_toolkit/XMPFilesPlugins/api/source")
