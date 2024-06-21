@@ -45,7 +45,10 @@ fn main() {
     zlib_adler_c_path.push("external/xmp_toolkit/third-party/zlib/adler.c");
     if !zlib_adler_c_path.is_file() {
         zlib_adler_c_path.pop();
+        println!("Copying zlib to third_party dir ...");
         copy_external_to_third_party("zlib", "zlib");
+    } else {
+        eprintln!("Huh. zlib already exists. NOT COPYING");
     }
 
     // C vs C++ compilation approach adapted from
