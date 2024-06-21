@@ -199,11 +199,11 @@ fn main() {
 
     if let Ok(output) = std::process::Command::new("ls")
         .arg("-al")
-        .arg("external/xmp-toolkit")
+        .arg("/Users/runner/work/xmp-toolkit-rs/xmp-toolkit-rs/external/xmp_toolkit/third-party/zlib")
         .output()
     {
         println!(
-            "*** ls -al foo\n\n--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
+            "*** ls -al .../third-party/zlib\n\n--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
             String::from_utf8(output.stdout).unwrap(),
             String::from_utf8(output.stderr).unwrap()
         );
