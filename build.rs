@@ -189,6 +189,26 @@ fn main() {
     //     std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get
     // CARGO_MANIFEST_DIR") );
 
+    if let Ok(output) = std::process::Command::new("pwd").output() {
+        println!(
+            "*** pwd foo\n\n--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
+            String::from_utf8(output.stdout).unwrap(),
+            String::from_utf8(output.stderr).unwrap()
+        );
+    };
+
+    if let Ok(output) = std::process::Command::new("ls")
+        .arg("-al")
+        .arg("external/xmp-toolkit")
+        .output()
+    {
+        println!(
+            "*** ls -al foo\n\n--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
+            String::from_utf8(output.stdout).unwrap(),
+            String::from_utf8(output.stderr).unwrap()
+        );
+    };
+
     xmp_config
         .cpp(true)
         .define("TXMP_STRING_TYPE", "std::string")
