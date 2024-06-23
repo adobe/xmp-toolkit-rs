@@ -202,7 +202,7 @@ fn main() {
 
     if let Ok(output) = std::process::Command::new("ls")
         .arg("-al")
-        .arg("/Users/runner/work/xmp-toolkit-rs/xmp-toolkit-rs/external/xmp_toolkit/third-party/zlib")
+        .arg("external/xmp_toolkit/third-party/zlib")
         .output()
     {
         println!(
