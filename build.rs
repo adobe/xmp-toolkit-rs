@@ -376,7 +376,7 @@ fn copy_external_to_third_party(from_path: &str, to_path: &str) {
         println!("COPYING {} to {}", src_path.display(), dest_path.display());
         copy(src_path, dest_path, &copy_options).unwrap();
     } else {
-        eprintln!("Huh. dest_path {dest_path} was already a dir -- didn't copy");
+        eprintln!("Huh. dest_path {dest_path:?} was already a dir -- didn't copy");
     }
 }
 
