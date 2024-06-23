@@ -200,13 +200,14 @@ fn main() {
         );
     };
 
-    if let Ok(output) = std::process::Command::new("ls")
-        .arg("-al")
-        .arg("external/xmp_toolkit/third-party/zlib")
+    if let Ok(output) = std::process::Command::new("find")
+        .arg(".")
+        .arg("-name")
+        .arg("zlib.h")
         .output()
     {
         println!(
-            "*** ls -al .../third-party/zlib\n\n--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
+            "*** find . -name zlib.h\n\n--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
             String::from_utf8(output.stdout).unwrap(),
             String::from_utf8(output.stderr).unwrap()
         );
