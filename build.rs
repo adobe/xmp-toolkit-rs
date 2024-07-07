@@ -351,7 +351,7 @@ fn copy_external_to_third_party(from_path: &str, to_path: &str) {
     src_path.push("external");
     src_path.push(from_path);
 
-    eprintln!("Copying external lib from {}", src_path.display());
+    dbg!(&src_path);
     assert!(src_path.is_dir());
 
     dest_path.pop();
