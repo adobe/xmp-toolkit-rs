@@ -187,27 +187,6 @@ fn main() {
         xmp_config.object(expat_int);
     }
 
-    if let Ok(output) = std::process::Command::new("pwd").output() {
-        println!(
-            "*** pwd foo\n\n--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
-            String::from_utf8(output.stdout).unwrap(),
-            String::from_utf8(output.stderr).unwrap()
-        );
-    };
-
-    if let Ok(output) = std::process::Command::new("find")
-        .arg(".")
-        .arg("-name")
-        .arg("zlib.h")
-        .output()
-    {
-        println!(
-            "*** find . -name zlib.h\n\n--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
-            String::from_utf8(output.stdout).unwrap(),
-            String::from_utf8(output.stderr).unwrap()
-        );
-    };
-
     xmp_config
         .cpp(true)
         .define("TXMP_STRING_TYPE", "std::string")
