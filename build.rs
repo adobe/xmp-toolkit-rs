@@ -11,7 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{env, ffi::OsStr, path::PathBuf};
+use std::{env, ffi::OsStr};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
@@ -45,8 +45,10 @@ fn main() {
     zlib_adler_c_path.push("external/xmp_toolkit/third-party/zlib/adler.c");
     if !zlib_adler_c_path.is_file() {
         zlib_adler_c_path.pop();
-        let _ignore = std::fs::remove_dir_all(zlib_adler_c_path);
+        println!("Copying zlib to third_party dir ...");
         copy_external_to_third_party("zlib", "zlib");
+    } else {
+        eprintln!("Huh. zlib already exists. NOT COPYING");
     }
 
     // C vs C++ compilation approach adapted from
@@ -168,7 +170,7 @@ fn main() {
         }
     };
 
-    expat_config
+    let expat_intermediates = expat_config
         .cpp(false)
         .define("HAVE_EXPAT_CONFIG_H", "1")
         .define("NDEBUG", "")
@@ -179,34 +181,11 @@ fn main() {
         .file("external/xmp_toolkit/third-party/expat/lib/xmlrole.c")
         .file("external/xmp_toolkit/third-party/expat/lib/xmltok.c")
         .cargo_metadata(false)
-        .compile("libexpat.a");
+        .compile_intermediates();
 
-    let out_dir = env::var("OUT_DIR").expect("OUT_DIR not defined");
-    println!("cargo:rustc-link-search=native={}", &out_dir);
-
-    let mut expat_dir = PathBuf::from(&out_dir);
-    expat_dir.push("external/xmp_toolkit/third-party/expat/lib");
-
-    let mut count = 0;
-    for entry in std::fs::read_dir(&expat_dir).unwrap() {
-        let obj = entry.unwrap().path().canonicalize().unwrap();
-        if let Some(ext) = obj.extension() {
-            if ext == "o" {
-                xmp_config.object(&obj);
-                count += 1;
-            }
-        }
+    for expat_int in expat_intermediates {
+        xmp_config.object(expat_int);
     }
-    assert_eq!(
-        count, 3,
-        "Didn't find expected object files from {:?}",
-        &out_dir
-    );
-
-    println!(
-        "cargo:include={}/external/xmp_toolkit/public/include",
-        std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get CARGO_MANIFEST_DIR")
-    );
 
     xmp_config
         .cpp(true)
@@ -224,7 +203,10 @@ fn main() {
         .flag_if_supported("-Wno-unused-variable")
         .flag_if_supported("-Wnon-virtual-dtor")
         .flag_if_supported("-Woverloaded-virtual")
-        .include("external/xmp_toolkit")
+        .include(format!(
+            "{root}/external/xmp_toolkit",
+            root = std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get CARGO_MANIFEST_DIR")
+        ))
         .include("external/xmp_toolkit/build")
         .include("external/xmp_toolkit/public/include")
         .include("external/xmp_toolkit/XMPFilesPlugins/api/source")
@@ -345,7 +327,7 @@ fn main() {
         .file("external/xmp_toolkit/third-party/zlib/zutil.c")
         .file("src/ffi.cpp")
         .file("external/xmp_toolkit/third-party/zuid/interfaces/MD5.cpp")
-        .compile("libxmp.a");
+        .compile("xmp");
 }
 
 fn copy_external_to_third_party(from_path: &str, to_path: &str) {
@@ -355,19 +337,21 @@ fn copy_external_to_third_party(from_path: &str, to_path: &str) {
     dest_path.push("external/xmp_toolkit/third-party");
     dest_path.push(to_path);
 
-    if !dest_path.is_dir() {
-        let mut src_path = env::current_dir().unwrap();
-        src_path.push("external");
-        src_path.push(from_path);
-
-        assert!(src_path.is_dir());
-
-        dest_path.pop();
-
-        let copy_options = CopyOptions::new();
-        println!("COPYING {} to {}", src_path.display(), dest_path.display());
-        copy(src_path, dest_path, &copy_options).unwrap();
+    if dest_path.is_dir() {
+        std::fs::remove_dir_all(&dest_path).unwrap();
     }
+
+    let mut src_path = env::current_dir().unwrap();
+    src_path.push("external");
+    src_path.push(from_path);
+
+    assert!(src_path.is_dir());
+
+    dest_path.pop();
+
+    let copy_options = CopyOptions::new();
+    println!("COPYING {} to {}", src_path.display(), dest_path.display());
+    copy(src_path, dest_path, &copy_options).unwrap();
 }
 
 fn git_command<I, S>(args: I)
@@ -454,5 +438,5 @@ fn compile_for_docs() {
         .include("external/xmp_toolkit/public/include")
         .include("external/xmp_toolkit/XMPFilesPlugins/api/source")
         .file("src/ffi.cpp")
-        .compile("libxmp.a");
+        .compile("xmp");
 }
