@@ -87,7 +87,7 @@ use crate::{
 ///
 /// ### Debug formatting using Rust-style formatting
 ///
-/// Using alternate formatting `fmt!("{xmp:#}")" yieldsto_string()`
+/// Using alternate formatting `fmt!("{xmp:#}")"` yields `to_string()`
 /// debug output with more Rust-like formatting:
 ///
 /// ```
