@@ -293,9 +293,6 @@ impl fmt::Display for XmpDateTime {
 }
 
 #[cfg(feature = "chrono")]
-use std::convert::TryFrom;
-
-#[cfg(feature = "chrono")]
 use chrono::{DateTime, Datelike, FixedOffset, LocalResult, NaiveDate, Timelike};
 #[cfg(feature = "chrono")]
 use thiserror::Error;

@@ -3144,8 +3144,6 @@ mod set_localized_text {
 }
 
 mod sort {
-    use std::string::ToString;
-
     use crate::{xmp_ns, XmpError, XmpErrorType, XmpMeta};
 
     #[test]
