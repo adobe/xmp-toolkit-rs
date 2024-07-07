@@ -358,21 +358,21 @@ fn copy_external_to_third_party(from_path: &str, to_path: &str) {
     dest_path.push("external/xmp_toolkit/third-party");
     dest_path.push(to_path);
 
-    if !dest_path.is_dir() {
-        let mut src_path = env::current_dir().unwrap();
-        src_path.push("external");
-        src_path.push(from_path);
-
-        assert!(src_path.is_dir());
-
-        dest_path.pop();
-
-        let copy_options = CopyOptions::new();
-        println!("COPYING {} to {}", src_path.display(), dest_path.display());
-        copy(src_path, dest_path, &copy_options).unwrap();
-    } else {
-        eprintln!("Huh. dest_path {dest_path:?} was already a dir -- didn't copy");
+    if dest_path.is_dir() {
+        std::fs::remove_dir_all(&dest_path).unwrap();
     }
+
+    let mut src_path = env::current_dir().unwrap();
+    src_path.push("external");
+    src_path.push(from_path);
+
+    assert!(src_path.is_dir());
+
+    dest_path.pop();
+
+    let copy_options = CopyOptions::new();
+    println!("COPYING {} to {}", src_path.display(), dest_path.display());
+    copy(src_path, dest_path, &copy_options).unwrap();
 }
 
 fn git_command<I, S>(args: I)
