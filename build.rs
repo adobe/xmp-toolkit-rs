@@ -187,15 +187,6 @@ fn main() {
         xmp_config.object(expat_int);
     }
 
-    let out_dir = env::var("OUT_DIR").expect("OUT_DIR not defined");
-    println!("cargo:rustc-link-search=native={}", &out_dir);
-    // ^^ Is this still needed?
-
-    // println!(
-    //     "cargo:include={}/external/xmp_toolkit/public/include",
-    //     std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get
-    // CARGO_MANIFEST_DIR") );
-
     if let Ok(output) = std::process::Command::new("pwd").output() {
         println!(
             "*** pwd foo\n\n--- stdout ---\n{}\n\n--- stderr ---\n{}\n\n",
