@@ -34,11 +34,6 @@ fn main() {
         eprintln!("INFO: building standard FFI for crate");
     }
 
-    // Special note: Because of the post-processing we're doing here,
-    // you must specify the `--no-verify` option when invoking `cargo publish`.
-    // This is unfortunately necessary because the original XMP Toolkit requires
-    // the modified versions of these files to be present in these locations.
-
     copy_external_to_third_party("libexpat/expat/lib", "expat/lib");
 
     let mut zlib_adler_c_path = env::current_dir().unwrap();
@@ -356,6 +351,7 @@ fn copy_external_to_third_party(from_path: &str, to_path: &str) {
     src_path.push("external");
     src_path.push(from_path);
 
+    dbg!(&src_path);
     assert!(src_path.is_dir());
 
     dest_path.pop();

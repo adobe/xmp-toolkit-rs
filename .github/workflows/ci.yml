@@ -147,8 +147,11 @@ jobs:
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
 
+      - name: Populate git submodules
+        run: git submodule init && git submodule update
+
       - name: Dry-run of crate publish
-        run: cargo publish --no-verify -p xmp_toolkit --dry-run
+        run: cargo publish -p xmp_toolkit --dry-run
 
   clippy_check:
     name: Clippy
