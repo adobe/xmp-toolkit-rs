@@ -19,7 +19,7 @@ exclude = [
     "external/xmp_toolkit/third-party/zlib/README.md",
     "external/xmp_toolkit/third-party/zlib/*.c",
     "external/xmp_toolkit/third-party/zlib/*.h",
-    "external/xmp_toolkit/third-party/expat/lib",    
+    "external/xmp_toolkit/third-party/expat/lib",
     "external/xmp_toolkit/XMPFilesPlugins/PDF_Handler",
 ]
 
@@ -37,12 +37,7 @@ num_enum = "0.7.0"
 thiserror = "1.0"
 
 [build-dependencies]
-cc = "> 1.0.60, <=1.0.83"
-    # IMPORTANT: We can not upgrade to 1.0.86 or later until
-    # https://github.com/adobe/xmp-toolkit-rs/issues/197 is resolved.
-    # If someone has time to address that issue before we get to it,
-    # a PR would be very welcome.
-
+cc = "1.0.101"
 fs_extra = "1.3"
 
 [dev-dependencies]
