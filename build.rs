@@ -170,7 +170,7 @@ fn main() {
         }
     };
 
-    expat_config
+    let expat_intermediates = expat_config
         .cpp(false)
         .define("HAVE_EXPAT_CONFIG_H", "1")
         .define("NDEBUG", "")
@@ -181,7 +181,11 @@ fn main() {
         .file("external/xmp_toolkit/third-party/expat/lib/xmlrole.c")
         .file("external/xmp_toolkit/third-party/expat/lib/xmltok.c")
         .cargo_metadata(false)
-        .compile("expat");
+        .compile_intermediates();
+
+    for expat_int in expat_intermediates {
+        xmp_config.object(expat_int);
+    }
 
     let out_dir = env::var("OUT_DIR").expect("OUT_DIR not defined");
     println!("cargo:rustc-link-search=native={}", &out_dir);
