@@ -11,7 +11,7 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{env, ffi::OsStr, fs, path::PathBuf};
+use std::{env, ffi::OsStr};
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
@@ -50,8 +50,6 @@ fn main() {
     } else {
         eprintln!("Huh. zlib already exists. NOT COPYING");
     }
-
-    let out_dir = PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR not defined"));
 
     // C vs C++ compilation approach adapted from
     // https://github.com/rust-lang/rust/blob/7510b0ca45d1204f8f0e9dc1bb2dc7d95b279c9a/library/unwind/build.rs.
@@ -93,7 +91,6 @@ fn main() {
                 .flag("/wd4701")
                 .flag("/wd4702")
                 .flag("/wd4996")
-                .include(out_dir.join("external/xmp_toolkit"))
                 .include("external/xmp_toolkit/XMPCore/resource/win")
                 .include("external/xmp_toolkit/XMPFiles/resource/win")
                 .file("external/xmp_toolkit/source/Host_IO-Win.cpp")
@@ -180,17 +177,15 @@ fn main() {
         .flag_if_supported("-Wno-enum-conversion")
         .flag_if_supported("-Wno-missing-field-initializers")
         .flag_if_supported("-Wno-unused-parameter")
-        .file("external/libexpat/expat/lib/xmlparse.c")
-        .file("external/libexpat/expat/lib/xmlrole.c")
-        .file("external/libexpat/expat/lib/xmltok.c")
+        .file("external/xmp_toolkit/third-party/expat/lib/xmlparse.c")
+        .file("external/xmp_toolkit/third-party/expat/lib/xmlrole.c")
+        .file("external/xmp_toolkit/third-party/expat/lib/xmltok.c")
         .cargo_metadata(false)
         .compile_intermediates();
 
     for expat_int in expat_intermediates {
         xmp_config.object(expat_int);
     }
-
-    println!("cargo:rustc-link-search=native={}", out_dir.display());
 
     xmp_config
         .cpp(true)
@@ -211,10 +206,6 @@ fn main() {
         .include(format!(
             "{root}/external/xmp_toolkit",
             root = std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get CARGO_MANIFEST_DIR")
-        ))
-        .include(format!(
-            "{root}/external/xmp_toolkit",
-            root = std::env::var("OUT_DIR").expect("Failed to get OUT_DIR")
         ))
         .include("external/xmp_toolkit/build")
         .include("external/xmp_toolkit/public/include")
@@ -319,21 +310,21 @@ fn main() {
         .file("external/xmp_toolkit/XMPFiles/source/WXMPFiles.cpp")
         .file("external/xmp_toolkit/XMPFiles/source/XMPFiles.cpp")
         .file("external/xmp_toolkit/XMPFiles/source/XMPFiles_Impl.cpp")
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/adler32.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/compress.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/crc32.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/deflate.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/gzclose.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/gzlib.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/gzread.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/gzwrite.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/infback.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/inffast.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/inflate.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/inftrees.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/trees.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/uncompr.c"))
-        .file(out_dir.join("external/xmp_toolkit/third-party/zlib/zutil.c"))
+        .file("external/xmp_toolkit/third-party/zlib/adler32.c")
+        .file("external/xmp_toolkit/third-party/zlib/compress.c")
+        .file("external/xmp_toolkit/third-party/zlib/crc32.c")
+        .file("external/xmp_toolkit/third-party/zlib/deflate.c")
+        .file("external/xmp_toolkit/third-party/zlib/gzclose.c")
+        .file("external/xmp_toolkit/third-party/zlib/gzlib.c")
+        .file("external/xmp_toolkit/third-party/zlib/gzread.c")
+        .file("external/xmp_toolkit/third-party/zlib/gzwrite.c")
+        .file("external/xmp_toolkit/third-party/zlib/infback.c")
+        .file("external/xmp_toolkit/third-party/zlib/inffast.c")
+        .file("external/xmp_toolkit/third-party/zlib/inflate.c")
+        .file("external/xmp_toolkit/third-party/zlib/inftrees.c")
+        .file("external/xmp_toolkit/third-party/zlib/trees.c")
+        .file("external/xmp_toolkit/third-party/zlib/uncompr.c")
+        .file("external/xmp_toolkit/third-party/zlib/zutil.c")
         .file("src/ffi.cpp")
         .file("external/xmp_toolkit/third-party/zuid/interfaces/MD5.cpp")
         .compile("xmp");
@@ -342,15 +333,13 @@ fn main() {
 fn copy_external_to_third_party(from_path: &str, to_path: &str) {
     use fs_extra::dir::{copy, CopyOptions};
 
-    let mut dest_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let mut dest_path = env::current_dir().unwrap();
     dest_path.push("external/xmp_toolkit/third-party");
-
     dest_path.push(to_path);
-    if dest_path.is_dir() {
-        fs::remove_dir_all(&dest_path).unwrap();
-    }
 
-    fs::create_dir_all(&dest_path).unwrap();
+    if dest_path.is_dir() {
+        std::fs::remove_dir_all(&dest_path).unwrap();
+    }
 
     let mut src_path = env::current_dir().unwrap();
     src_path.push("external");
@@ -361,11 +350,7 @@ fn copy_external_to_third_party(from_path: &str, to_path: &str) {
     dest_path.pop();
 
     let copy_options = CopyOptions::new();
-    println!(
-        "cargo:info=COPYING {} to {}",
-        src_path.display(),
-        dest_path.display()
-    );
+    println!("COPYING {} to {}", src_path.display(), dest_path.display());
     copy(src_path, dest_path, &copy_options).unwrap();
 }
 
