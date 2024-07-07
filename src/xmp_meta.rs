@@ -2110,7 +2110,7 @@ impl fmt::Display for XmpMeta {
                 let prefix = XmpMeta::namespace_prefix(&schema.schema_ns)
                     .unwrap_or("-no prefix-".to_owned());
                 ds.field(
-                    &prefix.trim_end_matches(':'),
+                    prefix.trim_end_matches(':'),
                     &PropertyDisplayHelper(self, &schema),
                 );
             }
