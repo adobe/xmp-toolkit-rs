@@ -99,6 +99,9 @@ jobs:
         tag: ${{ steps.set-version.outputs.version_tag }}
         token: ${{ secrets.GH_ADMIN_COMMIT_TOKEN }}
 
+    - name: Populate git submodules
+      run: git submodule init && git submodule update
+
     - name: Publish crate
       run: |
         cargo publish --token $CRATES_IO_SECRET
