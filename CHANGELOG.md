@@ -6,6 +6,22 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.8.0
+_07 July 2024_
+
+* Publish workflow can now run cleanly ([#226](https://github.com/adobe/xmp-toolkit-rs/pull/226))
+* Update stefanzweifel/git-auto-commit-action action to v5 ([#225](https://github.com/adobe/xmp-toolkit-rs/pull/225))
+* Update codecov/codecov-action action to v4 ([#223](https://github.com/adobe/xmp-toolkit-rs/pull/223))
+* (MINOR) XmpMeta can now optionally format itself using Rust-style formatting ([#193](https://github.com/adobe/xmp-toolkit-rs/pull/193))
+* Update actions/github-script action to v7 ([#222](https://github.com/adobe/xmp-toolkit-rs/pull/222))
+* Update actions/checkout action to v4 ([#219](https://github.com/adobe/xmp-toolkit-rs/pull/219))
+* Allow clean build process ([#221](https://github.com/adobe/xmp-toolkit-rs/pull/221))
+* Update paulhatch/semantic-version action to v5.4.0 ([#218](https://github.com/adobe/xmp-toolkit-rs/pull/218))
+* Add renovate.json ([#206](https://github.com/adobe/xmp-toolkit-rs/pull/206))
+* Update for current cc crate ([#216](https://github.com/adobe/xmp-toolkit-rs/pull/216))
+* Fix Clippy warnings for Rust 1.79 ([#215](https://github.com/adobe/xmp-toolkit-rs/pull/215))
+* Update deny.toml for recent updates to cargo-deny ([#204](https://github.com/adobe/xmp-toolkit-rs/pull/204))
+
 ## 1.7.3
 _19 March 2024_
 
