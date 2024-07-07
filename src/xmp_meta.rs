@@ -22,7 +22,7 @@ use std::{
 use crate::{
     ffi::{self, CXmpString},
     IterOptions, OpenFileOptions, XmpDateTime, XmpError, XmpErrorType, XmpFile, XmpIterator,
-    XmpResult, XmpValue,
+    XmpProperty, XmpResult, XmpValue,
 };
 
 /// Represents the data model of an XMP packet.
@@ -52,6 +52,83 @@ use crate::{
 ///   expression. Must not be an empty string. The first component of a path
 ///   expression can be a namespace prefix; if so, the prefix must have been
 ///   registered via [`XmpMeta::register_namespace`].
+///
+/// ### Debug formatting using C++ XMP Toolkit
+///
+/// Using traditional `.to_string()` formatting yields
+/// debug output from C++ XMP Toolkit:
+///
+/// ```
+/// # use xmp_toolkit::XmpMeta;
+/// # use std::str::FromStr;
+/// const STRUCT_EXAMPLE: &str = r#"
+/// <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0-c000 1.000000, 0000/00/00-00:00:00">
+/// <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+///     <rdf:Description rdf:about=""
+///         xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+///         xmlns:xmpRights="http://ns.adobe.com/xap/1.0/rights/"
+///         xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/"
+///         xmpRights:Marked="True">
+///         <Iptc4xmpCore:CreatorContactInfo
+///             Iptc4xmpCore:CiAdrPcode="98110"
+///             Iptc4xmpCore:CiAdrCtry="US"/>
+///     </rdf:Description>
+/// </rdf:RDF>
+/// </x:xmpmeta>
+/// "#;
+///
+/// let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+///
+/// assert_eq!(
+///     r###"<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 6.0.0"> <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"> <rdf:Description rdf:about="" xmlns:xmpRights="http://ns.adobe.com/xap/1.0/rights/" xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/"> <xmpRights:Marked>True</xmpRights:Marked> <Iptc4xmpCore:CreatorContactInfo rdf:parseType="Resource"> <Iptc4xmpCore:CiAdrPcode>98110</Iptc4xmpCore:CiAdrPcode> <Iptc4xmpCore:CiAdrCtry>US</Iptc4xmpCore:CiAdrCtry> </Iptc4xmpCore:CreatorContactInfo> </rdf:Description> </rdf:RDF> </x:xmpmeta>"###,
+///     m.to_string(),
+/// );
+/// ```
+///
+/// ### Debug formatting using Rust-style formatting
+///
+/// Using alternate formatting `fmt!("{xmp:#}")"` yields `to_string()`
+/// debug output with more Rust-like formatting:
+///
+/// ```
+/// # use xmp_toolkit::XmpMeta;
+/// # use std::str::FromStr;
+/// const STRUCT_EXAMPLE: &str = r#"
+/// <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0-c000 1.000000, 0000/00/00-00:00:00">
+/// <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+///     <rdf:Description rdf:about=""
+///         xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+///         xmlns:xmpRights="http://ns.adobe.com/xap/1.0/rights/"
+///         xmlns:Iptc4xmpCore="http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/"
+///         xmpRights:Marked="True">
+///         <Iptc4xmpCore:CreatorContactInfo
+///             Iptc4xmpCore:CiAdrPcode="98110"
+///             Iptc4xmpCore:CiAdrCtry="US"/>
+///     </rdf:Description>
+/// </rdf:RDF>
+/// </x:xmpmeta>
+/// "#;
+///
+/// let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+///
+/// assert_eq!(
+///     r###"XmpMeta {
+///     @name: "",
+///     xmpRights: schema {
+///         @ns: "http://ns.adobe.com/xap/1.0/rights/",
+///         Marked: "True",
+///     },
+///     Iptc4xmpCore: schema {
+///         @ns: "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/",
+///         CreatorContactInfo: struct {
+///             CiAdrPcode: "98110",
+///             CiAdrCtry: "US",
+///         },
+///     },
+/// }"###,
+///     format!("{m:#}"),
+/// );
+/// ```
 pub struct XmpMeta {
     pub(crate) m: Option<*mut ffi::CXmpMeta>,
 }
@@ -2017,15 +2094,142 @@ impl fmt::Debug for XmpMeta {
 
 impl fmt::Display for XmpMeta {
     /// Convert the XMP data model to RDF using a compact formatting.
+    ///
+    /// If the `:#` flag is used (alternate formatting), use
+    /// Rust-style struct formatting.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self.to_string_with_options(
-            ToStringOptions::default()
-                .omit_packet_wrapper()
-                .omit_all_formatting(),
-        ) {
-            Ok(s) => write!(f, "{}", s.trim_end()),
-            Err(err) => write!(f, "ERROR ({:#?}): {}", err.error_type, err.debug_message),
+        if f.alternate() {
+            if self.m.is_none() {
+                return write!(f, "ERROR (NoCppToolkit): C++ XMP Toolkit not available");
+            }
+
+            let mut ds = f.debug_struct("XmpMeta");
+            ds.field("@name", &self.name());
+
+            for schema in self.iter(IterOptions::default().immediate_children_only()) {
+                let prefix = XmpMeta::namespace_prefix(&schema.schema_ns)
+                    .unwrap_or("-no prefix-".to_owned());
+                ds.field(
+                    prefix.trim_end_matches(':'),
+                    &PropertyDisplayHelper(self, &schema),
+                );
+            }
+
+            ds.finish()
+        } else {
+            match self.to_string_with_options(
+                ToStringOptions::default()
+                    .omit_packet_wrapper()
+                    .omit_all_formatting(),
+            ) {
+                Ok(s) => write!(f, "{}", s.trim_end()),
+                Err(err) => write!(f, "ERROR ({:#?}): {}", err.error_type, err.debug_message),
+            }
         }
+    }
+}
+
+struct PropertyDisplayHelper<'a>(pub &'a XmpMeta, pub &'a XmpProperty);
+
+impl<'a> fmt::Debug for PropertyDisplayHelper<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        let mut flags: Vec<&'static str> = vec![];
+        let value = &self.1.value;
+
+        if value.is_schema_node() {
+            flags.push("schema");
+        }
+        if value.is_uri() {
+            flags.push("uri");
+        }
+        if value.is_struct() {
+            flags.push("struct");
+        }
+        if value.is_array() {
+            flags.push("array");
+        }
+        if value.is_ordered() {
+            flags.push("ordered");
+        }
+        if value.is_alt_text() {
+            flags.push("alt_text");
+        } else if value.is_alternate() {
+            flags.push("alternate");
+        }
+        if value.has_qualifiers() {
+            flags.push("qualified");
+        }
+        if value.is_qualifier() {
+            flags.push("qualifier");
+        }
+
+        let node_type = flags.join(" ");
+
+        let mut ds = f.debug_struct(&node_type);
+        if value.is_schema_node() {
+            ds.field("@ns", &self.1.schema_ns);
+        }
+
+        if !value.value.is_empty() {
+            ds.field("@value", &value.value);
+        }
+
+        let ns_prefix = XmpMeta::namespace_prefix(&self.1.schema_ns)
+            .unwrap_or_else(|| "-no-prefix-".to_owned());
+
+        let path_prefix = if !value.is_schema_node() {
+            Some(format!("{name}/", name = self.1.name))
+        } else {
+            None
+        };
+
+        if value.is_array() {
+            ds.field("@items", &PropertyListHelper(self.0, self.1));
+        } else {
+            for prop in self.0.iter(
+                IterOptions::default()
+                    .property(&self.1.schema_ns, &self.1.name)
+                    .immediate_children_only(),
+            ) {
+                let name = if let Some(ref path_prefix) = path_prefix {
+                    prop.name.trim_start_matches(path_prefix).to_owned()
+                } else {
+                    prop.name.to_owned()
+                };
+
+                let name = name.trim_start_matches(&ns_prefix).to_owned();
+
+                if prop.value.has_no_flags() && prop.schema_ns == self.1.schema_ns {
+                    ds.field(&name, &prop.value.value);
+                } else {
+                    ds.field(&name, &PropertyDisplayHelper(self.0, &prop));
+                }
+            }
+        }
+
+        ds.finish()
+    }
+}
+
+struct PropertyListHelper<'a>(pub &'a XmpMeta, pub &'a XmpProperty);
+
+impl<'a> fmt::Debug for PropertyListHelper<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        let mut dl = f.debug_list();
+
+        for prop in self.0.iter(
+            IterOptions::default()
+                .property(&self.1.schema_ns, &self.1.name)
+                .immediate_children_only(),
+        ) {
+            if prop.value.has_no_flags() && prop.schema_ns == self.1.schema_ns {
+                dl.entry(&prop.value.value);
+            } else {
+                dl.entry(&PropertyDisplayHelper(self.0, &prop));
+            }
+        }
+
+        dl.finish()
     }
 }
 

@@ -3401,6 +3401,146 @@ mod impl_display {
     }
 }
 
+mod impl_display_alternate {
+    use std::str::FromStr;
+
+    use pretty_assertions::assert_eq;
+
+    use crate::{tests::fixtures::*, XmpMeta};
+
+    #[test]
+    fn simple_case() {
+        let m = XmpMeta::from_str(STRUCT_EXAMPLE).unwrap();
+
+        assert_eq!(
+            r###"XmpMeta {
+    @name: "",
+    xmpRights: schema {
+        @ns: "http://ns.adobe.com/xap/1.0/rights/",
+        Marked: "True",
+    },
+    Iptc4xmpCore: schema {
+        @ns: "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/",
+        CreatorContactInfo: struct {
+            CiAdrPcode: "98110",
+            CiAdrCtry: "US",
+        },
+    },
+}"###,
+            format!("{m:#}"),
+        );
+    }
+
+    #[test]
+    fn purple_square() {
+        let m = XmpMeta::from_str(PURPLE_SQUARE_XMP).unwrap();
+
+        dbg!(&m);
+
+        assert_eq!(
+            r###"XmpMeta {
+    @name: "",
+    dc: schema {
+        @ns: "http://purl.org/dc/elements/1.1/",
+        format: "application/vnd.adobe.photoshop",
+        description: array ordered alt_text {
+            @items: [
+                qualified {
+                    @value: "a test file (öäüßÖÄÜ€中文)",
+                    ?xml:lang: qualifier {
+                        @value: "x-default",
+                    },
+                },
+            ],
+        },
+        title: array ordered alt_text {
+            @items: [
+                qualified {
+                    @value: "Purple Square",
+                    ?xml:lang: qualifier {
+                        @value: "x-default",
+                    },
+                },
+            ],
+        },
+        creator: array ordered {
+            @items: [
+                "Llywelyn",
+            ],
+        },
+        subject: array {
+            @items: [
+                "purple",
+                "square",
+                "Stefan",
+                "XMP",
+                "XMPFiles",
+                "test",
+            ],
+        },
+    },
+    xmp: schema {
+        @ns: "http://ns.adobe.com/xap/1.0/",
+        CreatorTool: "Adobe Photoshop CS2 Windows",
+        CreateDate: "2006-04-25T15:32:01+02:00",
+        ModifyDate: "2006-04-27T15:38:36.655+02:00",
+        MetadataDate: "2006-04-26T16:47:10+02:00",
+    },
+    xmpMM: schema {
+        @ns: "http://ns.adobe.com/xap/1.0/mm/",
+        DocumentID: "uuid:FE607D9B5FD4DA118B7787757E22306B",
+        InstanceID: "uuid:BF664E7B33D5DA119129F691B53239AD",
+    },
+    tiff: schema {
+        @ns: "http://ns.adobe.com/tiff/1.0/",
+        Orientation: "1",
+        XResolution: "720000/10000",
+        YResolution: "720000/10000",
+        ResolutionUnit: "2",
+        NativeDigest: "256,257,258,259,262,274,277,284,530,531,282,283,296,301,318,319,529,532,306,270,271,272,305,315,33432;6F0EC2A1D6ADFA4DF4BB00D7C83AFAC0",
+    },
+    exif: schema {
+        @ns: "http://ns.adobe.com/exif/1.0/",
+        PixelXDimension: "200",
+        PixelYDimension: "200",
+        ColorSpace: "-1",
+        NativeDigest: "36864,40960,40961,37121,37122,40962,40963,37510,40964,36867,36868,33434,33437,34850,34852,34855,34856,37377,37378,37379,37380,37381,37382,37383,37384,37385,37386,37396,41483,41484,41486,41487,41488,41492,41493,41495,41728,41729,41730,41985,41986,41987,41988,41989,41990,41991,41992,41993,41994,41995,41996,42016,0,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20,22,23,24,25,26,27,28,30;D891A8B493E755131A3267739F6277DB",
+    },
+    photoshop: schema {
+        @ns: "http://ns.adobe.com/photoshop/1.0/",
+        ColorMode: "3",
+        ICCProfile: "Dell 1905FP Color Profile",
+        CaptionWriter: "Stefan",
+        History: "",
+    },
+    pdf: schema {
+        @ns: "http://ns.adobe.com/pdf/1.3/",
+        Keywords: "\"XMP  metadata  schema XML RDF\"",
+        Copyright: "2005 Adobe Systems Inc.",
+    },
+    pdfx: schema {
+        @ns: "http://ns.adobe.com/pdfx/1.3/",
+        Copyright: "2005 Adobe Systems Inc.",
+    },
+    xmpRights: schema {
+        @ns: "http://ns.adobe.com/xap/1.0/rights/",
+        Marked: "False",
+    },
+}"###,
+            format!("{m:#}")
+        );
+    }
+
+    #[test]
+    fn init_fail() {
+        let m = XmpMeta::new_fail();
+        assert_eq!(
+            format!("{m:#}"),
+            "ERROR (NoCppToolkit): C++ XMP Toolkit not available"
+        );
+    }
+}
+
 mod impl_send {
     use std::str::FromStr;
 
