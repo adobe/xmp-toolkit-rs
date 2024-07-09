@@ -186,6 +186,10 @@ fn main() {
     }
 
     println!("cargo:rustc-link-search=native={}", out_dir.display());
+    println!(
+        "cargo:include={}/external/xmp_toolkit/public/include",
+        std::env::var("CARGO_MANIFEST_DIR").expect("Failed to get CARGO_MANIFEST_DIR")
+    );
 
     xmp_config
         .cpp(true)
