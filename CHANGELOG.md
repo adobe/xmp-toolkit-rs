@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.8.1
+_09 July 2024_
+
+* Restore the `cargo:include` directive ([#229](https://github.com/adobe/xmp-toolkit-rs/pull/229))
+
 ## 1.8.0
 _07 July 2024_
 
