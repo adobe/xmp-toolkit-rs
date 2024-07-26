@@ -1,4 +1,4 @@
-// Copyright 2022 Adobe. All rights reserved.
+// Copyright 2024 Adobe. All rights reserved.
 // This file is licensed to you under the Apache License,
 // Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
 // or the MIT license (http://opensource.org/licenses/MIT),
@@ -11,23 +11,6 @@
 // specific language governing permissions and limitations under
 // each license.
 
-// Tests are grouped under this module so as to avoid
-// having the test code itself included in coverage numbers.
+// Test cases for specific GitHub issues will be added here.
 
-#![allow(clippy::expect_used)]
-#![allow(clippy::panic)]
-#![allow(clippy::unwrap_used)]
-
-mod fixtures;
-mod issues;
-mod xmp_core_coverage;
-mod xmp_date_time;
-#[cfg(feature = "chrono")]
-mod xmp_date_time_chrono;
-mod xmp_error;
-mod xmp_error_type;
-mod xmp_file;
-mod xmp_gps;
-mod xmp_iterator;
-mod xmp_meta;
-mod xmp_value;
+mod issue_230;
