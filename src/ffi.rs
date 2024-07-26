@@ -148,7 +148,7 @@ extern "C" {
         flags: u32,
     );
 
-    pub(crate) fn CXmpFileClose(file: *mut CXmpFile);
+    pub(crate) fn CXmpFileClose(file: *mut CXmpFile, out_error: *mut CXmpError);
     pub(crate) fn CXmpFileGetXmp(file: *mut CXmpFile) -> *mut CXmpMeta;
 
     pub(crate) fn CXmpFilePutXmp(
