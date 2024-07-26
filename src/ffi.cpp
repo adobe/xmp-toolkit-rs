@@ -221,12 +221,21 @@ extern "C" {
         #endif
     }
 
-    void CXmpFileClose(CXmpFile* f) {
+    void CXmpFileClose(CXmpFile* f,
+                       CXmpError* outError) {
         #ifndef NOOP_FFI
             // TO DO: Bridge closeFlags parameter.
             // For my purposes at the moment,
             // default value (0) always suffices.
-            f->f.CloseFile();
+            try {
+                f->f.CloseFile();
+            }
+            catch (XMP_Error& e) {
+                copyErrorForResult(e, outError);
+            }
+            catch (...) {
+                signalUnknownError(outError);
+            }
         #endif
     }
 

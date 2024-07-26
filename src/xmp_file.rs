@@ -170,8 +170,41 @@ impl XmpFile {
     /// [`XmpFile::close`] is called. The disk file is only updated once,
     /// when [`XmpFile::close`] is called, regardless of how many calls are
     /// made to [`XmpFile::put_xmp`].
+    ///
+    /// IMPORTANT: The original design of this API did not include any
+    /// error reporting, so this function ignores any error that may be
+    /// reported by the C++ XMP Toolkit. Use [`XmpFile::try_close`] to
+    /// receive any error reporting.
     pub fn close(&mut self) {
-        unsafe { ffi::CXmpFileClose(self.f) };
+        let _ = self.try_close();
+        // Ignore error for backward compatibility.
+        // If you want to see the error, use try_close().
+    }
+
+    /// Explicitly closes an opened file.
+    ///
+    /// Performs any necessary output to the file and closes it. Files that are
+    /// opened for update are written to only when closing.
+    ///
+    /// If the file is opened for read-only access (passing
+    /// [`OpenFileOptions::for_read`]), the disk file is closed
+    /// immediately after reading the data from it; the `XMPFile`
+    /// struct, however, remains in the open state. You must call
+    /// [`XmpFile::close`] when finished using it. Other methods, such as
+    /// [`XmpFile::xmp`], can only be used between the
+    /// [`XmpFile::open_file`] and [`XmpFile::close`] calls. The `XMPFile`
+    /// destructor does not call [`XmpFile::close`]; if the struct is
+    /// dropped without closing, any pending updates are lost.
+    ///
+    /// If the file is opened for update (passing
+    /// [`OpenFileOptions::for_update`]), the disk file remains open until
+    /// [`XmpFile::close`] is called. The disk file is only updated once,
+    /// when [`XmpFile::close`] is called, regardless of how many calls are
+    /// made to [`XmpFile::put_xmp`].
+    pub fn try_close(&mut self) -> XmpResult<()> {
+        let mut err = ffi::CXmpError::default();
+        unsafe { ffi::CXmpFileClose(self.f, &mut err) };
+        XmpError::raise_from_c(&err)
     }
 }
 
