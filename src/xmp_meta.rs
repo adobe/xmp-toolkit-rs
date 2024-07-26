@@ -998,11 +998,11 @@ impl XmpMeta {
 
     /// Creates or sets the value of an item within an array.
     ///
-    /// Items are accessed by an integer index, where the first item has index
-    /// 1. This function creates the item if necessary, but the array itself
-    /// must already exist. Use [`XmpMeta::append_array_item`] to create
-    /// arrays. A new item is automatically appended if the index is the array
-    /// size plus 1.
+    /// Items are accessed by an integer index, where the first item has
+    /// index 1. This function creates the item if necessary, but the array
+    /// itself must already exist. Use [`XmpMeta::append_array_item`] to
+    /// create arrays. A new item is automatically appended if the index is
+    /// the array size plus 1.
     ///
     /// Use `XmpMeta::compose_array_item_path` to create a complex path.
     ///
