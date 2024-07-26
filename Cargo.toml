@@ -21,6 +21,8 @@ exclude = [
     "external/xmp_toolkit/third-party/zlib/*.h",
     "external/xmp_toolkit/third-party/expat/lib",
     "external/xmp_toolkit/XMPFilesPlugins/PDF_Handler",
+    "tests/fixtures/image2.jpg",
+    # ^^ maybe exclude entire tests tree?
 ]
 
 [package.metadata.docs.rs]
