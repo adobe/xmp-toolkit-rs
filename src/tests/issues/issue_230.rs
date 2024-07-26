@@ -102,7 +102,7 @@ fn open_file(path: impl AsRef<std::path::Path>) -> (XmpFile, XmpMeta) {
 
     xmp_file
         .open_file(
-            &path,
+            path,
             OpenFileOptions::default()
                 .only_xmp()
                 .for_update()
@@ -110,7 +110,7 @@ fn open_file(path: impl AsRef<std::path::Path>) -> (XmpFile, XmpMeta) {
         )
         .or_else(|_| {
             xmp_file.open_file(
-                &path,
+                path,
                 OpenFileOptions::default()
                     .only_xmp()
                     .for_update()
