@@ -170,7 +170,7 @@ impl XmpFile {
     /// [`XmpFile::close`] is called. The disk file is only updated once,
     /// when [`XmpFile::close`] is called, regardless of how many calls are
     /// made to [`XmpFile::put_xmp`].
-    /// 
+    ///
     /// IMPORTANT: The original design of this API did not include any
     /// error reporting, so this function ignores any error that may be
     /// reported by the C++ XMP Toolkit. Use [`XmpFile::try_close`] to

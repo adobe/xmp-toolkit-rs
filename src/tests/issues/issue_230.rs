@@ -28,7 +28,7 @@ use crate::{
 };
 
 #[test(flavor = "multi_thread")]
-async fn main() {
+async fn original_bug() {
     let tempdir: tempfile::TempDir = tempdir().unwrap();
     let image2 = temp_copy_of_fixture(tempdir.path(), "image2.jpg");
 
@@ -47,6 +47,40 @@ async fn main() {
 
             sleep(std::time::Duration::from_secs(3));
             write_to_file(&mut xmp_file, &meta);
+        });
+
+        handles.push(handle);
+    }
+
+    futures::stream::iter(handles)
+        .buffer_unordered(4)
+        .collect::<Vec<_>>()
+        .await
+        .into_iter()
+        .collect::<Result<Vec<_>, _>>()
+        .unwrap();
+}
+
+#[test(flavor = "multi_thread")]
+async fn new_api_try_close() {
+    let tempdir: tempfile::TempDir = tempdir().unwrap();
+    let image2 = temp_copy_of_fixture(tempdir.path(), "image2.jpg");
+
+    let mut handles = Vec::new();
+
+    for _ in 0..2 {
+        let image2 = image2.clone();
+
+        let handle = spawn_blocking(move || {
+            let flip = thread_rng().gen_range(1..=8);
+
+            let (mut xmp_file, mut meta) = open_file(&image2);
+
+            sleep(std::time::Duration::from_secs(3));
+            update(&mut meta, flip);
+
+            sleep(std::time::Duration::from_secs(3));
+            write_to_file_try_close(&mut xmp_file, &meta);
         });
 
         handles.push(handle);
@@ -98,4 +132,13 @@ fn update(meta: &mut XmpMeta, flip: u8) {
 fn write_to_file(xmp_file: &mut XmpFile, meta: &XmpMeta) {
     xmp_file.put_xmp(meta).unwrap();
     xmp_file.close();
+}
+
+fn write_to_file_try_close(xmp_file: &mut XmpFile, meta: &XmpMeta) {
+    xmp_file.put_xmp(meta).unwrap();
+    let _ = xmp_file.try_close();
+    // This is a race condition: We can't predict which thread
+    // will encounter the error on close, so we ignore it.
+    // The primary concern here is that we no longer abort the process when that
+    // error is encountered.
 }
