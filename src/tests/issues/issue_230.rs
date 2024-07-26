@@ -14,6 +14,10 @@
 // Test case for https://github.com/adobe/xmp-toolkit-rs/issues/230:
 // Updating the XMP data of same image concurrently aborts the entire process.
 
+#![cfg(not(windows))]
+// Windows version of C++ XMP Toolkit reports errors with simultaneous file
+// access, so this test is disabled on Windows.
+
 use std::thread::sleep;
 
 use futures::stream::StreamExt;
