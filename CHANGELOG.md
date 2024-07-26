@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.9.0
+_26 July 2024_
+
+* (MINOR) Add new API function `XmpFile::try_close` which will report any error encountered when closing a file ([#232](https://github.com/adobe/xmp-toolkit-rs/pull/232))
+* Fix docs to avoid inadvertent list syntax ([#231](https://github.com/adobe/xmp-toolkit-rs/pull/231))
+
 ## 1.8.1
 _09 July 2024_
 
