@@ -14,3 +14,4 @@
 // Test cases for specific GitHub issues will be added here.
 
 mod issue_230;
+mod issue_234;
