@@ -15,7 +15,6 @@ _30 August 2024_
 * Start using [release-plz](https://release-plz.ieni.dev) to manage releases
 
 ### Other
-* Tweak changelog body format
 * Update EmbarkStudios/cargo-deny-action action to v2 ([#236](https://github.com/adobe/xmp-toolkit-rs/pull/236))
 
 ## 1.9.0
