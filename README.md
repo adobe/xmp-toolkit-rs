@@ -54,15 +54,6 @@ This API is considered to to be stable; in other words, no further breaking chan
 
 Minor, non-breaking additions to the API surface may be added as the few remaining APIs in the C++ `XMP_Meta`, `XMP_Files`, and `TXMPUtils` interfaces are exposed. Such changes will trigger minor (1.x.0) version increments when they happen.
 
-### Usage
-
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-xmp_toolkit = "1.9.0"
-```
-
 ## License
 
 The `xmp_toolkit` crate is distributed under the terms of both the MIT license and the Apache License (Version 2.0).
