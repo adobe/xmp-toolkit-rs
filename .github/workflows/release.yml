@@ -31,4 +31,4 @@ jobs:
         uses: MarcoIeni/release-plz-action@v0.5
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_SECRET }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.NONSENSE_TOKEN }}
