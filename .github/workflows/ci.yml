@@ -3,6 +3,10 @@ name: CI
 on:  
   workflow_dispatch:
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   push:
     branches: main
   schedule:
