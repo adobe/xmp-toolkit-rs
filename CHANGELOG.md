@@ -15,15 +15,6 @@ _30 August 2024_
 * Start using [release-plz](https://release-plz.ieni.dev) to manage releases
 
 ### Other
-* Revert "Prevent publishing by using a nonsense token"
-* Prevent publishing by using a nonsense token
-* Populate git submodules before running release-plz
-* Adjust release-plz config to use existing crates.io token
-* Use a PAT to grant access to release-plz for triggering further actions
-* Trigger CI on PR updates
-* Remove version bump check. Should now be covered by release-plz
-* Remove Cargo.toml call-out
-* Tweak changelog body format
 * Update EmbarkStudios/cargo-deny-action action to v2 ([#236](https://github.com/adobe/xmp-toolkit-rs/pull/236))
 
 ## 1.9.0
