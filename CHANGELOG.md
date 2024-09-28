@@ -8,6 +8,16 @@ Since version 1.9.1, the format of this changelog is based on [Keep a Changelog]
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## [1.9.2](https://github.com/adobe/xmp-toolkit-rs/compare/v1.9.1...v1.9.2)
+_28 September 2024_
+
+### Other
+* Update exception pattern for Dependabot, not Renovate
+* Disable Renovate
+* Add exception for Dependabot update PR title pattern
+* Introduce `update` commit type
+* Check PR title for Conventional Commits syntax
+
 ## [1.9.1](https://github.com/adobe/xmp-toolkit-rs/compare/v1.9.0...v1.9.1)
 _30 August 2024_
 
