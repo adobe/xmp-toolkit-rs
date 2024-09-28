@@ -3,7 +3,7 @@ body = """
 
 ## [{{ version | trim_start_matches(pat="v") }}]{%- if release_link -%}({{ release_link }}){% endif %}
 _{{ timestamp | date(format="%d %B %Y") }}_
-{%- for group, commits in commits | group_by(attribute="group") %}
+{% for group, commits in commits | group_by(attribute="group") %}
 {% if group != "chore" -%}
 ### {{ group | upper_first }}
 
@@ -15,7 +15,8 @@ _{{ timestamp | date(format="%d %B %Y") }}_
 {% endif -%}
 {% endfor -%}
 {% endif -%}
-{% endfor %}
+{% endfor -%}
+
 """
 
 commit_parsers = [
