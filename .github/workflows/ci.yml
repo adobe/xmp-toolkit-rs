@@ -45,9 +45,9 @@ jobs:
       - name: Upload code coverage results
         uses: codecov/codecov-action@v4.5.0
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
 
   tests-cross:
     name: Unit tests
