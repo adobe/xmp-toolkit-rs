@@ -5,11 +5,15 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    commit-message:
+      prefix: "update"
 
   - package-ecosystem: "gitsubmodule"
     directory: "external"
     schedule:
       interval: "daily"
+    commit-message:
+      prefix: "feat"
     # This may become too noisy if we start picking up untagged commits.
     # Watch https://github.com/dependabot/dependabot-core/issues/1639.
 
@@ -17,3 +21,5 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "chore"
