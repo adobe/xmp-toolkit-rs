@@ -35,7 +35,7 @@ crt_static = []
 [dependencies]
 chrono = { version = "0.4.24", optional = true }
 num_enum = "0.7.0"
-thiserror = "1.0"
+thiserror = "2.0"
 
 [build-dependencies]
 cc = { version = "1.0.101", features = ["parallel"] }
