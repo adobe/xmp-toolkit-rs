@@ -6,6 +6,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 Since version 1.9.1, the format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.9.2](https://github.com/adobe/xmp-toolkit-rs/compare/v1.9.1...v1.9.2)
+_12 December 2024_
+
+
+### Other
+
+* Update thiserror requirement from 1.0 to 2.0 (#247)
+
 ## [1.9.1](https://github.com/adobe/xmp-toolkit-rs/compare/v1.9.0...v1.9.1)
 _30 August 2024_
 
