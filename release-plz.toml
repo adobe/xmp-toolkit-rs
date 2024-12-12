@@ -33,4 +33,4 @@ commit_parsers = [
 dependencies_update = true
 features_always_increment_minor = true
 release_always = false
-release_commits = "^(feat|fix)[(:]"
+release_commits = "^(feat|fix|update)[(:]"
