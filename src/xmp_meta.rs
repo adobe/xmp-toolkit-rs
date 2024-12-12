@@ -2131,7 +2131,7 @@ impl fmt::Display for XmpMeta {
 
 struct PropertyDisplayHelper<'a>(pub &'a XmpMeta, pub &'a XmpProperty);
 
-impl<'a> fmt::Debug for PropertyDisplayHelper<'a> {
+impl fmt::Debug for PropertyDisplayHelper<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         let mut flags: Vec<&'static str> = vec![];
         let value = &self.1.value;
@@ -2213,7 +2213,7 @@ impl<'a> fmt::Debug for PropertyDisplayHelper<'a> {
 
 struct PropertyListHelper<'a>(pub &'a XmpMeta, pub &'a XmpProperty);
 
-impl<'a> fmt::Debug for PropertyListHelper<'a> {
+impl fmt::Debug for PropertyListHelper<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         let mut dl = f.debug_list();
 
@@ -2286,7 +2286,7 @@ pub struct ArrayProperty<'a> {
     index: i32,
 }
 
-impl<'a> Iterator for ArrayProperty<'a> {
+impl Iterator for ArrayProperty<'_> {
     type Item = XmpValue<String>;
 
     fn next(&mut self) -> Option<Self::Item> {

@@ -76,7 +76,7 @@ impl<'a> XmpIterator<'a> {
     }
 }
 
-impl<'a> Drop for XmpIterator<'a> {
+impl Drop for XmpIterator<'_> {
     fn drop(&mut self) {
         unsafe {
             ffi::CXmpIteratorDrop(self.i);
@@ -84,7 +84,7 @@ impl<'a> Drop for XmpIterator<'a> {
     }
 }
 
-impl<'a> Iterator for XmpIterator<'a> {
+impl Iterator for XmpIterator<'_> {
     type Item = XmpProperty;
 
     fn next(&mut self) -> Option<Self::Item> {
