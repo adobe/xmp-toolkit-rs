@@ -21,7 +21,7 @@
 use std::thread::sleep;
 
 use futures::stream::StreamExt;
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use tempfile::tempdir;
 use tokio::task::spawn_blocking;
 use tokio_macros::test;
@@ -42,7 +42,7 @@ async fn original_bug() {
         let image2 = image2.clone();
 
         let handle = spawn_blocking(move || {
-            let flip = thread_rng().gen_range(1..=8);
+            let flip = rng().random_range(1..=8);
 
             let (mut xmp_file, mut meta) = open_file(&image2);
 
@@ -76,7 +76,7 @@ async fn new_api_try_close() {
         let image2 = image2.clone();
 
         let handle = spawn_blocking(move || {
-            let flip = thread_rng().gen_range(1..=8);
+            let flip = rng().random_range(1..=8);
 
             let (mut xmp_file, mut meta) = open_file(&image2);
 
