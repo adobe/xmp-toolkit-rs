@@ -13,7 +13,6 @@ _30 April 2025_
 
 * Bump MSRV to 1.81.0 ([#261](https://github.com/adobe/xmp-toolkit-rs/pull/261))
 
-
 ### Fixed
 
 * Omit redefinition of fdopen on macos ([#260](https://github.com/adobe/xmp-toolkit-rs/pull/260))
@@ -24,7 +23,6 @@ _30 April 2025_
 
 ## [1.9.2](https://github.com/adobe/xmp-toolkit-rs/compare/v1.9.1...v1.9.2)
 _12 December 2024_
-
 
 ### Other
 
