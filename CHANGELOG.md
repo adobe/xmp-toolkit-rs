@@ -6,9 +6,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 Since version 1.9.1, the format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.10.0](https://github.com/adobe/xmp-toolkit-rs/compare/v1.9.2...v1.10.0)
+_30 April 2025_
+
+### Added
+
+* Bump MSRV to 1.81.0 ([#261](https://github.com/adobe/xmp-toolkit-rs/pull/261))
+
+### Fixed
+
+* Omit redefinition of fdopen on macos ([#260](https://github.com/adobe/xmp-toolkit-rs/pull/260))
+
+### Other
+
+* Update rand requirement from 0.8.5 to 0.9.1 ([#257](https://github.com/adobe/xmp-toolkit-rs/pull/257))
+
 ## [1.9.2](https://github.com/adobe/xmp-toolkit-rs/compare/v1.9.1...v1.9.2)
 _12 December 2024_
-
 
 ### Other
 
