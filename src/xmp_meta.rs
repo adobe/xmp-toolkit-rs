@@ -430,7 +430,7 @@ impl XmpMeta {
     ///
     /// * `namespace` and `path`: See [Accessing
     ///   properties](#accessing-properties).
-    pub fn property_array(&self, namespace: &str, path: &str) -> ArrayProperty {
+    pub fn property_array(&self, namespace: &str, path: &str) -> ArrayProperty<'_> {
         ArrayProperty {
             meta: self,
             ns: CString::new(namespace).unwrap_or_default(),
