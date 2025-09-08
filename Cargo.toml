@@ -49,3 +49,7 @@ rand = "0.9.1"
 tempfile = "3.2"
 tokio = { version = "1.39", features = ["full"] }
 tokio-macros = "2.4"
+
+# Force windows-core to use a minimum version of 0.62.0
+[patch.crates-io]
+windows-core = "0.62.0"
