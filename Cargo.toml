@@ -33,13 +33,9 @@ chrono = ["dep:chrono"]
 crt_static = []
 
 [dependencies]
-chrono = { version = "0.4.42", optional = true }
+chrono = { version = "0.4.42", default-features = false, optional = true }
 num_enum = "0.7.0"
 thiserror = "2.0"
-# Override windows-core to ensure minimum version 0.62.0
-# to avoid duplicate version warning. (Note: We don't use
-# windows-core directly.)
-windows-core = "0.62.0"
 
 [build-dependencies]
 cc = { version = "1.0.101", features = ["parallel"] }
