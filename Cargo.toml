@@ -10,7 +10,7 @@ authors = ["Eric Scouten <scouten@adobe.com>"]
 keywords = ["xmp", "metadata"]
 categories = ["api-bindings"]
 edition = "2021"
-rust-version = "1.81.0"
+rust-version = "1.82.0"
 links = "xmp_toolkit"
 exclude = [
     "external/libexpat/testdata",
