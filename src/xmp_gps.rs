@@ -20,6 +20,7 @@
 /// Will return `None` if the value can not be parsed.
 ///
 /// # Example
+///
 /// ```
 /// # use xmp_toolkit::xmp_gps;
 /// assert_eq!(xmp_gps::exif_latitude_to_decimal("47,0N"), Some(47.0));
