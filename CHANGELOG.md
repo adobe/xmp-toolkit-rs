@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [1.11.0](https://github.com/adobe/xmp-toolkit-rs/compare/v1.10.0...v1.11.0)
+_08 September 2025_
+
+### Added
+
+* Update to 2025.03 C++ XMP Toolkit ([#269](https://github.com/adobe/xmp-toolkit-rs/pull/269))
+* Bump MSRV to 1.82.0 ([#272](https://github.com/adobe/xmp-toolkit-rs/pull/272))
+
+
+### Fixed
+
+* Update chrono dep to latest version ([#273](https://github.com/adobe/xmp-toolkit-rs/pull/273))
+* Add explicit lifetime flagged by newer Rust compiler ([#270](https://github.com/adobe/xmp-toolkit-rs/pull/270))
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html), except that – as is typical in the Rust community – the minimum supported Rust version may be increased without a major version increase.
 
 Since version 1.9.1, the format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
