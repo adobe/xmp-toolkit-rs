@@ -36,6 +36,10 @@ crt_static = []
 chrono = { version = "0.4.42", optional = true }
 num_enum = "0.7.0"
 thiserror = "2.0"
+# Override windows-core to ensure minimum version 0.62.0
+# to avoid duplicate version warning. (Note: We don't use
+# windows-core directly.)
+windows-core = "0.62.0"
 
 [build-dependencies]
 cc = { version = "1.0.101", features = ["parallel"] }
@@ -49,7 +53,3 @@ rand = "0.9.1"
 tempfile = "3.2"
 tokio = { version = "1.39", features = ["full"] }
 tokio-macros = "2.4"
-
-# Force windows-core to use a minimum version of 0.62.0
-[patch.crates-io]
-windows-core = "0.62.0"
