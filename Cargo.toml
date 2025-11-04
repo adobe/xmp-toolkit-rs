@@ -31,6 +31,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 [features]
 chrono = ["dep:chrono"]
 crt_static = []
+stl_static = []
 
 [dependencies]
 chrono = { version = "0.4.42", default-features = false, optional = true }
