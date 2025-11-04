@@ -82,6 +82,47 @@ jobs:
       - name: Run unit tests (cross build)
         run: cross test --all-targets --all-features --target ${{ matrix.target }}
 
+  tests-ios:
+    name: Unit tests on iOS simulator
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.88.0
+          targets: aarch64-apple-ios-sim
+
+      - name: Install cargo-dinghy
+        run: |
+          VERSION=0.8.1
+          URL="https://github.com/sonos/dinghy/releases/download/${VERSION}/cargo-dinghy-macos-${VERSION}.tgz"
+          wget -O - $URL | tar -xz --strip-components=1 -C ~/.cargo/bin
+
+      - name: Check cargo-dinghy version.
+        run: cargo dinghy --version
+
+      - name: Setup iOS Simulator
+        # Use the first installed iOS runtime and the first (i.e. oldest) supported iPhone device.
+        run: |
+          RUNTIME=$(xcrun simctl list runtimes --json | jq '.runtimes | map(select(.name | contains("iOS"))) | .[0]')
+          RUNTIME_ID=$(echo $RUNTIME | jq -r '.identifier')
+          echo "Using runtime:" $RUNTIME_ID
+          DEVICE_ID=$(echo $RUNTIME | jq -r '.supportedDeviceTypes | map(select(.productFamily == "iPhone")) | .[0].identifier')
+          echo "Using device:" $DEVICE_ID
+          SIM_ID=$(xcrun simctl create Test-iPhone $DEVICE_ID $RUNTIME_ID)
+          echo "Created simulator:" $SIM_ID
+          xcrun simctl boot $SIM_ID
+          echo "device=$SIM_ID" >> $GITHUB_ENV
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run unit tests (cross build)
+        run: cargo dinghy -p auto-ios-aarch64-sim -d ${{ env.device }} test --all-targets --all-features
+
   test-default-disabled:
     name: Unit tests with default features disabled
     runs-on: ${{ matrix.os }}
