@@ -56,7 +56,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [aarch64-unknown-linux-gnu]
+        target: 
+          - aarch64-unknown-linux-gnu
+          - aarch64-linux-android
         rust_version: [stable, 1.88.0]
 
     steps:
@@ -70,7 +72,9 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Install cross-compilation toolset
-        run: cargo install cross
+        # run: cargo install cross
+        # See: https://github.com/cross-rs/cross/issues/1222
+        run: cargo install cross --git https://github.com/cross-rs/cross
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
