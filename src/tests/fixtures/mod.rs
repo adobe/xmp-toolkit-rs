@@ -20,7 +20,7 @@ pub(crate) fn fixture_path(name: &str) -> String {
 
     // On other platforms, use CARGO_MANIFEST_DIR as root path.
     #[cfg(not(target_os = "ios"))]
-    let root_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+    let root_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
 
     let mut path = root_dir;
     path.push("src/tests/fixtures");
