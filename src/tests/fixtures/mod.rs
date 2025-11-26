@@ -11,7 +11,10 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{fs, path::{Path, PathBuf}};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 pub(crate) fn fixture_path(name: &str) -> String {
     // On iOS, use dinghy_test to locate project root path.
