@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Since version 1.9.1, the format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.12.0](https://github.com/adobe/xmp-toolkit-rs/compare/v1.11.0...v1.12.0)
+_28 November 2025_
+
+### Added
+
+* Add support for iOS platform ([#278](https://github.com/adobe/xmp-toolkit-rs/pull/278))
+* Update to latest (unreleased) C++ XMP Toolkit ([#281](https://github.com/adobe/xmp-toolkit-rs/pull/281))
+* Bump MSRV to 1.88.0 ([#279](https://github.com/adobe/xmp-toolkit-rs/pull/279))
+
+
 ## [1.11.0](https://github.com/adobe/xmp-toolkit-rs/compare/v1.10.0...v1.11.0)
 _08 September 2025_
 
