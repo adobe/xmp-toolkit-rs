@@ -11,15 +11,18 @@
 // specific language governing permissions and limitations under
 // each license.
 
-use std::{
-    env, fs,
-    path::{Path, PathBuf},
-};
+use std::{fs, path::Path};
 
 pub(crate) fn fixture_path(name: &str) -> String {
-    let root_dir = &env::var("CARGO_MANIFEST_DIR").unwrap();
+    // On iOS, use dinghy_test to locate project root path.
+    #[cfg(target_os = "ios")]
+    let root_dir = dinghy_test::test_project_path();
 
-    let mut path = PathBuf::from(root_dir);
+    // On other platforms, use CARGO_MANIFEST_DIR as root path.
+    #[cfg(not(target_os = "ios"))]
+    let root_dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+
+    let mut path = root_dir;
     path.push("src/tests/fixtures");
     path.push(name);
 
