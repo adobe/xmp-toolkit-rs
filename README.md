@@ -42,6 +42,8 @@ The toolkit has been tested on the following operating systems:
 
 * Ubuntu Linux on x86 and ARM v8 (aarch64)
 
+* iOS
+
 ## C++ XMP Toolkit
 
 This crate incorporates the March 2025 version of the C++ [Adobe XMP Toolkit SDK](https://github.com/adobe/XMP-Toolkit-SDK/).
