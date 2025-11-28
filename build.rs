@@ -160,6 +160,130 @@ fn main() {
                 .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp");
         }
 
+        "android" => {
+            expat_config
+                .define("XML_DEV_URANDOM", None)
+                .include("external/xmp_toolkit/XMPCore/resource/android")
+                .include("external/xmp_toolkit/XMPFiles/resource/android");
+
+            xmp_config
+                .define("ANDROID_ENV", "1")
+                .define("XMP_AndroidBuild", "1")
+                .define("_LARGEFILE64_SOURCE", None)
+                .define("XML_DEV_URANDOM", None)
+                .cpp_link_stdlib(if cfg!(feature = "stl_static") {
+                    "c++_static"
+                } else {
+                    "c++_shared"
+                })
+                .flag("-Wno-bitwise-instead-of-logical")
+                .flag("-Wno-deprecated-declarations")
+                .flag("-Wno-deprecated-register")
+                .flag("-Wno-unused-but-set-variable")
+                .flag("-Wno-int-to-void-pointer-cast")
+                .flag("-Wno-int-in-bool-context")
+                .flag("-Wno-macro-redefined")
+                .flag("-Wno-null-conversion")
+                .flag("-Wno-reorder")
+                .flag("-Wno-implicit")
+                .flag("-Wno-pragma-pack")
+                .flag("-frtti")
+                .flag("-fexceptions")
+                .include("external/xmp_toolkit/XMPCore/resource/android")
+                .include("external/xmp_toolkit/XMPFiles/resource/android")
+                .file("external/xmp_toolkit/source/Host_IO-POSIX.cpp")
+                .file("external/xmp_toolkit/XMPFiles/source/PluginHandler/OS_Utils_Android.cpp");
+
+            // Add Android ABI-specific defines and flags
+            let target_arch = env::var("CARGO_CFG_TARGET_ARCH").expect("CARGO_CFG_TARGET_ARCH not defined");
+            if target_arch == "aarch64" {
+                xmp_config.define("XMP_ANDROID_ARM64", "1");
+            } else if target_arch == "arm" {
+                xmp_config.define("XMP_ANDROID_ARM", "1");
+                // Only add ARM-specific flags for 32-bit ARM
+                xmp_config.flag("-mfpu=vfpv3-d16");
+                xmp_config.flag("-Wno-format");
+                xmp_config.flag("-Wno-sign-compare");
+            }
+
+            // Add Android-specific linking flags
+            println!("cargo:rustc-link-arg=-Wl,--whole-archive");
+            println!("cargo:rustc-link-arg=-Wl,--no-whole-archive");
+
+            // Link C++ ABI library for exception handling symbols (__cxa_throw, __cxa_begin_catch, etc.)
+            // We need to add the NDK sysroot library search path
+            let arch_lib_dir = if target_arch == "aarch64" {
+                "aarch64-linux-android"
+            } else {
+                "arm-linux-androideabi"
+            };
+
+            let ndk_lib_path = env::var("CXX_aarch64_linux_android")
+                .or_else(|_| env::var("CXX_armv7_linux_androideabi"))
+                .or_else(|_| env::var("CXX"))
+                .ok()
+                .and_then(|cxx| {
+                    // CXX path like: .../toolchains/llvm/prebuilt/<host>/bin/aarch64-linux-android21-clang++
+                    // Convert to: .../toolchains/llvm/prebuilt/<host>/sysroot/usr/lib/<arch>/
+                    cxx.find("/bin/").map(|pos| {
+                        format!("{}/sysroot/usr/lib/{}", &cxx[..pos], arch_lib_dir)
+                    })
+                })
+                .or_else(|| {
+                    // Fallback: try to find NDK from environment variables
+                    // First try NDK-specific variables (direct NDK path)
+                    let ndk_root = env::var("ANDROID_NDK")
+                        .or_else(|_| env::var("ANDROID_NDK_HOME"))
+                        .or_else(|_| env::var("ANDROID_NDK_ROOT"))
+                        .ok()
+                        .or_else(|| {
+                            // ANDROID_HOME/ANDROID_ROOT point to SDK, NDK is under ndk/<version>
+                            env::var("ANDROID_HOME")
+                                .or_else(|_| env::var("ANDROID_ROOT"))
+                                .ok()
+                                .and_then(|sdk_root| {
+                                    let ndk_dir = PathBuf::from(&sdk_root).join("ndk");
+                                    // Find the first available NDK version
+                                    if ndk_dir.is_dir() {
+                                        fs::read_dir(&ndk_dir)
+                                            .ok()
+                                            .and_then(|mut entries| {
+                                                entries.next().and_then(|e| {
+                                                    e.ok().map(|entry| {
+                                                        entry.path().to_string_lossy().into_owned()
+                                                    })
+                                                })
+                                            })
+                                    } else {
+                                        None
+                                    }
+                                })
+                        });
+
+                    ndk_root.map(|ndk| {
+                        // Detect host platform
+                        let host = if cfg!(target_os = "macos") {
+                            "darwin-x86_64" // NDK uses x86_64 even on ARM Mac
+                        } else if cfg!(target_os = "linux") {
+                            "linux-x86_64"
+                        } else if cfg!(target_os = "windows") {
+                            "windows-x86_64"
+                        } else {
+                            "linux-x86_64"
+                        };
+                        format!(
+                            "{}/toolchains/llvm/prebuilt/{}/sysroot/usr/lib/{}",
+                            ndk, host, arch_lib_dir
+                        )
+                    })
+                });
+
+            if let Some(lib_path) = ndk_lib_path {
+                println!("cargo:rustc-link-search=native={}", lib_path);
+            }
+            println!("cargo:rustc-link-lib=static=c++abi");
+        }
+
         "ios" => {
             expat_config
                 .define("XML_DEV_URANDOM", None)
