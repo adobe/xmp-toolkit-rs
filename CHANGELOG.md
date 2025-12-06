@@ -16,7 +16,6 @@ _06 December 2025_
 * Update to latest (unreleased) C++ XMP Toolkit ([#281](https://github.com/adobe/xmp-toolkit-rs/pull/281))
 * Bump MSRV to 1.88.0 ([#279](https://github.com/adobe/xmp-toolkit-rs/pull/279))
 
-
 ### Other
 
 * Update dinghy-test requirement from 0.7 to 0.8 ([#283](https://github.com/adobe/xmp-toolkit-rs/pull/283))
@@ -28,7 +27,6 @@ _08 September 2025_
 
 * Update to 2025.03 C++ XMP Toolkit ([#269](https://github.com/adobe/xmp-toolkit-rs/pull/269))
 * Bump MSRV to 1.82.0 ([#272](https://github.com/adobe/xmp-toolkit-rs/pull/272))
-
 
 ### Fixed
 
