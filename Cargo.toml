@@ -51,4 +51,4 @@ tokio = { version = "1.39", features = ["full"] }
 tokio-macros = "2.4"
 
 [target.'cfg(target_os = "ios")'.dev-dependencies]
-dinghy-test = "0.7"
+dinghy-test = "0.8"
