@@ -401,7 +401,7 @@ jobs:
       - name: Preflight docs.rs
         env:
           RUSTDOCFLAGS: -Dwarnings
-        run: cargo docs-rs -p jumbf
+        run: cargo docs-rs -p xmp_toolkit
 
   internal_docs:
     name: Verify internal crate documentation
