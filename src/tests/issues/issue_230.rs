@@ -21,7 +21,7 @@
 use std::thread::sleep;
 
 use futures::stream::StreamExt;
-use rand::{rng, Rng};
+use rand::{rng, RngExt};
 use tempfile::tempdir;
 use tokio::task::spawn_blocking;
 use tokio_macros::test;
