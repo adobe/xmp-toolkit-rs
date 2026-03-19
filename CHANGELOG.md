@@ -10,7 +10,6 @@ Since version 1.9.1, the format of this changelog is based on [Keep a Changelog]
 ## [1.12.1](https://github.com/adobe/xmp-toolkit-rs/compare/v1.12.0...v1.12.1)
 _19 March 2026_
 
-
 ### Fixed
 
 * Pass NULL value for struct/array nodes in array item functions ([#287](https://github.com/adobe/xmp-toolkit-rs/pull/287))
