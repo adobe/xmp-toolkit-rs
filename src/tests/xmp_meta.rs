@@ -1372,8 +1372,12 @@ mod set_property {
 
         XmpMeta::register_namespace("ns:test/", "test").unwrap();
 
-        m.set_property("ns:test/", "MyStruct", &(XmpValue::from("").set_is_struct(true)))
-            .unwrap();
+        m.set_property(
+            "ns:test/",
+            "MyStruct",
+            &(XmpValue::from("").set_is_struct(true)),
+        )
+        .unwrap();
 
         m.set_property("ns:test/", "MyStruct/test:Field1", &"value1".into())
             .unwrap();
@@ -2186,8 +2190,12 @@ mod set_array_item {
         XmpMeta::register_namespace("ns:test/", "test").unwrap();
 
         // Create an array with a simple item.
-        m.set_property("ns:test/", "MyArray", &(XmpValue::from("").set_is_array(true)))
-            .unwrap();
+        m.set_property(
+            "ns:test/",
+            "MyArray",
+            &(XmpValue::from("").set_is_array(true)),
+        )
+        .unwrap();
 
         m.set_array_item(
             "ns:test/",
