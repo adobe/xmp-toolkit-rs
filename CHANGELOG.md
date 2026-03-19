@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Since version 1.9.1, the format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.12.1](https://github.com/adobe/xmp-toolkit-rs/compare/v1.12.0...v1.12.1)
+_19 March 2026_
+
+### Fixed
+
+* Pass NULL value for struct/array nodes in array item functions ([#287](https://github.com/adobe/xmp-toolkit-rs/pull/287))
+
+### Other
+
+* Update rand requirement from 0.9.1 to 0.10.0 ([#286](https://github.com/adobe/xmp-toolkit-rs/pull/286))
+
 ## [1.12.0](https://github.com/adobe/xmp-toolkit-rs/compare/v1.11.0...v1.12.0)
 _06 December 2025_
 
