@@ -13,6 +13,7 @@ edition = "2021"
 rust-version = "1.88.0"
 links = "xmp_toolkit"
 exclude = [
+  ".github",
   "external/libexpat/testdata",
   "external/xmp_toolkit/docs",
   "external/xmp_toolkit/samples",
@@ -22,6 +23,7 @@ exclude = [
   "external/xmp_toolkit/third-party/zlib/*.h",
   "external/xmp_toolkit/third-party/expat/lib",
   "external/xmp_toolkit/XMPFilesPlugins/PDF_Handler",
+  "src/tests",
 ]
 
 [package.metadata.docs.rs]
