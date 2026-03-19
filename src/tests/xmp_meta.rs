@@ -1367,6 +1367,26 @@ mod set_property {
     }
 
     #[test]
+    fn empty_string_is_struct() {
+        let mut m = XmpMeta::default();
+
+        XmpMeta::register_namespace("ns:test/", "test").unwrap();
+
+        m.set_property("ns:test/", "MyStruct", &(XmpValue::from("").set_is_struct(true)))
+            .unwrap();
+
+        m.set_property("ns:test/", "MyStruct/test:Field1", &"value1".into())
+            .unwrap();
+
+        let prop = m.property("ns:test/", "MyStruct").unwrap();
+        assert!(prop.is_struct());
+        assert!(prop.value.is_empty());
+
+        let field = m.property("ns:test/", "MyStruct/test:Field1").unwrap();
+        assert_eq!(field.value, "value1");
+    }
+
+    #[test]
     fn error_empty_name() {
         let mut m = XmpMeta::from_file(fixture_path("Purple Square.psd")).unwrap();
 
@@ -2160,6 +2180,44 @@ mod set_array_item {
     }
 
     #[test]
+    fn insert_struct_item() {
+        let mut m = XmpMeta::default();
+
+        XmpMeta::register_namespace("ns:test/", "test").unwrap();
+
+        // Create an array with a simple item.
+        m.set_property("ns:test/", "MyArray", &(XmpValue::from("").set_is_array(true)))
+            .unwrap();
+
+        m.set_array_item(
+            "ns:test/",
+            "MyArray",
+            ItemPlacement::ReplaceItemAtIndex(1),
+            &"simple value".into(),
+        )
+        .unwrap();
+
+        // Insert a struct item after the first (empty value with struct flag).
+        m.set_array_item(
+            "ns:test/",
+            "MyArray",
+            ItemPlacement::InsertAfterIndex(1),
+            &(XmpValue::from("").set_is_struct(true)),
+        )
+        .unwrap();
+
+        // Set a field on the struct item.
+        m.set_property("ns:test/", "MyArray[2]/test:Field1", &"value1".into())
+            .unwrap();
+
+        let item = m.property("ns:test/", "MyArray[2]").unwrap();
+        assert!(item.is_struct());
+
+        let field = m.property("ns:test/", "MyArray[2]/test:Field1").unwrap();
+        assert_eq!(field.value, "value1");
+    }
+
+    #[test]
     fn error_empty_array_name() {
         let mut m = XmpMeta::default();
 
@@ -2307,6 +2365,31 @@ mod append_array_item {
             .unwrap_err();
 
         assert_eq!(err.error_type, XmpErrorType::NoCppToolkit);
+    }
+
+    #[test]
+    fn append_struct_item_with_empty_value() {
+        let mut m = XmpMeta::default();
+
+        XmpMeta::register_namespace("ns:test/", "test").unwrap();
+
+        // Create an array and append a struct item (empty value with struct flag).
+        m.append_array_item(
+            "ns:test/",
+            &XmpValue::from("MyArray").set_is_ordered(true),
+            &(XmpValue::from("").set_is_struct(true)),
+        )
+        .unwrap();
+
+        // Set a field on the struct item we just appended.
+        m.set_property("ns:test/", "MyArray[1]/test:Field1", &"value1".into())
+            .unwrap();
+
+        let item = m.property("ns:test/", "MyArray[1]").unwrap();
+        assert!(item.is_struct());
+
+        let field = m.property("ns:test/", "MyArray[1]/test:Field1").unwrap();
+        assert_eq!(field.value, "value1");
     }
 
     #[test]

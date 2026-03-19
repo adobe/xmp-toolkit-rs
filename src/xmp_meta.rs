@@ -1048,7 +1048,11 @@ impl XmpMeta {
                     c_ns.as_ptr(),
                     c_array_name.as_ptr(),
                     item_index,
-                    c_item_value.as_ptr(),
+                    if item_value.value.is_empty() {
+                        std::ptr::null()
+                    } else {
+                        c_item_value.as_ptr()
+                    },
                     options,
                 );
             }
@@ -1096,7 +1100,11 @@ impl XmpMeta {
                     c_ns.as_ptr(),
                     c_array_name.as_ptr(),
                     array_name.options,
-                    c_item_value.as_ptr(),
+                    if item_value.value.is_empty() {
+                        std::ptr::null()
+                    } else {
+                        c_item_value.as_ptr()
+                    },
                     item_value.options,
                 );
             }
