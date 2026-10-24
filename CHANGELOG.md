@@ -7,12 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Since version 1.9.1, the format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
-
-### Changed
-
-* Bump minimum supported Rust version (MSRV) to 1.96.0.
-
 ## [1.12.1](https://github.com/adobe/xmp-toolkit-rs/compare/v1.12.0...v1.12.1)
 _19 March 2026_
 

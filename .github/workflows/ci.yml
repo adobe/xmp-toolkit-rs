@@ -253,14 +253,14 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2025-12-06
+          toolchain: nightly-2026-07-12
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
 
       - name: Run tests
         run: |
-          cargo +nightly-2025-12-06 test -Z direct-minimal-versions --all-targets --all-features
+          cargo +nightly-2026-07-12 test -Z direct-minimal-versions --all-targets --all-features
 
   publish-preflight:
     name: Preflight crate publish
@@ -480,7 +480,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly-2025-12-06
+          toolchain: nightly-2026-07-12
           # Pinning to specific nightly build for now. More recent versions
           # introduce a lifetime check that creates a whole slew of build
           # errors.
