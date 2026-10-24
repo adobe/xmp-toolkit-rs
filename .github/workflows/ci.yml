@@ -32,7 +32,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        rust_version: [stable, 1.88.0]
+        rust_version: [stable, 1.96.0]
 
     steps:
       - name: Checkout repository
@@ -152,7 +152,7 @@ jobs:
       fail-fast: false
       matrix:
         target: [aarch64-unknown-linux-gnu]
-        rust_version: [stable, 1.88.0]
+        rust_version: [stable, 1.96.0]
 
     steps:
       - name: Checkout repository
@@ -197,7 +197,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.88.0
+          toolchain: 1.96.0
           targets: aarch64-apple-ios-sim
 
       - name: Install cargo-dinghy
@@ -389,7 +389,7 @@ jobs:
       - name: Install Rust toolchain
         # Nightly is used here because the docs.rs build
         # uses nightly and we use doc_cfg features that are
-        # not in stable Rust as of this writing (Rust 1.88).
+        # not in stable Rust as of this writing (Rust 1.96).
         uses: dtolnay/rust-toolchain@nightly
 
       - name: Cache Rust dependencies
@@ -422,7 +422,7 @@ jobs:
 
       - name: Install nightly Rust toolchain
         # Nightly is used here because we use doc_cfg features
-        # that are not in stable Rust as of this writing (Rust 1.88).
+        # that are not in stable Rust as of this writing (Rust 1.96).
         uses: dtolnay/rust-toolchain@nightly
 
       - name: Preflight cargo doc
