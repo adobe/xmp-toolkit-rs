@@ -17,6 +17,9 @@ version = 2
 [bans]
 multiple-versions = "deny"
 wildcards = "deny"
+skip = [
+  { crate = "syn@3.0.9", reason = "Required by current proc-macro dependencies alongside syn 2." },
+]
 
 [licenses]
 version = 2
