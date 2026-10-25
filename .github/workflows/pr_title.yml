@@ -1,5 +1,8 @@
 name: PR title
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
@@ -11,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Check PR title
         env:
@@ -86,10 +89,9 @@ jobs:
           cargo install --quiet commitlint-rs
           set -e
 
-          echo  
-          echo  
-          echo --- commitlint results for PR title \"$PR_TITLE\" ---
-          echo  
+          printf '\n\n'
+          printf '%s\n' "--- commitlint results for PR title \"$PR_TITLE\" ---"
+          printf '\n'
 
           echo "$PR_TITLE" | commitlint -g .commitlintrc.yml
 
