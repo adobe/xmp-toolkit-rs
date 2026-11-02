@@ -34,7 +34,7 @@ jobs:
         run: git submodule init && git submodule update
   
       - name: Run release-plz
-        uses: MarcoIeni/release-plz-action@8921286633dfa0c4020f7f30bd1c14fe19cbb10 # v0.5.142
+        uses: MarcoIeni/release-plz-action@f5cc4d970be6a3397caf8469d9c2a544be4759c0 # v0.5.142
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_SECRET }}
