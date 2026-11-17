@@ -63,7 +63,7 @@ jobs:
         run: cargo llvm-cov --lib --all-features --lcov --ignore-filename-regex tests --output-path lcov.info
 
       - name: Filter out tests
-        uses: scouten/uncover-tests@33042d179886791f4de35ca390b95abb82f0e347 # v1
+        uses: scouten/uncover-tests@33042d179886791f4de35ca390b95abb82f0e347 # v1.1.2
         with:
           input-file: lcov.info
           output-file: lcov.filtered.info
